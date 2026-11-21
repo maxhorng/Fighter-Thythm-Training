@@ -1,0 +1,210 @@
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { ComboData, ControlMode, KeyBindingMap, StartTriggerMode } from './types/combo';
+import { BUILTIN_COMBOS } from './data/combos';
+import { DEFAULT_BINDINGS } from './data/bindings';
+import { MenuView } from './components/MenuView';
+import { OverlayView } from './components/OverlayView';
+import { RecordOverlayView } from './components/RecordOverlayView';
+
+const STORAGE_KEY_BINDINGS = 'fmc_bindings_v1';
+const STORAGE_KEY_CUSTOM_COMBOS = 'fmc_custom_combos_v1';
+
+function loadBindings(): KeyBindingMap {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_BINDINGS);
+    if (raw) {
+      return { ...DEFAULT_BINDINGS, ...JSON.parse(raw) };
+    }
+  } catch {
+    // ignore
+  }
+  return { ...DEFAULT_BINDINGS };
+}
+
+function loadCustomCombos(): ComboData[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_CUSTOM_COMBOS);
+    if (raw) return JSON.parse(raw) as ComboData[];
+  } catch {
+    // ignore
+  }
+  return [];
+}
+
+export const App: React.FC = () => {
+  const [mode, setMode] = useState<ControlMode>('classic');
+  const [customCombos, setCustomCombos] = useState<ComboData[]>(loadCustomCombos);
+  const allCombos = [...BUILTIN_COMBOS, ...customCombos];
+  const [selectedCombo, setSelectedCombo] = useState<ComboData>(BUILTIN_COMBOS[0]);
+  const [bindings, setBindings] = useState<KeyBindingMap>(loadBindings);
+  const [triggerMode, setTriggerMode] = useState<StartTriggerMode>('trigger-first');
+  const [isOverlayMode, setIsOverlayMode] = useState(false);
+  const [isRecordingMode, setIsRecordingMode] = useState(false);
+  const [recordingCharId, setRecordingCharId] = useState<string>('ryu');
+  const [isClickThrough, setIsClickThrough] = useState(false);
+  const recordedDraftRef = useRef<ComboData | null>(null);
+  const isRecordingModeRef = useRef(false);
+  isRecordingModeRef.current = isRecordingMode;
+
+  const handleAddCombo = useCallback((combo: ComboData) => {
+    setCustomCombos((prev) => {
+      const next = [...prev, combo];
+      try {
+        localStorage.setItem(STORAGE_KEY_CUSTOM_COMBOS, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+    setSelectedCombo(combo);
+  }, []);
+
+  const handleDeleteCombo = useCallback((comboId: string) => {
+    setCustomCombos((prev) => {
+      const next = prev.filter((c) => c.id !== comboId);
+      try {
+        localStorage.setItem(STORAGE_KEY_CUSTOM_COMBOS, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+    setSelectedCombo((curr) => (curr.id === comboId ? BUILTIN_COMBOS[0] : curr));
+  }, []);
+
+  const commitRecordedDraftIfAny = useCallback(() => {
+    if (isRecordingModeRef.current && recordedDraftRef.current) {
+      const combo = recordedDraftRef.current;
+      recordedDraftRef.current = null;
+      handleAddCombo(combo);
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(JSON.stringify(combo, null, 2)).catch(() => {});
+      }
+    }
+    setIsRecordingMode(false);
+  }, [handleAddCombo]);
+
+  const handleChangeBindings = (next: KeyBindingMap) => {
+    setBindings(next);
+    try {
+      localStorage.setItem(STORAGE_KEY_BINDINGS, JSON.stringify(next));
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    const unsubState = window.electronAPI?.onOverlayStateChanged((state) => {
+      if (!state.isOverlayMode) {
+        commitRecordedDraftIfAny();
+      }
+      setIsOverlayMode(state.isOverlayMode);
+      setIsClickThrough(state.isClickThrough);
+    });
+    const unsubHotkey = window.electronAPI?.onHotkey((action) => {
+      if (action === 'EXIT_OVERLAY') {
+        commitRecordedDraftIfAny();
+        setIsOverlayMode(false);
+        setIsClickThrough(false);
+      }
+    });
+    return () => {
+      unsubState?.();
+      unsubHotkey?.();
+    };
+  }, [commitRecordedDraftIfAny]);
+
+  const handleStartOverlay = async () => {
+    setIsRecordingMode(false);
+    if (window.electronAPI) {
+      const state = await window.electronAPI.setOverlayMode(true);
+      setIsOverlayMode(state.isOverlayMode);
+      setIsClickThrough(state.isClickThrough);
+    } else {
+      setIsOverlayMode(true);
+      setIsClickThrough(false);
+    }
+  };
+
+  const handleStartRecording = async (charId: string) => {
+    setRecordingCharId(charId);
+    setIsRecordingMode(true);
+    if (window.electronAPI) {
+      const state = await window.electronAPI.setOverlayMode(true);
+      setIsOverlayMode(state.isOverlayMode);
+      setIsClickThrough(state.isClickThrough);
+    } else {
+      setIsOverlayMode(true);
+      setIsClickThrough(false);
+    }
+  };
+
+  const handleExitOverlay = async () => {
+    setIsRecordingMode(false);
+    if (window.electronAPI) {
+      const state = await window.electronAPI.setOverlayMode(false);
+      setIsOverlayMode(state.isOverlayMode);
+      setIsClickThrough(state.isClickThrough);
+    } else {
+      setIsOverlayMode(false);
+      setIsClickThrough(false);
+    }
+  };
+
+  const handleSyncDraft = useCallback((combo: ComboData | null) => {
+    recordedDraftRef.current = combo;
+  }, []);
+
+  const handleFinishRecord = async (combo: ComboData | null) => {
+    recordedDraftRef.current = combo;
+    commitRecordedDraftIfAny();
+    await handleExitOverlay();
+  };
+
+  if (isOverlayMode && isRecordingMode) {
+    return (
+      <RecordOverlayView
+        mode={mode}
+        characterId={recordingCharId}
+        bindings={bindings}
+        isClickThrough={isClickThrough}
+        onSyncDraft={handleSyncDraft}
+        onFinishRecord={handleFinishRecord}
+      />
+    );
+  }
+
+  if (isOverlayMode) {
+    return (
+      <OverlayView
+        mode={mode}
+        combo={selectedCombo}
+        bindings={bindings}
+        triggerMode={triggerMode}
+        isClickThrough={isClickThrough}
+        onExitOverlay={handleExitOverlay}
+      />
+    );
+  }
+
+  return (
+    <MenuView
+      mode={mode}
+      onChangeMode={setMode}
+      combos={allCombos}
+      customComboIds={new Set(customCombos.map((c) => c.id))}
+      selectedCombo={selectedCombo}
+      onSelectCombo={setSelectedCombo}
+      onAddCombo={handleAddCombo}
+      onDeleteCombo={handleDeleteCombo}
+      bindings={bindings}
+      onChangeBindings={handleChangeBindings}
+      triggerMode={triggerMode}
+      onChangeTriggerMode={setTriggerMode}
+      onStartOverlay={handleStartOverlay}
+      onStartRecording={handleStartRecording}
+    />
+  );
+};
+
+export default App;

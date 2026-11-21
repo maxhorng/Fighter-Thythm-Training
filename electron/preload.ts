@@ -1,0 +1,35 @@
+import { contextBridge, ipcRenderer } from 'electron';
+
+export interface OverlayState {
+  isOverlayMode: boolean;
+  isClickThrough: boolean;
+}
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  setOverlayMode: (enabled: boolean): Promise<OverlayState> =>
+    ipcRenderer.invoke('set-overlay-mode', enabled),
+  setClickThrough: (enabled: boolean): Promise<boolean> =>
+    ipcRenderer.invoke('set-click-through', enabled),
+  minimizeWindow: (): Promise<void> => ipcRenderer.invoke('window-minimize'),
+  closeWindow: (): Promise<void> => ipcRenderer.invoke('window-close'),
+  onGlobalKeyDown: (callback: (code: string) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, code: string) => callback(code);
+    ipcRenderer.on('global-keydown', handler);
+    return () => ipcRenderer.removeListener('global-keydown', handler);
+  },
+  onGlobalKeyUp: (callback: (code: string) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, code: string) => callback(code);
+    ipcRenderer.on('global-keyup', handler);
+    return () => ipcRenderer.removeListener('global-keyup', handler);
+  },
+  onOverlayStateChanged: (callback: (state: OverlayState) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: OverlayState) => callback(state);
+    ipcRenderer.on('overlay-state-changed', handler);
+    return () => ipcRenderer.removeListener('overlay-state-changed', handler);
+  },
+  onHotkey: (callback: (action: string) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, action: string) => callback(action);
+    ipcRenderer.on('hotkey', handler);
+    return () => ipcRenderer.removeListener('hotkey', handler);
+  },
+});
