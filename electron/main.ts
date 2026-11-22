@@ -55,6 +55,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1120,
     height: 760,
+    icon: path.join(__dirname, '../build/icon.png'),
     transparent: true,
     frame: false,
     backgroundColor: '#00000000',

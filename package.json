@@ -44,6 +44,7 @@
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
+      "build/icon.png",
       "package.json"
     ],
     "asarUnpack": [
@@ -51,6 +52,7 @@
       "**/koffi/**"
     ],
     "win": {
+      "icon": "build/icon.png",
       "target": [
         {
           "target": "portable",

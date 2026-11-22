@@ -150,7 +150,11 @@ export const MenuView: React.FC<MenuViewProps> = ({
       {/* Custom Titlebar */}
       <header className="titlebar">
         <div className="titlebar-brand">
-          <Sparkles size={18} className="brand-icon" />
+          <img
+            src="./icon.png"
+            alt="RhythmCombo Trainer"
+            style={{ width: 22, height: 22, borderRadius: 6, objectFit: 'cover' }}
+          />
           <span className="brand-title">RHYTHMCOMBO TRAINER</span>
           <span className="brand-badge">{t.betaBadge}</span>
           <span style={{ fontSize: 11.5, color: '#94a3b8', marginLeft: 4 }}>
