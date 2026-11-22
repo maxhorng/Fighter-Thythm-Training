@@ -81,6 +81,14 @@ npm run dist:win  # 打包 Windows 免安裝 .exe（輸出於 release/）
 
 ---
 
+## ☕ 贊助支持 (Support — Optional)
+
+本工具**完全免費使用**！如果這個小工具幫你成功接出練很久的連段，歡迎隨喜請作者喝杯咖啡：
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/92liang)
+
+---
+
 ## 📄 Disclaimer / 免責聲明
 
 本工具為純視覺節奏練習輔助軟體，**不包含任何巨集（Macro）、自動出招或記憶體讀取/修改功能**，僅供個人於訓練場練習連段節奏使用。
