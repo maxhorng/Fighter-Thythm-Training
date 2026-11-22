@@ -37,7 +37,7 @@
   },
   "build": {
     "appId": "com.maxhorng.fighterthythmtraining",
-    "productName": "Fighter Thythm Training",
+    "productName": "RhythmCombo Trainer",
     "directories": {
       "output": "release"
     },
@@ -59,7 +59,7 @@
           ]
         }
       ],
-      "artifactName": "Fighter-Thythm-Training-${version}-win-portable.exe"
+      "artifactName": "RhythmCombo-Trainer-${version}-win-portable.exe"
     }
   }
 }

@@ -1,4 +1,4 @@
-# Fighter Thythm Training (Beta)
+# RhythmCombo Trainer (Beta)
 
 **Street Fighter 6 · osu!-Style Transparent Rhythm Combo Trainer Overlay**  
 **快打旋風 6 · osu! 風格透明覆蓋節奏連段訓練器**
@@ -36,7 +36,7 @@
 
 ### 步驟 1：下載免安裝執行檔
 1. 點擊上方 **[永久最新版下載連結](https://github.com/maxhorng/Fighter-Thythm-Training/releases/latest)**。
-2. 滑到頁面下方 **Assets**，下載 **`Fighter-Thythm-Training-*-win-portable.exe`**。
+2. 滑到頁面下方 **Assets**，下載 **`RhythmCombo-Trainer-*-win-portable.exe`**。
 3. 直接雙擊執行即可（**免安裝、不需要裝 Node.js**）。
 
 > **如果 Windows 跳出「Windows 已保護您的電腦」藍色視窗：**  
