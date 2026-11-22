@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Play,
   Settings,
@@ -27,8 +27,11 @@ import { KeybindPanel } from './KeybindPanel';
 import { ImportComboModal } from './ImportComboModal';
 import { TutorialModal } from './TutorialModal';
 import { useInputEngine } from '../hooks/useInputEngine';
+import pkg from '../../package.json';
 
 const STORAGE_KEY_SEEN_TUTORIAL = 'fmc_seen_tutorial_v1';
+const CURRENT_VERSION_TAG = `v${pkg.version}`;
+const RELEASES_LATEST_URL = 'https://github.com/maxhorng/Fighter-Thythm-Training/releases/latest';
 
 interface MenuViewProps {
   mode: ControlMode;
@@ -92,6 +95,27 @@ export const MenuView: React.FC<MenuViewProps> = ({
   });
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
+  const [latestReleaseTag, setLatestReleaseTag] = useState<string | null>(null);
+  const [updateDismissed, setUpdateDismissed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('https://api.github.com/repos/maxhorng/Fighter-Thythm-Training/releases/latest', {
+      headers: { Accept: 'application/vnd.github+json' },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data && typeof data.tag_name === 'string' && data.tag_name !== CURRENT_VERSION_TAG) {
+          setLatestReleaseTag(data.tag_name);
+        }
+      })
+      .catch(() => {
+        // Offline or rate-limited — fail silently
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleCopyJson = (e: React.MouseEvent, combo: ComboData) => {
     e.stopPropagation();
@@ -205,6 +229,53 @@ export const MenuView: React.FC<MenuViewProps> = ({
           </button>
         </div>
       </header>
+
+      {latestReleaseTag && !updateDismissed && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            padding: '7px 16px',
+            background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.22), rgba(168, 85, 247, 0.22))',
+            borderBottom: '1px solid rgba(56, 189, 248, 0.45)',
+            fontSize: 12.5,
+            color: '#e0f2fe',
+          }}
+        >
+          <span>
+            {lang === 'en'
+              ? `New version ${latestReleaseTag} is available! (Current: ${CURRENT_VERSION_TAG})`
+              : `發現新版本 ${latestReleaseTag}！（目前版本：${CURRENT_VERSION_TAG}）`}
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+              className="btn-secondary"
+              style={{
+                padding: '3px 10px',
+                fontSize: 11.5,
+                background: 'rgba(56, 189, 248, 0.28)',
+                borderColor: '#38bdf8',
+                color: '#ffffff',
+                fontWeight: 800,
+              }}
+              onClick={() => window.open(RELEASES_LATEST_URL, '_blank')}
+            >
+              <Download size={12} />
+              {lang === 'en' ? 'Download Update' : '前往下載新版'}
+            </button>
+            <button
+              className="btn-icon"
+              style={{ width: 22, height: 22 }}
+              onClick={() => setUpdateDismissed(true)}
+              title={lang === 'en' ? 'Dismiss' : '關閉提示'}
+            >
+              <X size={13} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <main className="menu-body">
         {/* Left Column: Control Mode + Character */}

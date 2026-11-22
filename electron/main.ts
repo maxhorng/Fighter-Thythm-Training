@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, screen } from 'electron';
+import { app, BrowserWindow, globalShortcut, ipcMain, screen, shell } from 'electron';
 import path from 'path';
 
 let mainWindow: BrowserWindow | null = null;
@@ -83,6 +83,13 @@ function createWindow() {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('https://github.com/') || url.startsWith('https://ko-fi.com/')) {
+      shell.openExternal(url);
+    }
+    return { action: 'deny' };
   });
 }
 
