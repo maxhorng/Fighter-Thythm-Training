@@ -206,6 +206,23 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
                     : formatKeyCode(overlayHotkeys.exitOverlay)}
                 </button>
               </div>
+              <div className="keybind-row" style={{ margin: 0, gridColumn: '1 / -1' }}>
+                <div className="keybind-label" style={{ fontSize: 12.5 }}>
+                  <span>{t.toggleReviewLabel}</span>
+                </div>
+                <button
+                  className={`bind-chip ${capturing?.kind === 'hotkey' && capturing.field === 'toggleReview' ? 'capturing' : ''}`}
+                  onClick={(e) => {
+                    e.currentTarget.blur();
+                    setCapturing({ kind: 'hotkey', field: 'toggleReview' });
+                  }}
+                >
+                  <Keyboard size={13} />
+                  {capturing?.kind === 'hotkey' && capturing.field === 'toggleReview'
+                    ? t.pressAnyKey
+                    : formatKeyCode(overlayHotkeys.toggleReview || 'F7')}
+                </button>
+              </div>
             </div>
           </div>
         </div>

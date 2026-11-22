@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('set-overlay-mode', enabled),
   setClickThrough: (enabled: boolean): Promise<boolean> =>
     ipcRenderer.invoke('set-click-through', enabled),
-  setHotkeys: (hotkeys: { clickThrough?: string; exitOverlay?: string; restart?: string }): Promise<void> =>
+  setHotkeys: (hotkeys: { clickThrough?: string; exitOverlay?: string; toggleReview?: string; restart?: string }): Promise<void> =>
     ipcRenderer.invoke('set-hotkeys', hotkeys),
   minimizeWindow: (): Promise<void> => ipcRenderer.invoke('window-minimize'),
   closeWindow: (): Promise<void> => ipcRenderer.invoke('window-close'),

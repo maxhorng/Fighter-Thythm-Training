@@ -664,6 +664,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     const unsub = window.electronAPI?.onHotkey((action) => {
       if (action === 'RESTART_COMBO') {
         resetRun();
+      } else if (action === 'TOGGLE_REVIEW') {
+        setShowReview((v) => !v);
       }
     });
     return () => unsub?.();

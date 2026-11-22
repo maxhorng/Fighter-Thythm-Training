@@ -3,11 +3,13 @@ export type AppLang = 'zh-TW' | 'en';
 export interface OverlayHotkeys {
   clickThrough: string; // KeyboardEvent.code, default 'F9'
   exitOverlay: string;  // KeyboardEvent.code, default 'F10'
+  toggleReview: string; // KeyboardEvent.code, default 'F7'
 }
 
 export const DEFAULT_OVERLAY_HOTKEYS: OverlayHotkeys = {
   clickThrough: 'F9',
   exitOverlay: 'F10',
+  toggleReview: 'F7',
 };
 
 export const I18N = {
@@ -52,6 +54,7 @@ export const I18N = {
     globalHotkeysTitle: '透明模式全域快捷鍵（系統層級，遊戲中隨時有效）',
     clickThroughLabel: '切換滑鼠穿透 (Click-Through)',
     exitOverlayLabel: '返回使用者選單 (Exit Overlay)',
+    toggleReviewLabel: '展開/收合當次連段檢討 (Review)',
     pressAnyKey: '請按下任意鍵...',
     pressGamepad: '請按手把鍵...',
     unbound: '未綁定',
@@ -97,6 +100,7 @@ export const I18N = {
     globalHotkeysTitle: 'Global Overlay Hotkeys (works even while SF6 is focused)',
     clickThroughLabel: 'Toggle Mouse Click-Through',
     exitOverlayLabel: 'Return to Main Menu',
+    toggleReviewLabel: 'Toggle Combo Review Dropdown',
     pressAnyKey: 'Press any key...',
     pressGamepad: 'Press button...',
     unbound: 'Unbound',

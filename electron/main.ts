@@ -144,12 +144,13 @@ function codeToAccelerator(code: string): string | null {
   return map[code] ?? null;
 }
 
-let currentHotkeys = { clickThrough: 'F9', exitOverlay: 'F10' };
+let currentHotkeys = { clickThrough: 'F9', exitOverlay: 'F10', toggleReview: 'F7' };
 
-function registerOverlayHotkeys(next: { clickThrough?: string; exitOverlay?: string }) {
+function registerOverlayHotkeys(next: { clickThrough?: string; exitOverlay?: string; toggleReview?: string }) {
   currentHotkeys = {
     clickThrough: next.clickThrough || currentHotkeys.clickThrough,
     exitOverlay: next.exitOverlay || currentHotkeys.exitOverlay,
+    toggleReview: next.toggleReview || currentHotkeys.toggleReview,
   };
   globalShortcut.unregisterAll();
 
@@ -172,6 +173,14 @@ function registerOverlayHotkeys(next: { clickThrough?: string; exitOverlay?: str
       if (!mainWindow || mainWindow.isDestroyed() || !isOverlayMode) return;
       applyOverlayMode(false);
       mainWindow.webContents.send('hotkey', 'EXIT_OVERLAY');
+    });
+  }
+
+  const reviewAcc = codeToAccelerator(currentHotkeys.toggleReview);
+  if (reviewAcc && reviewAcc !== ctAcc && reviewAcc !== exitAcc) {
+    globalShortcut.register(reviewAcc, () => {
+      if (!mainWindow || mainWindow.isDestroyed() || !isOverlayMode) return;
+      mainWindow.webContents.send('hotkey', 'TOGGLE_REVIEW');
     });
   }
   // Note: RESET / RESTART_COMBO is intentionally NOT registered via globalShortcut,

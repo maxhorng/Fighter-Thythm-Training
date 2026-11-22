@@ -160,6 +160,7 @@ export const App: React.FC = () => {
     window.electronAPI?.setHotkeys?.({
       clickThrough: overlayHotkeys.clickThrough,
       exitOverlay: overlayHotkeys.exitOverlay,
+      toggleReview: overlayHotkeys.toggleReview,
       restart: bindings.RESET?.keyboardCode || 'F8',
     });
   }, [overlayHotkeys, bindings.RESET?.keyboardCode]);
