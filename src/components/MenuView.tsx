@@ -473,9 +473,9 @@ export const MenuView: React.FC<MenuViewProps> = ({
                       </button>
                     )}
                     <span
-                      className={`diff-badge ${combo.difficulty === '極度Ultra困難' ? 'ultra' : combo.difficulty.toLowerCase()}`}
+                      className={`diff-badge ${combo.difficulty === 'Ultra Hard' ? 'ultra' : combo.difficulty.toLowerCase()}`}
                       style={
-                        combo.difficulty === '極度Ultra困難'
+                        combo.difficulty === 'Ultra Hard'
                           ? {
                               background: 'rgba(168, 85, 247, 0.24)',
                               color: '#e9d5ff',

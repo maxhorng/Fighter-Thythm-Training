@@ -3553,7 +3553,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'C. Viper',
     mode: 'classic',
     title: 'C. Viper 5HP 雙震地 (11 擊 · 256f)',
-    difficulty: '極度Ultra困難',
+    difficulty: 'Ultra Hard',
     description: '實機 60fps 錄製：HP(0f) → 7(15f) → 2147LK+HP(21f) → 2MP(44f) → 623HP+MP(55f) → 9(97f) → 2369MP(100f) → 9(136f) → 2369MK(139f) → 236MK+LK(195f) → 214214LK(256f)',
     tags: ['5HP 起始', '雙震地', 'TK 2147/2369', 'SA3', '實機錄製'],
     notes: [
@@ -3699,7 +3699,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'C. Viper',
     mode: 'classic',
     title: 'C. Viper 2HP 全資源綠衝連段 (17 擊 · 310f)',
-    difficulty: '極度Ultra困難',
+    difficulty: 'Ultra Hard',
     description: '實機 60fps 錄製：2HP(0f) → 214HP+LK(16f) → 2MP(40f) → PARRY(52f) → 2HP(73f) → 214LK+HP(87f) → 2HP(113f) → 4HP+LK(126f) → 2MP(154f) → PARRY(166f) → 2HP(187f) → 214HP+LK(204f) → 2HP(229f) → 214HP+LK(242f) → 2MP(269f) → 214MP(282f) → 214214LK(310f)',
     tags: ['2HP 起始', '全資源綠衝', 'SA3', '實機錄製'],
     notes: [
@@ -3806,7 +3806,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'C. Viper',
     mode: 'classic',
     title: 'C. Viper 2HP 震地+重腳大跳取消 OD 火腿 (9 擊 · 193f)',
-    difficulty: '極度Ultra困難',
+    difficulty: 'Ultra Hard',
     description: '實機 60fps 錄製：2HP(0f) → 623LP(13f) → 22LP(21f) → 9(53f) → 2369MK(57f) → HK(112f) → 9(131f) → 2369LK+MK(135f) → 214214HP(193f)',
     tags: ['2HP 起始', '震地', '重腳大跳取消', 'OD 火腿', '實機錄製'],
     notes: [
@@ -3913,7 +3913,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'C. Viper',
     mode: 'modern',
     title: 'C. Viper 2H 現代雙震地連段 (9 擊 · 198f)',
-    difficulty: '極度Ultra困難',
+    difficulty: 'Ultra Hard',
     description: '實機 60fps 錄製：2H(0f) → 623L+M(13f) → 22L+M(21f) → 9(56f) → 2369M(60f) → 9(91f) → 2369M(98f) → 236H+M(151f) → 2SP+H(198f)',
     tags: ['2H 起始', '現代雙震地', 'TK 2369', 'SA3', '實機錄製'],
     notes: [

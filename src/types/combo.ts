@@ -66,7 +66,7 @@ export interface ComboData {
   characterName: string;
   mode: ControlMode;
   title: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced' | '極度Ultra困難';
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced' | 'Ultra Hard';
   description: string;
   tags: string[];
   notes: ComboNote[];
