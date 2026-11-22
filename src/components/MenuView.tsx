@@ -11,6 +11,7 @@ import {
   Timer,
   Plus,
   Trash2,
+  HelpCircle,
 } from 'lucide-react';
 import {
   ComboData,
@@ -23,7 +24,10 @@ import { BUTTON_META, formatKeyCode } from '../data/bindings';
 import { AppLang, I18N, OverlayHotkeys } from '../data/i18n';
 import { KeybindPanel } from './KeybindPanel';
 import { ImportComboModal } from './ImportComboModal';
+import { TutorialModal } from './TutorialModal';
 import { useInputEngine } from '../hooks/useInputEngine';
+
+const STORAGE_KEY_SEEN_TUTORIAL = 'fmc_seen_tutorial_v1';
 
 interface MenuViewProps {
   mode: ControlMode;
@@ -74,6 +78,13 @@ export const MenuView: React.FC<MenuViewProps> = ({
   const [selectedCharId, setSelectedCharId] = useState<string>(selectedCombo.characterId);
   const [showKeybinds, setShowKeybinds] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [showTutorial, setShowTutorial] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY_SEEN_TUTORIAL) !== '1';
+    } catch {
+      return true;
+    }
+  });
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
 
@@ -140,6 +151,13 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 : '鍵盤 / 待偵測手把'}
             </span>
           </div>
+          <button
+            className="btn-secondary"
+            onClick={() => setShowTutorial(true)}
+          >
+            <HelpCircle size={15} />
+            {lang === 'en' ? 'Guide' : '使用教學'}
+          </button>
           <button
             className="btn-secondary"
             onClick={() => setShowKeybinds(true)}
@@ -435,6 +453,25 @@ export const MenuView: React.FC<MenuViewProps> = ({
           characterId={selectedCharId}
           onImport={onAddCombo}
           onClose={() => setShowImport(false)}
+        />
+      )}
+
+      {showTutorial && (
+        <TutorialModal
+          lang={lang}
+          onChangeLang={onChangeLang}
+          overlayHotkeys={overlayHotkeys}
+          resetKeyCode={bindings.RESET?.keyboardCode || 'F8'}
+          onClose={(dontShowAgain) => {
+            if (dontShowAgain) {
+              try {
+                localStorage.setItem(STORAGE_KEY_SEEN_TUTORIAL, '1');
+              } catch {
+                // ignore
+              }
+            }
+            setShowTutorial(false);
+          }}
         />
       )}
     </div>
