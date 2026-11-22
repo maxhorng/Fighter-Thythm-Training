@@ -31,7 +31,7 @@ import pkg from '../../package.json';
 
 const STORAGE_KEY_SEEN_TUTORIAL = 'fmc_seen_tutorial_v1';
 const CURRENT_VERSION_TAG = `v${pkg.version}`;
-const RELEASES_LATEST_URL = 'https://github.com/maxhorng/Fighter-Thythm-Training/releases/latest';
+const RELEASES_LATEST_URL = 'https://github.com/maxhorng/Rhythm-Combo-Trainer/releases/latest';
 
 interface MenuViewProps {
   mode: ControlMode;
@@ -100,7 +100,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
 
   useEffect(() => {
     let cancelled = false;
-    fetch('https://api.github.com/repos/maxhorng/Fighter-Thythm-Training/releases/latest', {
+    fetch('https://api.github.com/repos/maxhorng/Rhythm-Combo-Trainer/releases/latest', {
       headers: { Accept: 'application/vnd.github+json' },
     })
       .then((res) => (res.ok ? res.json() : null))

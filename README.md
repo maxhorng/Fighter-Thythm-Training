@@ -5,7 +5,7 @@
 
 > **Author / 作者**：`maxhorng / 92anini`  
 > **Latest Version / 最新版本**：`v0.2.0-beta.3`  
-> **Download / 永久最新版下載**：**[下載最新 Windows 免安裝 `.exe` (Releases Latest)](https://github.com/maxhorng/Fighter-Thythm-Training/releases/latest)**
+> **Download / 永久最新版下載**：**[下載最新 Windows 免安裝 `.exe` (Releases Latest)](https://github.com/maxhorng/Rhythm-Combo-Trainer/releases/latest)**
 
 ---
 
@@ -35,7 +35,7 @@
 ## 電腦小白快速使用教學（免安裝 `.exe`）
 
 ### 步驟 1：下載免安裝執行檔
-1. 點擊上方 **[永久最新版下載連結](https://github.com/maxhorng/Fighter-Thythm-Training/releases/latest)**。
+1. 點擊上方 **[永久最新版下載連結](https://github.com/maxhorng/Rhythm-Combo-Trainer/releases/latest)**。
 2. 滑到頁面下方 **Assets**，下載 **`RhythmCombo-Trainer-*-win-portable.exe`**。
 3. 直接雙擊執行即可（**免安裝、不需要裝 Node.js**）。
 
@@ -70,8 +70,8 @@
 ## 開發者本地執行 (For Developers)
 
 ```bash
-git clone https://github.com/maxhorng/Fighter-Thythm-Training.git
-cd Fighter-Thythm-Training
+git clone https://github.com/maxhorng/Rhythm-Combo-Trainer.git
+cd Rhythm-Combo-Trainer
 npm install
 npm run dev       # 開發模式啟動
 npm run dist:win  # 打包 Windows 免安裝 .exe（輸出於 release/）
