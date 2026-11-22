@@ -5,6 +5,7 @@ import { getButtonsForMode } from '../data/bindings';
 interface UseInputEngineOptions {
   mode: ControlMode;
   bindings: KeyBindingMap;
+  syncReactState?: boolean;
   onActionPress?: (button: ActionButtonId, activeButtons: Set<ActionButtonId>) => void;
   onActionRelease?: (button: ActionButtonId, activeButtons: Set<ActionButtonId>) => void;
   onRawKeyCapture?: (keyboardCode: string) => void;
@@ -14,6 +15,7 @@ interface UseInputEngineOptions {
 export function useInputEngine({
   mode,
   bindings,
+  syncReactState = true,
   onActionPress,
   onActionRelease,
   onRawKeyCapture,
@@ -25,6 +27,9 @@ export function useInputEngine({
   const pressedKeysRef = useRef<Set<string>>(new Set());
   const prevGamepadBtnsRef = useRef<Set<number>>(new Set());
   const prevActiveActionsRef = useRef<Set<ActionButtonId>>(new Set());
+  const syncReactStateRef = useRef(syncReactState);
+  syncReactStateRef.current = syncReactState;
+  const gamepadNameRef = useRef<string | null>(null);
 
   const callbacksRef = useRef({ onActionPress, onActionRelease, onRawKeyCapture, onRawGamepadCapture });
   callbacksRef.current = { onActionPress, onActionRelease, onRawKeyCapture, onRawGamepadCapture };
@@ -78,7 +83,7 @@ export function useInputEngine({
       }
 
       prevActiveActionsRef.current = nextActive;
-      if (changed) {
+      if (changed && syncReactStateRef.current) {
         setActiveButtons(new Set(nextActive));
       }
     };
@@ -120,20 +125,26 @@ export function useInputEngine({
     const unsubGlobalDown = window.electronAPI?.onGlobalKeyDown(handleKeyDown);
     const unsubGlobalUp = window.electronAPI?.onGlobalKeyUp(handleKeyUp);
 
-    // Gamepad 60fps+ polling loop
+    // Gamepad 60fps+ polling loop (only runs while a gamepad is connected)
     let rafId = 0;
-    const pollGamepads = () => {
+    let isPollingGamepad = false;
+
+    const getConnectedGamepad = (): Gamepad | null => {
       const pads = navigator.getGamepads ? navigator.getGamepads() : [];
-      let activePad: Gamepad | null = null;
       for (const p of pads) {
-        if (p && p.connected) {
-          activePad = p;
-          break;
-        }
+        if (p && p.connected) return p;
       }
+      return null;
+    };
+
+    const pollGamepads = () => {
+      const activePad = getConnectedGamepad();
 
       if (activePad) {
-        setGamepadName((prev) => (prev === activePad!.id ? prev : activePad!.id));
+        if (gamepadNameRef.current !== activePad.id) {
+          gamepadNameRef.current = activePad.id;
+          setGamepadName(activePad.id);
+        }
         const nextGpBtns = new Set<number>();
 
         activePad.buttons.forEach((btn, idx) => {
@@ -175,22 +186,60 @@ export function useInputEngine({
           prevGamepadBtnsRef.current = nextGpBtns;
           syncActiveActions();
         }
-      } else {
-        setGamepadName((prev) => (prev === null ? prev : null));
-      }
 
-      rafId = requestAnimationFrame(pollGamepads);
+        rafId = requestAnimationFrame(pollGamepads);
+      } else {
+        isPollingGamepad = false;
+        if (gamepadNameRef.current !== null) {
+          gamepadNameRef.current = null;
+          setGamepadName(null);
+        }
+        if (prevGamepadBtnsRef.current.size > 0) {
+          prevGamepadBtnsRef.current = new Set();
+          syncActiveActions();
+        }
+      }
     };
-    rafId = requestAnimationFrame(pollGamepads);
+
+    const startGamepadPolling = () => {
+      if (!isPollingGamepad) {
+        isPollingGamepad = true;
+        rafId = requestAnimationFrame(pollGamepads);
+      }
+    };
+
+    const onGamepadConnected = () => startGamepadPolling();
+    const onGamepadDisconnected = () => {
+      if (!getConnectedGamepad() && isPollingGamepad) {
+        cancelAnimationFrame(rafId);
+        isPollingGamepad = false;
+        if (gamepadNameRef.current !== null) {
+          gamepadNameRef.current = null;
+          setGamepadName(null);
+        }
+        if (prevGamepadBtnsRef.current.size > 0) {
+          prevGamepadBtnsRef.current = new Set();
+          syncActiveActions();
+        }
+      }
+    };
+
+    window.addEventListener('gamepadconnected', onGamepadConnected);
+    window.addEventListener('gamepaddisconnected', onGamepadDisconnected);
+    if (getConnectedGamepad()) {
+      startGamepadPolling();
+    }
 
     return () => {
       window.removeEventListener('keydown', onWinKeyDown);
       window.removeEventListener('keyup', onWinKeyUp);
+      window.removeEventListener('gamepadconnected', onGamepadConnected);
+      window.removeEventListener('gamepaddisconnected', onGamepadDisconnected);
       unsubGlobalDown?.();
       unsubGlobalUp?.();
       cancelAnimationFrame(rafId);
     };
   }, []);
 
-  return { activeButtons, gamepadName };
+  return { activeButtons, activeButtonsRef: prevActiveActionsRef, gamepadName };
 }

@@ -8,7 +8,7 @@ export type ModernAttackId = 'L' | 'M' | 'H' | 'SP' | 'AUTO' | 'PARRY' | 'DI' | 
 
 export type ActionButtonId = DirectionButtonId | ClassicAttackId | ModernAttackId;
 
-export type MotionType = '236' | '214' | '623' | '6214' | '22' | '66' | '46' | '28' | '360' | '720';
+export type MotionType = '236' | '214' | '623' | '6214' | '22' | '66' | '44' | '46' | '4646' | '28' | '360' | '720';
 
 export interface ButtonMeta {
   id: ActionButtonId;

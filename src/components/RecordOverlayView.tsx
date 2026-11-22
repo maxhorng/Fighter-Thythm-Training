@@ -141,8 +141,12 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
       const now = performance.now();
 
       // Synchronously record every direction press into dirHistoryRef so fast 1-frame
-      // 236 / 214 / 623 / 66 inputs are never lost to React state batching!
+      // 236 / 214 / 623 / 66 / [4]6 / [2]8 inputs are never lost to React state batching!
       if (DIRECTION_IDS.has(pressedBtn)) {
+        const ch = chargeRef.current;
+        if (pressedBtn === 'LEFT' && ch.backStart === null) ch.backStart = now;
+        if (pressedBtn === 'DOWN' && ch.downStart === null) ch.downStart = now;
+
         const up = activeSet.has('UP');
         const down = activeSet.has('DOWN');
         const left = activeSet.has('LEFT');
@@ -244,6 +248,33 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
             });
           }
         }
+        if (pressedBtn === 'LEFT' && d === '4') {
+          const recentBackdash = hist.filter((h) => now - h.t <= 240).map((h) => h.dir).join('');
+          if (/45+4$/.test(recentBackdash)) {
+            if (startTimeRef.current === null) {
+              startTimeRef.current = now;
+            }
+            const frame = Math.round((now - startTimeRef.current) / FRAME_MS);
+            setRecordedNotes((prev) => {
+              const last = prev[prev.length - 1];
+              if (last && last.motion === '44' && frame - last.frame <= 12) return prev;
+              const idx = prev.length;
+              return [
+                ...prev,
+                {
+                  id: `rec-${idx + 1}`,
+                  frame,
+                  buttons: ['LEFT'],
+                  motion: '44',
+                  notation: '44',
+                  moveName: `44 後衝 (${frame}f)`,
+                  x: SLOTS_X[idx % SLOTS_X.length],
+                  y: 0.50,
+                },
+              ];
+            });
+          }
+        }
         return;
       }
 
@@ -298,11 +329,20 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
       const seq = recentDirs.join('');
 
       // Check SF6 charge thresholds (~38f = 630ms minimum charge; button within ~120ms / 7f after release)
+      // Also check active backStart/downStart in case release + press happened on the exact same frame (including 1st hit!)
       const ch = chargeRef.current;
       const hasBackCharge =
-        ch.lastBackChargeMs >= 630 && now - ch.lastBackReleaseTime <= 350;
+        (ch.lastBackChargeMs >= 630 && now - ch.lastBackReleaseTime <= 350) ||
+        (ch.backStart !== null && now - ch.backStart >= 630);
       const hasDownCharge =
-        ch.lastDownChargeMs >= 630 && now - ch.lastDownReleaseTime <= 350;
+        (ch.lastDownChargeMs >= 630 && now - ch.lastDownReleaseTime <= 350) ||
+        (ch.downStart !== null && now - ch.downStart >= 630);
+      const hasBackChargeRecent =
+        (ch.lastBackChargeMs >= 630 && now - ch.lastBackReleaseTime <= 220) ||
+        (ch.backStart !== null && now - ch.backStart >= 630);
+      const hasDownChargeRecent =
+        (ch.lastDownChargeMs >= 630 && now - ch.lastDownReleaseTime <= 220) ||
+        (ch.downStart !== null && now - ch.downStart >= 630);
 
       const getModernSaLabel = (btn: ActionButtonId, motionStr: string): string => {
         if (btn === 'L') return `SA1(${motionStr}${btnShort} / 5or6SP+H)`;
@@ -354,17 +394,25 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
           saLabel = mode === 'modern' ? getModernSaLabel(pressedBtn, '214214') : `214214${btnShort}`;
         }
         // 2. Charge Super Arts: [4]646 (Honda / Guile) & [2]828 (Guile / Chun)
-        else if (hasBackCharge && (dirPrefix === '6' || dirPrefix === '3' || dirPrefix === '9') && /[417].*6.*[417].*6/.test(seqLong)) {
-          detectedMotion = '46';
+        else if (
+          hasBackCharge &&
+          (dirPrefix === '6' || dirPrefix === '3' || dirPrefix === '9' || dirPrefix === '') &&
+          /[417].*6.*[417].*65?$/.test(seqLong)
+        ) {
+          detectedMotion = '4646';
           saLabel = mode === 'modern' ? getModernSaLabel(pressedBtn, '4646') : `4646${btnShort}`;
-        } else if (hasDownCharge && (dirPrefix === '8' || dirPrefix === '7' || dirPrefix === '9') && /[213].*8.*[213].*8/.test(seqLong)) {
+        } else if (
+          hasDownCharge &&
+          (dirPrefix === '8' || dirPrefix === '7' || dirPrefix === '9' || dirPrefix === '') &&
+          /[213].*8.*[213].*85?$/.test(seqLong)
+        ) {
           detectedMotion = '28';
           saLabel = mode === 'modern' ? getModernSaLabel(pressedBtn, '2828') : `2828${btnShort}`;
         }
         // 3. Standard Charge Specials: [4]6 and [2]8 (SF6 keeps charge buffered for ~12f / 220ms after release!)
-        else if (hasBackCharge && now - ch.lastBackReleaseTime <= 220 && (dirPrefix === '6' || dirPrefix === '3' || dirPrefix === '9')) {
+        else if (hasBackChargeRecent && (dirPrefix === '6' || dirPrefix === '3' || dirPrefix === '9')) {
           detectedMotion = '46';
-        } else if (hasDownCharge && now - ch.lastDownReleaseTime <= 220 && (dirPrefix === '8' || dirPrefix === '7' || dirPrefix === '9')) {
+        } else if (hasDownChargeRecent && (dirPrefix === '8' || dirPrefix === '7' || dirPrefix === '9')) {
           detectedMotion = '28';
         }
         // 4. Standard Motion Specials: 623 (incl. SF6 323 / 33 DP shortcuts) / 236 (incl. TK 2369) / 214 (incl. TK 2147) / 22
@@ -381,6 +429,13 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
           saLabel = `2147${modPrefix}${btnShort}`;
         } else if ((dirPrefix === '6' || dirPrefix === '3') && /[23][235]*6/.test(seq)) {
           detectedMotion = '236';
+        } else if (
+          (charMeta.id === 'manon' || charMeta.id === 'dhalsim' || charMeta.id === 'ehonda') &&
+          (dirPrefix === '4' || dirPrefix === '1') &&
+          /6[3215]*[21][15]*4/.test(seq)
+        ) {
+          detectedMotion = '6214';
+          saLabel = `63214${modPrefix}${btnShort}`;
         } else if ((dirPrefix === '4' || dirPrefix === '1') && /[21][215]*4/.test(seq)) {
           detectedMotion = '214';
         } else if (dirPrefix === '2' && /2[^2]+2/.test(seq)) {
@@ -433,6 +488,29 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
   );
 
   const handleActionRelease = useCallback((releasedBtn: ActionButtonId) => {
+    // Synchronously finalize charge timers on direction release so 1-frame [4]6 / [2]8 snaps
+    // (including on the very first hit at 0f!) are always detected accurately.
+    if (DIRECTION_IDS.has(releasedBtn)) {
+      const now = performance.now();
+      const ch = chargeRef.current;
+      if (releasedBtn === 'LEFT' && ch.backStart !== null) {
+        const dur = now - ch.backStart;
+        if (dur >= 630 || now - ch.lastBackReleaseTime > 450) {
+          ch.lastBackChargeMs = dur;
+          ch.lastBackReleaseTime = now;
+        }
+        ch.backStart = null;
+      }
+      if (releasedBtn === 'DOWN' && ch.downStart !== null) {
+        const dur = now - ch.downStart;
+        if (dur >= 630 || now - ch.lastDownReleaseTime > 450) {
+          ch.lastDownChargeMs = dur;
+          ch.lastDownReleaseTime = now;
+        }
+        ch.downStart = null;
+      }
+    }
+
     // If a direction (e.g. DOWN) is released within <= 1f (~16ms) of pressing an attack button
     // (like releasing DOWN to do 5LK out of crouch charge), strip that direction so 2LK -> 5LK!
     if (DIRECTION_IDS.has(releasedBtn) && startTimeRef.current !== null) {
@@ -539,15 +617,21 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
     if (left) {
       if (ch.backStart === null) ch.backStart = now;
     } else if (ch.backStart !== null) {
-      ch.lastBackChargeMs = now - ch.backStart;
-      ch.lastBackReleaseTime = now;
+      const dur = now - ch.backStart;
+      if (dur >= 630 || now - ch.lastBackReleaseTime > 450) {
+        ch.lastBackChargeMs = dur;
+        ch.lastBackReleaseTime = now;
+      }
       ch.backStart = null;
     }
     if (down) {
       if (ch.downStart === null) ch.downStart = now;
     } else if (ch.downStart !== null) {
-      ch.lastDownChargeMs = now - ch.downStart;
-      ch.lastDownReleaseTime = now;
+      const dur = now - ch.downStart;
+      if (dur >= 630 || now - ch.lastDownReleaseTime > 450) {
+        ch.lastDownChargeMs = dur;
+        ch.lastDownReleaseTime = now;
+      }
       ch.downStart = null;
     }
 

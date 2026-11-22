@@ -4,7 +4,7 @@
 **快打旋風 6 · osu! 風格透明覆蓋節奏連段訓練器**
 
 > **Author / 作者**：`maxhorng / 92anini`  
-> **Version / 版本**：`v0.2.0-beta.1`
+> **Version / 版本**：`v0.2.0-beta.2`
 
 ---
 
@@ -26,7 +26,7 @@
 
 ### 步驟 1：下載免安裝執行檔
 1. 前往本專案右側的 **[Releases](https://github.com/maxhorng/Fighter-Thythm-Training/releases)** 頁面。
-2. 下載最新版本的 **`Fighter-Thythm-Training-0.2.0-beta.1-win-portable.exe`**。
+2. 下載最新版本的 **`Fighter-Thythm-Training-0.2.0-beta.2-win-portable.exe`**。
 3. 直接雙擊執行即可（**免安裝、不需要裝 Node.js**）。
 
 > **💡 如果 Windows 跳出「Windows 已保護您的電腦」藍色視窗：**  

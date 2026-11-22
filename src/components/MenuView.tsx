@@ -49,6 +49,8 @@ interface MenuViewProps {
   onChangeTriggerMode: (m: StartTriggerMode) => void;
   showRecordedInputs: boolean;
   onChangeShowRecordedInputs: (v: boolean) => void;
+  lowPerfMode: boolean;
+  onChangeLowPerfMode: (v: boolean) => void;
   onStartOverlay: () => void;
   onStartRecording: (charId: string) => void;
 }
@@ -72,6 +74,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
   onChangeTriggerMode,
   showRecordedInputs,
   onChangeShowRecordedInputs,
+  lowPerfMode,
+  onChangeLowPerfMode,
   onStartOverlay,
   onStartRecording,
 }) => {
@@ -225,21 +229,123 @@ export const MenuView: React.FC<MenuViewProps> = ({
             </button>
           </div>
 
-          <div className="section-label" style={{ marginTop: 20 }}>
-            2. 選擇訓練角色（全 {CHARACTERS.length} 角色）
+          <div className="section-label" style={{ marginTop: 14 }}>
+            {t.step2Title} ({CHARACTERS.length})
           </div>
-          <div className="char-grid" style={{ maxHeight: 230, overflowY: 'auto', paddingRight: 4 }}>
-            {CHARACTERS.map((char) => (
-              <button
-                key={char.id}
-                className={`char-card ${selectedCharId === char.id ? 'selected' : ''}`}
-                style={{ '--accent': char.accent } as React.CSSProperties}
-                onClick={() => handleCharSelect(char.id)}
-              >
-                <div className="char-name">{char.name}</div>
-                <div className="char-title">{char.title}</div>
-              </button>
-            ))}
+          <div
+            className="char-grid"
+            style={{
+              flex: 1,
+              minHeight: 0,
+              overflowY: 'auto',
+              paddingRight: 4,
+              alignContent: 'start',
+              gridAutoRows: 'minmax(54px, auto)',
+              gap: 8,
+            }}
+          >
+            {CHARACTERS.map((char) => {
+              const isSelected = selectedCharId === char.id;
+              const comboCount = combos.filter(
+                (c) => c.mode === mode && c.characterId === char.id
+              ).length;
+              const initials = char.name
+                .replace(/[^A-Za-z0-9 ]/g, ' ')
+                .trim()
+                .split(/\s+/)
+                .map((w) => w[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase() || char.name.slice(0, 2).toUpperCase();
+
+              return (
+                <button
+                  key={char.id}
+                  className={`char-card ${isSelected ? 'selected' : ''}`}
+                  style={{
+                    '--accent': char.accent,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 9,
+                    padding: '8px 10px',
+                    minHeight: 54,
+                    position: 'relative',
+                    overflow: 'hidden',
+                    background: isSelected
+                      ? `linear-gradient(135deg, ${char.accent}42 0%, rgba(15, 23, 42, 0.94) 72%)`
+                      : `linear-gradient(135deg, ${char.accent}1c 0%, rgba(15, 23, 42, 0.88) 72%)`,
+                    borderLeft: `3px solid ${char.accent}`,
+                    boxShadow: isSelected ? `0 0 14px ${char.accent}55` : undefined,
+                  } as React.CSSProperties}
+                  onClick={() => handleCharSelect(char.id)}
+                >
+                  <div
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: 9,
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 900,
+                      fontStyle: 'italic',
+                      fontSize: 13,
+                      letterSpacing: '0.03em',
+                      color: '#fff',
+                      background: `linear-gradient(135deg, ${char.accent}dd, ${char.accent}55)`,
+                      border: `1.5px solid ${isSelected ? '#fff' : `${char.accent}aa`}`,
+                      boxShadow: `0 2px 8px ${char.accent}44`,
+                      textShadow: '0 1px 3px rgba(0,0,0,0.65)',
+                    }}
+                  >
+                    {initials}
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1, textAlign: 'left' }}>
+                    <div
+                      className="char-name"
+                      style={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        fontSize: 13,
+                      }}
+                    >
+                      {char.name}
+                    </div>
+                    <div
+                      className="char-title"
+                      style={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        fontSize: 10.5,
+                      }}
+                    >
+                      {char.title}
+                    </div>
+                  </div>
+                  {comboCount > 0 && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: 5,
+                        right: 6,
+                        fontSize: 10,
+                        fontWeight: 800,
+                        padding: '1px 5px',
+                        borderRadius: 999,
+                        background: isSelected ? char.accent : `${char.accent}33`,
+                        color: isSelected ? '#090d16' : '#f8fafc',
+                        border: `1px solid ${char.accent}88`,
+                      }}
+                    >
+                      {comboCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           {/* Live Input Tester */}
@@ -434,7 +540,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 fontSize: 12.5,
                 color: '#cbd5e1',
                 cursor: 'pointer',
-                marginBottom: 8,
+                marginBottom: 4,
                 userSelect: 'none',
               }}
             >
@@ -445,6 +551,27 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 style={{ accentColor: '#38bdf8', width: 15, height: 15 }}
               />
               <span>{t.showRecordedInputs}</span>
+            </label>
+
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                fontSize: 12.5,
+                color: lowPerfMode ? '#4ade80' : '#cbd5e1',
+                cursor: 'pointer',
+                marginBottom: 8,
+                userSelect: 'none',
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={lowPerfMode}
+                onChange={(e) => onChangeLowPerfMode(e.target.checked)}
+                style={{ accentColor: '#4ade80', width: 15, height: 15 }}
+              />
+              <span>{t.lowPerfMode}</span>
             </label>
 
             <button className="btn-start-overlay" onClick={onStartOverlay}>

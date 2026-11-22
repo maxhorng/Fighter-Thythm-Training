@@ -20,6 +20,7 @@ interface OverlayViewProps {
   bindings: KeyBindingMap;
   triggerMode: StartTriggerMode;
   showRecordedInputs: boolean;
+  lowPerfMode: boolean;
   isClickThrough: boolean;
   onExitOverlay: () => void;
 }
@@ -76,7 +77,8 @@ function drawMotionSlider(
   radius: number,
   progress: number, // 0..1 (1 = hit time)
   color: string,
-  seqNum: number
+  seqNum: number,
+  lowPerfMode: boolean
 ) {
   ctx.save();
 
@@ -130,8 +132,10 @@ function drawMotionSlider(
       ctx.arc(startX, startY, 26 * appScale, 0, Math.PI * 2);
       ctx.strokeStyle = color;
       ctx.lineWidth = 4;
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 12;
+      if (!lowPerfMode) {
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 12;
+      }
       ctx.stroke();
       ctx.shadowBlur = 0;
     }
@@ -154,8 +158,10 @@ function drawMotionSlider(
     ctx.beginPath();
     ctx.arc(ballX, ballY, 22, 0, Math.PI * 2);
     ctx.fillStyle = color;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 16;
+    if (!lowPerfMode) {
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 16;
+    }
     ctx.fill();
     ctx.shadowBlur = 0;
     ctx.lineWidth = 3;
@@ -226,8 +232,10 @@ function drawMotionSlider(
     ctx.beginPath();
     ctx.arc(bx, by, 20, 0, Math.PI * 2);
     ctx.fillStyle = color;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 14;
+    if (!lowPerfMode) {
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 14;
+    }
     ctx.fill();
     ctx.shadowBlur = 0;
     ctx.lineWidth = 3;
@@ -265,8 +273,10 @@ function drawMotionSlider(
       ctx.arc(centerX, topY, 26 * appScale, 0, Math.PI * 2);
       ctx.strokeStyle = color;
       ctx.lineWidth = 4;
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 12;
+      if (!lowPerfMode) {
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 12;
+      }
       ctx.stroke();
       ctx.shadowBlur = 0;
     }
@@ -293,8 +303,10 @@ function drawMotionSlider(
     ctx.beginPath();
     ctx.arc(centerX, by, 14, 0, Math.PI * 2);
     ctx.fillStyle = color;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 14;
+    if (!lowPerfMode) {
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 14;
+    }
     ctx.fill();
     ctx.shadowBlur = 0;
     ctx.lineWidth = 2.5;
@@ -339,8 +351,10 @@ function drawMotionSlider(
       ctx.arc(leftX, centerY, 26 * appScale, 0, Math.PI * 2);
       ctx.strokeStyle = color;
       ctx.lineWidth = 4;
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 12;
+      if (!lowPerfMode) {
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 12;
+      }
       ctx.stroke();
       ctx.shadowBlur = 0;
     }
@@ -365,8 +379,10 @@ function drawMotionSlider(
     ctx.beginPath();
     ctx.arc(bx, centerY, 14, 0, Math.PI * 2);
     ctx.fillStyle = color;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 14;
+    if (!lowPerfMode) {
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 14;
+    }
     ctx.fill();
     ctx.shadowBlur = 0;
     ctx.lineWidth = 2.5;
@@ -423,8 +439,10 @@ function drawMotionSlider(
       ctx.arc(rightX, rightY, 24 * appScale, 0, Math.PI * 2);
       ctx.strokeStyle = color;
       ctx.lineWidth = 4;
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 12;
+      if (!lowPerfMode) {
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 12;
+      }
       ctx.stroke();
       ctx.shadowBlur = 0;
     }
@@ -444,8 +462,10 @@ function drawMotionSlider(
     ctx.beginPath();
     ctx.arc(ballX, ballY, 20, 0, Math.PI * 2);
     ctx.fillStyle = color;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 16;
+    if (!lowPerfMode) {
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 16;
+    }
     ctx.fill();
     ctx.shadowBlur = 0;
     ctx.lineWidth = 3;
@@ -499,8 +519,10 @@ function drawMotionSlider(
     ctx.beginPath();
     ctx.arc(bx, by, 16, 0, Math.PI * 2);
     ctx.fillStyle = color;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 14;
+    if (!lowPerfMode) {
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 14;
+    }
     ctx.fill();
     ctx.shadowBlur = 0;
     ctx.lineWidth = 2.5;
@@ -518,6 +540,69 @@ function drawMotionSlider(
     ctx.fillStyle = color;
     ctx.font = '800 12px system-ui, sans-serif';
     ctx.fillText(isHoriz ? '[4]6 集氣前' : '[2]8 集氣上', centerX, (isHoriz ? centerY + 50 : y1 + 46));
+  } else if (motion === '4646') {
+    const x1 = centerX - 60;
+    const x2 = centerX + 60;
+    const y = centerY;
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y);
+    ctx.lineTo(x2, y);
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 44;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y);
+    ctx.lineTo(x2, y);
+    ctx.lineWidth = 36;
+    ctx.strokeStyle = 'rgba(10, 14, 24, 0.9)';
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 22px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('←', x1, y);
+    ctx.fillText('→', x2, y);
+
+    // Authentic SF6 [4]646 timing: hold ← (charge), then sweep → (0.50..0.67), ← (0.67..0.83), → (0.83..1.00)
+    let pos = 0;
+    if (progress < 0.5) {
+      pos = 0;
+    } else if (progress < 0.67) {
+      pos = (progress - 0.5) / 0.17;
+    } else if (progress < 0.83) {
+      pos = 1 - (progress - 0.67) / 0.16;
+    } else {
+      pos = Math.min(1, (progress - 0.83) / 0.17);
+    }
+    const bx = x1 + (x2 - x1) * pos;
+    ctx.beginPath();
+    ctx.arc(bx, y, 16, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    if (!lowPerfMode) {
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 14;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+
+    ctx.fillStyle = '#090d16';
+    ctx.font = '900 12px system-ui, sans-serif';
+    ctx.fillText(String(seqNum), bx, y);
+
+    ctx.fillStyle = 'rgba(10, 14, 24, 0.8)';
+    ctx.beginPath();
+    ctx.roundRect(centerX - 66, centerY + 38, 132, 24, 12);
+    ctx.fill();
+    ctx.fillStyle = color;
+    ctx.font = '800 12px system-ui, sans-serif';
+    ctx.fillText('[4]646 左右左右', centerX, centerY + 50);
   }
 
   ctx.restore();
@@ -529,6 +614,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   bindings,
   triggerMode,
   showRecordedInputs,
+  lowPerfMode,
   isClickThrough,
   onExitOverlay,
 }) => {
@@ -718,9 +804,10 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     [recordHit]
   );
 
-  const { activeButtons } = useInputEngine({
+  const { activeButtons, activeButtonsRef } = useInputEngine({
     mode,
     bindings,
+    syncReactState: !lowPerfMode,
     onActionPress: handleActionPress,
     onActionRelease: handleActionRelease,
   });
@@ -733,7 +820,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     if (!ctx) return;
 
     const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = lowPerfMode ? 1 : (window.devicePixelRatio || 1);
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -859,8 +946,10 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
             ctx.arc(nx, ny, nextRadius * nextAppScale, 0, Math.PI * 2);
             ctx.strokeStyle = ringCol;
             ctx.lineWidth = 3.5;
-            ctx.shadowColor = ringCol;
-            ctx.shadowBlur = 12;
+            if (!lowPerfMode) {
+              ctx.shadowColor = ringCol;
+              ctx.shadowBlur = 12;
+            }
             ctx.stroke();
             ctx.shadowBlur = 0;
           }
@@ -1000,7 +1089,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
             72,
             progress,
             ringColor,
-            activeIdx + 1
+            activeIdx + 1,
+            lowPerfMode
           );
           ctx.restore();
         } else if (dirButtons.length > 0) {
@@ -1055,8 +1145,10 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           ctx.arc(rx, ry, CIRCLE_RADIUS * approachScale, 0, Math.PI * 2);
           ctx.strokeStyle = ringColor;
           ctx.lineWidth = isHitWindowGold ? 6 : 4.5;
-          ctx.shadowColor = ringColor;
-          ctx.shadowBlur = isHitWindowGold ? 24 : 14;
+          if (!lowPerfMode) {
+            ctx.shadowColor = ringColor;
+            ctx.shadowBlur = isHitWindowGold ? 24 : 14;
+          }
           ctx.stroke();
           ctx.shadowBlur = 0;
         }
@@ -1067,7 +1159,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         ctx.fill();
         ctx.lineWidth = isHitWindowGold ? 6 : 4.5;
         ctx.strokeStyle = isHitWindowGold ? '#facc15' : '#ffffff';
-        if (isHitWindowGold) {
+        if (isHitWindowGold && !lowPerfMode) {
           ctx.shadowColor = '#facc15';
           ctx.shadowBlur = 22;
         }
@@ -1146,8 +1238,10 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         ctx.strokeStyle = ringColor;
         ctx.lineWidth = 8;
         ctx.lineCap = 'round';
-        ctx.shadowColor = ringColor;
-        ctx.shadowBlur = isSweetSpot ? 22 : 10;
+        if (!lowPerfMode) {
+          ctx.shadowColor = ringColor;
+          ctx.shadowBlur = isSweetSpot ? 22 : 10;
+        }
         ctx.stroke();
         ctx.shadowBlur = 0;
 
@@ -1178,8 +1272,10 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         ctx.fillStyle = color;
         ctx.font = '900 22px system-ui, sans-serif';
         ctx.textAlign = 'center';
-        ctx.shadowColor = 'rgba(0,0,0,0.85)';
-        ctx.shadowBlur = 8;
+        if (!lowPerfMode) {
+          ctx.shadowColor = 'rgba(0,0,0,0.85)';
+          ctx.shadowBlur = 8;
+        }
         ctx.fillText(eff.rank, cx, cy - 12 - age * 28);
 
         if (eff.rank !== 'MISS') {
@@ -1254,8 +1350,10 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         ctx.beginPath();
         ctx.arc(stickCx + stickDx, stickCy + stickDy, 9, 0, Math.PI * 2);
         ctx.fillStyle = dir === '5' ? '#64748b' : '#38bdf8';
-        ctx.shadowColor = dir === '5' ? 'transparent' : '#38bdf8';
-        ctx.shadowBlur = dir === '5' ? 0 : 10;
+        if (!lowPerfMode && dir !== '5') {
+          ctx.shadowColor = '#38bdf8';
+          ctx.shadowBlur = 10;
+        }
         ctx.fill();
         ctx.shadowBlur = 0;
 
@@ -1288,7 +1386,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           ctx.beginPath();
           ctx.arc(bx, by, 17, 0, Math.PI * 2);
           ctx.fillStyle = isLit ? bColor : 'rgba(30, 41, 59, 0.75)';
-          if (isLit) {
+          if (isLit && !lowPerfMode) {
             ctx.shadowColor = bColor;
             ctx.shadowBlur = 14;
           }
@@ -1308,6 +1406,35 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         ctx.restore();
       }
 
+      // 5. Low-Performance Mode: Draw Live Input Strip directly on Canvas (0 React re-renders!)
+      if (lowPerfMode && activeButtonsRef.current.size > 0) {
+        const activeList = Array.from(activeButtonsRef.current);
+        ctx.save();
+        ctx.font = '900 14px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const pillH = 30;
+        const gap = 8;
+        const widths = activeList.map(
+          (btnId) => Math.max(38, ctx.measureText(BUTTON_META[btnId].shortLabel).width + 28)
+        );
+        const totalW = widths.reduce((sum, bw) => sum + bw, 0) + gap * (activeList.length - 1);
+        let curX = w * 0.5 - totalW / 2;
+        const pillY = h - 24 - pillH;
+        for (let i = 0; i < activeList.length; i++) {
+          const btnId = activeList[i];
+          const bw = widths[i];
+          ctx.fillStyle = BUTTON_META[btnId].color;
+          ctx.beginPath();
+          ctx.roundRect(curX, pillY, bw, pillH, 8);
+          ctx.fill();
+          ctx.fillStyle = '#090d16';
+          ctx.fillText(BUTTON_META[btnId].shortLabel, curX + bw / 2, pillY + pillH / 2);
+          curX += bw + gap;
+        }
+        ctx.restore();
+      }
+
       rafId = requestAnimationFrame(render);
     };
 
@@ -1316,7 +1443,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
     };
-  }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, recordHit, resetRun]);
+  }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, recordHit, resetRun, activeButtonsRef]);
 
   const totalHits = stats.perfect + stats.good + stats.earlyLate + stats.miss;
   const accuracy =
@@ -1329,7 +1456,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       <canvas ref={canvasRef} className="overlay-canvas" />
 
       {/* Minimal Floating Top HUD */}
-      <div className="overlay-hud">
+      <div className={`overlay-hud ${lowPerfMode ? 'low-perf' : ''}`}>
         <div className="hud-left">
           <span className="hud-mode-badge">{mode === 'classic' ? 'C' : 'M'}</span>
           <span className="hud-combo-name">{combo.characterName} · {combo.title}</span>
@@ -1361,18 +1488,20 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         </div>
       </div>
 
-      {/* Live Input Strip at Bottom Center */}
-      <div className="overlay-input-strip">
-        {Array.from(activeButtons).map((btnId) => (
-          <span
-            key={btnId}
-            className="overlay-input-pill"
-            style={{ backgroundColor: BUTTON_META[btnId].color }}
-          >
-            {BUTTON_META[btnId].shortLabel}
-          </span>
-        ))}
-      </div>
+      {/* Live Input Strip at Bottom Center (DOM only in standard mode; Canvas in low-perf mode) */}
+      {!lowPerfMode && (
+        <div className="overlay-input-strip">
+          {Array.from(activeButtons).map((btnId) => (
+            <span
+              key={btnId}
+              className="overlay-input-pill"
+              style={{ backgroundColor: BUTTON_META[btnId].color }}
+            >
+              {BUTTON_META[btnId].shortLabel}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -11,6 +11,15 @@ const STORAGE_KEY_BINDINGS = 'fmc_bindings_v1';
 const STORAGE_KEY_CUSTOM_COMBOS = 'fmc_custom_combos_v1';
 const STORAGE_KEY_LANG = 'fmc_lang_v1';
 const STORAGE_KEY_HOTKEYS = 'fmc_hotkeys_v1';
+const STORAGE_KEY_LOW_PERF = 'fmc_low_perf_v1';
+
+function loadLowPerfMode(): boolean {
+  try {
+    return localStorage.getItem(STORAGE_KEY_LOW_PERF) === '1';
+  } catch {
+    return false;
+  }
+}
 
 function loadLang(): AppLang {
   try {
@@ -64,6 +73,7 @@ export const App: React.FC = () => {
   const [overlayHotkeys, setOverlayHotkeys] = useState<OverlayHotkeys>(loadHotkeys);
   const [triggerMode, setTriggerMode] = useState<StartTriggerMode>('trigger-first');
   const [showRecordedInputs, setShowRecordedInputs] = useState(true);
+  const [lowPerfMode, setLowPerfMode] = useState<boolean>(loadLowPerfMode);
   const [isOverlayMode, setIsOverlayMode] = useState(false);
   const [isRecordingMode, setIsRecordingMode] = useState(false);
   const [recordingCharId, setRecordingCharId] = useState<string>('ryu');
@@ -132,6 +142,15 @@ export const App: React.FC = () => {
     setOverlayHotkeys(next);
     try {
       localStorage.setItem(STORAGE_KEY_HOTKEYS, JSON.stringify(next));
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleChangeLowPerfMode = (next: boolean) => {
+    setLowPerfMode(next);
+    try {
+      localStorage.setItem(STORAGE_KEY_LOW_PERF, next ? '1' : '0');
     } catch {
       // ignore
     }
@@ -234,6 +253,7 @@ export const App: React.FC = () => {
         bindings={bindings}
         triggerMode={triggerMode}
         showRecordedInputs={showRecordedInputs}
+        lowPerfMode={lowPerfMode}
         isClickThrough={isClickThrough}
         onExitOverlay={handleExitOverlay}
       />
@@ -260,6 +280,8 @@ export const App: React.FC = () => {
       onChangeTriggerMode={setTriggerMode}
       showRecordedInputs={showRecordedInputs}
       onChangeShowRecordedInputs={setShowRecordedInputs}
+      lowPerfMode={lowPerfMode}
+      onChangeLowPerfMode={handleChangeLowPerfMode}
       onStartOverlay={handleStartOverlay}
       onStartRecording={handleStartRecording}
     />
