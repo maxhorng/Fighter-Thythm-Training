@@ -19,7 +19,8 @@ import {
   StartTriggerMode,
 } from '../types/combo';
 import { CHARACTERS } from '../data/combos';
-import { BUTTON_META } from '../data/bindings';
+import { BUTTON_META, formatKeyCode } from '../data/bindings';
+import { AppLang, I18N, OverlayHotkeys } from '../data/i18n';
 import { KeybindPanel } from './KeybindPanel';
 import { ImportComboModal } from './ImportComboModal';
 import { useInputEngine } from '../hooks/useInputEngine';
@@ -35,8 +36,14 @@ interface MenuViewProps {
   onDeleteCombo: (comboId: string) => void;
   bindings: KeyBindingMap;
   onChangeBindings: (next: KeyBindingMap) => void;
+  lang: AppLang;
+  onChangeLang: (next: AppLang) => void;
+  overlayHotkeys: OverlayHotkeys;
+  onChangeOverlayHotkeys: (next: OverlayHotkeys) => void;
   triggerMode: StartTriggerMode;
   onChangeTriggerMode: (m: StartTriggerMode) => void;
+  showRecordedInputs: boolean;
+  onChangeShowRecordedInputs: (v: boolean) => void;
   onStartOverlay: () => void;
   onStartRecording: (charId: string) => void;
 }
@@ -52,15 +59,23 @@ export const MenuView: React.FC<MenuViewProps> = ({
   onDeleteCombo,
   bindings,
   onChangeBindings,
+  lang,
+  onChangeLang,
+  overlayHotkeys,
+  onChangeOverlayHotkeys,
   triggerMode,
   onChangeTriggerMode,
+  showRecordedInputs,
+  onChangeShowRecordedInputs,
   onStartOverlay,
   onStartRecording,
 }) => {
+  const t = I18N[lang];
   const [selectedCharId, setSelectedCharId] = useState<string>(selectedCombo.characterId);
   const [showKeybinds, setShowKeybinds] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
 
   const handleCopyJson = (e: React.MouseEvent, combo: ComboData) => {
     e.stopPropagation();
@@ -105,21 +120,32 @@ export const MenuView: React.FC<MenuViewProps> = ({
       <header className="titlebar">
         <div className="titlebar-brand">
           <Sparkles size={18} className="brand-icon" />
-          <span className="brand-title">FIGHTER MUSIC COMBO</span>
-          <span className="brand-badge">SF6 OVERLAY PROTOTYPE</span>
+          <span className="brand-title">FIGHTER THYTHM TRAINING</span>
+          <span className="brand-badge">{t.betaBadge}</span>
+          <span style={{ fontSize: 11.5, color: '#94a3b8', marginLeft: 4 }}>
+            by maxhorng / 92anini
+          </span>
         </div>
 
         <div className="titlebar-controls">
           <div className={`device-pill ${gamepadName ? 'connected' : ''}`}>
             {gamepadName ? <Gamepad2 size={14} /> : <Keyboard size={14} />}
-            <span>{gamepadName ? '控制器已連線' : '鍵盤 / 待偵測手把'}</span>
+            <span>
+              {gamepadName
+                ? lang === 'en'
+                  ? 'Controller Connected'
+                  : '控制器已連線'
+                : lang === 'en'
+                ? 'Keyboard / Waiting Pad'
+                : '鍵盤 / 待偵測手把'}
+            </span>
           </div>
           <button
             className="btn-secondary"
             onClick={() => setShowKeybinds(true)}
           >
             <Settings size={15} />
-            按鍵設定
+            {t.keybindBtn}
           </button>
           <button
             className="win-btn"
@@ -207,18 +233,18 @@ export const MenuView: React.FC<MenuViewProps> = ({
 
         {/* Right Column: Combo List + Preview + Start */}
         <section className="panel right-panel">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <div className="section-label" style={{ marginBottom: 0 }}>3. 選擇連段譜面</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <div className="section-label" style={{ marginBottom: 0 }}>{t.step3Title}</div>
             <div style={{ display: 'flex', gap: 6 }}>
               <button
                 className="btn-secondary"
                 style={{ borderColor: 'rgba(244, 63, 94, 0.5)', color: '#fda4af' }}
                 onClick={() => onStartRecording(selectedCharId)}
               >
-                ● 錄製我的連段
+                {t.recordBtn}
               </button>
               <button className="btn-secondary" onClick={() => setShowImport(true)}>
-                <Plus size={14} /> 匯入 / 指令轉譜面
+                <Plus size={14} /> {t.importBtn}
               </button>
             </div>
           </div>
@@ -237,22 +263,46 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 此角色目前尚未有連段，點上方「● 錄製我的連段」或「+ 匯入 / 指令轉譜面」即可新增。
               </div>
             ) : (
-              filteredCombos.map((combo) => (
+              filteredCombos.map((combo) => {
+                const isLocked = Boolean(combo.locked && !unlockedIds.has(combo.id));
+                return (
               <div
                 key={combo.id}
                 className={`combo-card ${selectedCombo.id === combo.id ? 'selected' : ''}`}
-                onClick={() => onSelectCombo(combo)}
+                style={isLocked ? { opacity: 0.62, borderStyle: 'dashed', borderColor: 'rgba(250, 204, 21, 0.45)' } : undefined}
+                onClick={() => {
+                  if (!isLocked) onSelectCombo(combo);
+                }}
               >
                 <div className="combo-card-top">
                   <div className="combo-title">{combo.title}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <button
-                      className="btn-secondary"
-                      style={{ padding: '2px 8px', fontSize: 11 }}
-                      onClick={(e) => handleCopyJson(e, combo)}
-                    >
-                      {copiedId === combo.id ? '已複製!' : '複製 JSON'}
-                    </button>
+                    {isLocked ? (
+                      <button
+                        className="btn-secondary"
+                        style={{
+                          padding: '2px 9px',
+                          fontSize: 11,
+                          borderColor: 'rgba(250, 204, 21, 0.6)',
+                          color: '#fde047',
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setUnlockedIds((prev) => new Set(prev).add(combo.id));
+                          onSelectCombo(combo);
+                        }}
+                      >
+                        🔒 解鎖（後果自負）
+                      </button>
+                    ) : (
+                      <button
+                        className="btn-secondary"
+                        style={{ padding: '2px 8px', fontSize: 11 }}
+                        onClick={(e) => handleCopyJson(e, combo)}
+                      >
+                        {copiedId === combo.id ? '已複製!' : '複製 JSON'}
+                      </button>
+                    )}
                     {customComboIds.has(combo.id) && (
                       <button
                         className="btn-secondary"
@@ -271,7 +321,19 @@ export const MenuView: React.FC<MenuViewProps> = ({
                         <Trash2 size={12} />
                       </button>
                     )}
-                    <span className={`diff-badge ${combo.difficulty.toLowerCase()}`}>
+                    <span
+                      className={`diff-badge ${combo.difficulty === '極度Ultra困難' ? 'ultra' : combo.difficulty.toLowerCase()}`}
+                      style={
+                        combo.difficulty === '極度Ultra困難'
+                          ? {
+                              background: 'rgba(168, 85, 247, 0.24)',
+                              color: '#e9d5ff',
+                              border: '1px solid rgba(192, 132, 252, 0.75)',
+                              boxShadow: '0 0 10px rgba(168, 85, 247, 0.35)',
+                            }
+                          : undefined
+                      }
+                    >
                       {combo.difficulty}
                     </span>
                   </div>
@@ -289,7 +351,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
                   ))}
                   </div>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
 
@@ -318,12 +381,36 @@ export const MenuView: React.FC<MenuViewProps> = ({
               </button>
             </div>
 
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                fontSize: 12.5,
+                color: '#cbd5e1',
+                cursor: 'pointer',
+                marginBottom: 8,
+                userSelect: 'none',
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={showRecordedInputs}
+                onChange={(e) => onChangeShowRecordedInputs(e.target.checked)}
+                style={{ accentColor: '#38bdf8', width: 15, height: 15 }}
+              />
+              <span>{t.showRecordedInputs}</span>
+            </label>
+
             <button className="btn-start-overlay" onClick={onStartOverlay}>
               <Play size={20} fill="currentColor" />
-              <span>開始透明覆蓋訓練模式 (Overlay)</span>
+              <span>{t.startOverlayBtn}</span>
             </button>
             <div className="hotkey-hint">
-              進入透明模式後：<code>F8</code> 重來 · <code>F9</code> 切換滑鼠穿透 · <code>F10</code> 返回選單
+              {t.hotkeyHintPrefix}
+              <code>{formatKeyCode(bindings.RESET?.keyboardCode || 'F8')}</code> {t.hotkeyHintRestart} ·{' '}
+              <code>{formatKeyCode(overlayHotkeys.clickThrough)}</code> {t.hotkeyHintClickThrough} ·{' '}
+              <code>{formatKeyCode(overlayHotkeys.exitOverlay)}</code> {t.hotkeyHintExit}
             </div>
           </div>
         </section>
@@ -334,6 +421,10 @@ export const MenuView: React.FC<MenuViewProps> = ({
           mode={mode}
           bindings={bindings}
           onChangeBindings={onChangeBindings}
+          lang={lang}
+          onChangeLang={onChangeLang}
+          overlayHotkeys={overlayHotkeys}
+          onChangeOverlayHotkeys={onChangeOverlayHotkeys}
           onClose={() => setShowKeybinds(false)}
         />
       )}

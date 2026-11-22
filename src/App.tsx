@@ -2,12 +2,35 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ComboData, ControlMode, KeyBindingMap, StartTriggerMode } from './types/combo';
 import { BUILTIN_COMBOS } from './data/combos';
 import { DEFAULT_BINDINGS } from './data/bindings';
+import { AppLang, DEFAULT_OVERLAY_HOTKEYS, OverlayHotkeys } from './data/i18n';
 import { MenuView } from './components/MenuView';
 import { OverlayView } from './components/OverlayView';
 import { RecordOverlayView } from './components/RecordOverlayView';
 
 const STORAGE_KEY_BINDINGS = 'fmc_bindings_v1';
 const STORAGE_KEY_CUSTOM_COMBOS = 'fmc_custom_combos_v1';
+const STORAGE_KEY_LANG = 'fmc_lang_v1';
+const STORAGE_KEY_HOTKEYS = 'fmc_hotkeys_v1';
+
+function loadLang(): AppLang {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_LANG);
+    if (raw === 'en' || raw === 'zh-TW') return raw;
+  } catch {
+    // ignore
+  }
+  return 'zh-TW';
+}
+
+function loadHotkeys(): OverlayHotkeys {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_HOTKEYS);
+    if (raw) return { ...DEFAULT_OVERLAY_HOTKEYS, ...JSON.parse(raw) };
+  } catch {
+    // ignore
+  }
+  return { ...DEFAULT_OVERLAY_HOTKEYS };
+}
 
 function loadBindings(): KeyBindingMap {
   try {
@@ -37,7 +60,10 @@ export const App: React.FC = () => {
   const allCombos = [...BUILTIN_COMBOS, ...customCombos];
   const [selectedCombo, setSelectedCombo] = useState<ComboData>(BUILTIN_COMBOS[0]);
   const [bindings, setBindings] = useState<KeyBindingMap>(loadBindings);
+  const [lang, setLang] = useState<AppLang>(loadLang);
+  const [overlayHotkeys, setOverlayHotkeys] = useState<OverlayHotkeys>(loadHotkeys);
   const [triggerMode, setTriggerMode] = useState<StartTriggerMode>('trigger-first');
+  const [showRecordedInputs, setShowRecordedInputs] = useState(true);
   const [isOverlayMode, setIsOverlayMode] = useState(false);
   const [isRecordingMode, setIsRecordingMode] = useState(false);
   const [recordingCharId, setRecordingCharId] = useState<string>('ryu');
@@ -92,6 +118,32 @@ export const App: React.FC = () => {
       // ignore
     }
   };
+
+  const handleChangeLang = (next: AppLang) => {
+    setLang(next);
+    try {
+      localStorage.setItem(STORAGE_KEY_LANG, next);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleChangeOverlayHotkeys = (next: OverlayHotkeys) => {
+    setOverlayHotkeys(next);
+    try {
+      localStorage.setItem(STORAGE_KEY_HOTKEYS, JSON.stringify(next));
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    window.electronAPI?.setHotkeys?.({
+      clickThrough: overlayHotkeys.clickThrough,
+      exitOverlay: overlayHotkeys.exitOverlay,
+      restart: bindings.RESET?.keyboardCode || 'F8',
+    });
+  }, [overlayHotkeys, bindings.RESET?.keyboardCode]);
 
   useEffect(() => {
     const unsubState = window.electronAPI?.onOverlayStateChanged((state) => {
@@ -181,6 +233,7 @@ export const App: React.FC = () => {
         combo={selectedCombo}
         bindings={bindings}
         triggerMode={triggerMode}
+        showRecordedInputs={showRecordedInputs}
         isClickThrough={isClickThrough}
         onExitOverlay={handleExitOverlay}
       />
@@ -199,8 +252,14 @@ export const App: React.FC = () => {
       onDeleteCombo={handleDeleteCombo}
       bindings={bindings}
       onChangeBindings={handleChangeBindings}
+      lang={lang}
+      onChangeLang={handleChangeLang}
+      overlayHotkeys={overlayHotkeys}
+      onChangeOverlayHotkeys={handleChangeOverlayHotkeys}
       triggerMode={triggerMode}
       onChangeTriggerMode={setTriggerMode}
+      showRecordedInputs={showRecordedInputs}
+      onChangeShowRecordedInputs={setShowRecordedInputs}
       onStartOverlay={handleStartOverlay}
       onStartRecording={handleStartRecording}
     />

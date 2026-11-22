@@ -1,6 +1,7 @@
 {
   "name": "fighter-music-combo",
-  "version": "0.1.0",
+  "version": "0.2.0-beta.1",
+  "author": "maxhorng / 92anini",
   "description": "Street Fighter 6 osu!-style Rhythm Combo Trainer Overlay",
   "main": "dist-electron/main.js",
   "scripts": {
@@ -9,6 +10,7 @@
     "dev:electron": "wait-on tcp:51766 && npm run build:electron && electron .",
     "build:electron": "esbuild electron/main.ts --bundle --platform=node --external:electron --external:uiohook-napi --outfile=dist-electron/main.js && esbuild electron/preload.ts --bundle --platform=node --external:electron --outfile=dist-electron/preload.js",
     "build": "vite build && npm run build:electron",
+    "dist:win": "npm run build && electron-builder --win portable",
     "start": "npm run build && electron .",
     "sync:framedata": "node -e \"fetch('https://raw.githubusercontent.com/D4RKONION/FAT/master/src/js/constants/framedata/SF6FrameData.json').then(r=>r.text()).then(t=>{require('fs').writeFileSync('src/data/sf6_framedata_db.json',t);console.log('Synced SF6 Frame Data DB:',Object.keys(JSON.parse(t)).length,'characters')})\""
   },
@@ -25,9 +27,34 @@
     "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^9.1.0",
     "electron": "^33.2.1",
+    "electron-builder": "^26.18.0",
     "esbuild": "^0.24.0",
     "typescript": "^5.7.2",
     "vite": "^6.0.3",
     "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.maxhorng.fighterthythmtraining",
+    "productName": "Fighter Thythm Training",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "**/uiohook-napi/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "Fighter-Thythm-Training-${version}-win-portable.exe"
+    }
   }
 }

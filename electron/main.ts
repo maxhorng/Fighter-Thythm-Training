@@ -112,33 +112,87 @@ function applyOverlayMode(enabled: boolean) {
   });
 }
 
+function codeToAccelerator(code: string): string | null {
+  if (!code) return null;
+  if (/^F([1-9]|1[0-2])$/.test(code)) return code;
+  if (/^Key([A-Z])$/.test(code)) return code.slice(3);
+  if (/^Digit([0-9])$/.test(code)) return code.slice(5);
+  if (/^Numpad([0-9])$/.test(code)) return `num${code.slice(6)}`;
+  const map: Record<string, string> = {
+    Space: 'Space',
+    Tab: 'Tab',
+    Backspace: 'Backspace',
+    Delete: 'Delete',
+    Insert: 'Insert',
+    Home: 'Home',
+    End: 'End',
+    PageUp: 'PageUp',
+    PageDown: 'PageDown',
+    Minus: '-',
+    Equal: '=',
+    BracketLeft: '[',
+    BracketRight: ']',
+    Backslash: '\\',
+    Semicolon: ';',
+    Quote: "'",
+    Backquote: '`',
+    Comma: ',',
+    Period: '.',
+    Slash: '/',
+  };
+  return map[code] ?? null;
+}
+
+let currentHotkeys = { clickThrough: 'F9', exitOverlay: 'F10', restart: 'F8' };
+
+function registerOverlayHotkeys(next: { clickThrough?: string; exitOverlay?: string; restart?: string }) {
+  currentHotkeys = {
+    clickThrough: next.clickThrough || currentHotkeys.clickThrough,
+    exitOverlay: next.exitOverlay || currentHotkeys.exitOverlay,
+    restart: next.restart || currentHotkeys.restart,
+  };
+  globalShortcut.unregisterAll();
+
+  const ctAcc = codeToAccelerator(currentHotkeys.clickThrough);
+  if (ctAcc) {
+    globalShortcut.register(ctAcc, () => {
+      if (!mainWindow || mainWindow.isDestroyed() || !isOverlayMode) return;
+      isClickThrough = !isClickThrough;
+      mainWindow.setIgnoreMouseEvents(isClickThrough, { forward: true });
+      mainWindow.webContents.send('overlay-state-changed', {
+        isOverlayMode,
+        isClickThrough,
+      });
+    });
+  }
+
+  const exitAcc = codeToAccelerator(currentHotkeys.exitOverlay);
+  if (exitAcc && exitAcc !== ctAcc) {
+    globalShortcut.register(exitAcc, () => {
+      if (!mainWindow || mainWindow.isDestroyed() || !isOverlayMode) return;
+      applyOverlayMode(false);
+      mainWindow.webContents.send('hotkey', 'EXIT_OVERLAY');
+    });
+  }
+
+  const restartAcc = codeToAccelerator(currentHotkeys.restart);
+  if (restartAcc && restartAcc !== ctAcc && restartAcc !== exitAcc) {
+    globalShortcut.register(restartAcc, () => {
+      if (!mainWindow || mainWindow.isDestroyed() || !isOverlayMode) return;
+      mainWindow.webContents.send('hotkey', 'RESTART_COMBO');
+    });
+  }
+}
+
 app.whenReady().then(() => {
   createWindow();
   startGlobalKeyHook();
+  registerOverlayHotkeys(currentHotkeys);
+});
 
-  // F9: Toggle click-through in overlay mode
-  globalShortcut.register('F9', () => {
-    if (!mainWindow || mainWindow.isDestroyed() || !isOverlayMode) return;
-    isClickThrough = !isClickThrough;
-    mainWindow.setIgnoreMouseEvents(isClickThrough, { forward: true });
-    mainWindow.webContents.send('overlay-state-changed', {
-      isOverlayMode,
-      isClickThrough,
-    });
-  });
-
-  // F10: Exit overlay mode back to menu
-  globalShortcut.register('F10', () => {
-    if (!mainWindow || mainWindow.isDestroyed() || !isOverlayMode) return;
-    applyOverlayMode(false);
-    mainWindow.webContents.send('hotkey', 'EXIT_OVERLAY');
-  });
-
-  // F8: Restart current combo in overlay mode
-  globalShortcut.register('F8', () => {
-    if (!mainWindow || mainWindow.isDestroyed() || !isOverlayMode) return;
-    mainWindow.webContents.send('hotkey', 'RESTART_COMBO');
-  });
+ipcMain.handle('set-hotkeys', (_event, hotkeys: { clickThrough?: string; exitOverlay?: string; restart?: string }) => {
+  registerOverlayHotkeys(hotkeys);
+  return currentHotkeys;
 });
 
 ipcMain.handle('set-overlay-mode', (_event, enabled: boolean) => {

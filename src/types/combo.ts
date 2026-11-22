@@ -2,13 +2,13 @@ export type ControlMode = 'classic' | 'modern';
 
 export type DirectionButtonId = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
-export type ClassicAttackId = 'LP' | 'MP' | 'HP' | 'LK' | 'MK' | 'HK' | 'PARRY' | 'DI';
+export type ClassicAttackId = 'LP' | 'MP' | 'HP' | 'LK' | 'MK' | 'HK' | 'PARRY' | 'DI' | 'RESET';
 
-export type ModernAttackId = 'L' | 'M' | 'H' | 'SP' | 'AUTO' | 'PARRY' | 'DI';
+export type ModernAttackId = 'L' | 'M' | 'H' | 'SP' | 'AUTO' | 'PARRY' | 'DI' | 'RESET';
 
 export type ActionButtonId = DirectionButtonId | ClassicAttackId | ModernAttackId;
 
-export type MotionType = '236' | '214' | '623' | '6214' | '22' | '66' | '46' | '28';
+export type MotionType = '236' | '214' | '623' | '6214' | '22' | '66' | '46' | '28' | '360' | '720';
 
 export interface ButtonMeta {
   id: ActionButtonId;
@@ -66,12 +66,15 @@ export interface ComboData {
   characterName: string;
   mode: ControlMode;
   title: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced' | '極度Ultra困難';
   description: string;
   tags: string[];
   notes: ComboNote[];
   /** Optional SF6-style frame-by-frame state-change input history captured during live recording */
   inputHistory?: InputHistoryEntry[];
+  /** Optional WIP lock flag (user can click to unlock at their own risk) */
+  locked?: boolean;
+  lockReason?: string;
 }
 
 export type StartTriggerMode = 'trigger-first' | 'countdown';
@@ -90,6 +93,7 @@ export interface HitResult {
 export interface ElectronAPI {
   setOverlayMode: (enabled: boolean) => Promise<{ isOverlayMode: boolean; isClickThrough: boolean }>;
   setClickThrough: (enabled: boolean) => Promise<boolean>;
+  setHotkeys?: (hotkeys: { clickThrough?: string; exitOverlay?: string; restart?: string }) => Promise<void>;
   minimizeWindow: () => Promise<void>;
   closeWindow: () => Promise<void>;
   onGlobalKeyDown: (cb: (code: string) => void) => () => void;

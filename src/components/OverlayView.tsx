@@ -19,6 +19,7 @@ interface OverlayViewProps {
   combo: ComboData;
   bindings: KeyBindingMap;
   triggerMode: StartTriggerMode;
+  showRecordedInputs: boolean;
   isClickThrough: boolean;
   onExitOverlay: () => void;
 }
@@ -491,8 +492,10 @@ function drawMotionSlider(
     ctx.fillText(isHoriz ? '←' : '↓', x1, y1);
     ctx.fillText(isHoriz ? '→' : '↑', x2, y2);
 
-    const bx = x1 + (x2 - x1) * slideT;
-    const by = y1 + (y2 - y1) * slideT;
+    // Authentic SF6 charge snap: hold at ↓ / ← during charge, then SNAP to ↑ / → in the final ~5f!
+    const snapT = progress < 0.85 ? 0 : Math.min(1, (progress - 0.85) / 0.15);
+    const bx = x1 + (x2 - x1) * snapT;
+    const by = y1 + (y2 - y1) * snapT;
     ctx.beginPath();
     ctx.arc(bx, by, 16, 0, Math.PI * 2);
     ctx.fillStyle = color;
@@ -525,6 +528,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   combo,
   bindings,
   triggerMode,
+  showRecordedInputs,
   isClickThrough,
   onExitOverlay,
 }) => {
@@ -590,6 +594,10 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
 
   const handleActionPress = useCallback(
     (pressedBtn: ActionButtonId, activeSet: Set<ActionButtonId>) => {
+      if (pressedBtn === 'RESET') {
+        resetRun();
+        return;
+      }
       const notes = combo.notes;
       const idx = nextNoteIndexRef.current;
       if (idx >= notes.length) return;
@@ -645,8 +653,11 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         //   still executes on the EXACT same game frame in SF6, so we must NOT shift the clock!
         // - Only shift forward when pressing LATE (deltaFrames > 0) on a `cancel` / `dr-cancel` / `juggle`
         //   where delaying the button genuinely delays the move's startup & hitstop in SF6.
+        const isAutoCancel =
+          targetNote.buttons.includes('PARRY') ||
+          /^(SA[123]|236236|214214|4646|2828)/.test(targetNote.notation);
         const effectiveType =
-          targetNote.windowType ?? (targetNote.buttons.includes('PARRY') ? 'dr-cancel' : 'link');
+          targetNote.windowType ?? (targetNote.buttons.includes('PARRY') ? 'dr-cancel' : isAutoCancel ? 'cancel' : 'link');
         if (deltaFrames > 0 && effectiveType !== 'link') {
           startTimeRef.current += deltaFrames * FRAME_MS;
         }
@@ -687,7 +698,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       const actualHoldFrames = (performance.now() - hold.pressTime) / FRAME_MS;
       const releaseDelta = actualHoldFrames - hold.targetHoldFrames;
       let rank: JudgmentRank = 'PERFECT';
-      if (Math.abs(releaseDelta) <= 2.0) {
+      if (Math.abs(releaseDelta) <= 0.35) {
         rank = 'PERFECT';
       } else if (Math.abs(releaseDelta) <= 4.5) {
         rank = 'GOOD';
@@ -792,7 +803,9 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       if (activeIdx + 1 < notes.length) {
         chainIndices.push(activeIdx + 1);
         for (let k = activeIdx + 2; k < Math.min(notes.length, activeIdx + 4); k++) {
-          if (notes[k].frame - notes[k - 1].frame <= 30) {
+          const isChargeNext = notes[k].motion === '46' || notes[k].motion === '28';
+          const gapLimit = isChargeNext ? 60 : 30;
+          if (notes[k].frame - notes[k - 1].frame <= gapLimit) {
             chainIndices.push(k);
           } else {
             break;
@@ -880,6 +893,67 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           ctx.fillStyle = nextColor;
           ctx.font = '700 12px system-ui, sans-serif';
           ctx.fillText(nextNote.notation, nx, ny + 16);
+
+          // Direction / Motion / Early Charge Cue below every upcoming preview circle
+          const nextDirs = nextNote.buttons.filter((b) => DIRECTION_IDS.has(b));
+          if (nextNote.motion === '46' || nextNote.motion === '28') {
+            const chargeCue = nextNote.motion === '46' ? '← 提前集氣 [4]6' : '↓ 提前集氣 [2]8';
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+            ctx.beginPath();
+            ctx.roundRect(nx - 54, ny + nextRadius + 10, 108, 22, 11);
+            ctx.fill();
+            ctx.strokeStyle = '#facc15';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.fillStyle = '#facc15';
+            ctx.font = '800 11px system-ui, sans-serif';
+            ctx.fillText(chargeCue, nx, ny + nextRadius + 21);
+          } else if (nextNote.motion) {
+            const motionArrowMap: Record<string, string> = {
+              '236': '↓↘→ 236',
+              '214': '↓↙← 214',
+              '623': '→↓↘ 623',
+              '6214': '→↓← 6214',
+              '22': '↓↓ 22',
+              '66': '→→ 66',
+            };
+            const mText = motionArrowMap[nextNote.motion] ?? nextNote.motion;
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+            ctx.beginPath();
+            ctx.roundRect(nx - 42, ny + nextRadius + 10, 84, 22, 11);
+            ctx.fill();
+            ctx.strokeStyle = nextColor;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = '800 11px system-ui, sans-serif';
+            ctx.fillText(mText, nx, ny + nextRadius + 21);
+          } else if (nextDirs.length > 0) {
+            const nUp = nextDirs.includes('UP');
+            const nDown = nextDirs.includes('DOWN');
+            const nLeft = nextDirs.includes('LEFT');
+            const nRight = nextDirs.includes('RIGHT');
+            const nArrow =
+              nDown && nRight
+                ? '↘'
+                : nDown && nLeft
+                ? '↙'
+                : nUp && nRight
+                ? '↗'
+                : nUp && nLeft
+                ? '↖'
+                : BUTTON_META[nextDirs[0]].shortLabel;
+            ctx.beginPath();
+            ctx.arc(nx, ny + nextRadius + 22, 16, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+            ctx.fill();
+            ctx.strokeStyle = nextColor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 18px system-ui, sans-serif';
+            ctx.fillText(nArrow, nx, ny + nextRadius + 22);
+          }
 
           ctx.restore();
         }
@@ -1090,7 +1164,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         ctx.restore();
       }
 
-      // 3. Draw Hit Judgment Popups & Ring Bursts
+      // 3. Draw Hit Judgment Popups
       hitEffectsRef.current = hitEffectsRef.current.filter((eff) => now - eff.timestamp < 650);
       for (const eff of hitEffectsRef.current) {
         const age = (now - eff.timestamp) / 650;
@@ -1117,6 +1191,123 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         ctx.restore();
       }
 
+      // 4. Bottom-Center Recorded Stick & Button Playback Bar (if enabled & combo has inputHistory)
+      if (showRecordedInputs && combo.inputHistory && combo.inputHistory.length > 0) {
+        const ih = combo.inputHistory;
+        let activeEntry = ih[0];
+        if (phaseRef.current === 'playing') {
+          for (let j = ih.length - 1; j >= 0; j--) {
+            if (currentFrame >= ih[j].startFrame) {
+              activeEntry = ih[j];
+              break;
+            }
+          }
+        }
+
+        const barW = 420;
+        const barH = 74;
+        const barX = w * 0.5 - barW / 2;
+        const barY = h - barH - 22;
+
+        ctx.save();
+        ctx.fillStyle = 'rgba(10, 14, 24, 0.86)';
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barW, barH, 16);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Mini 8-way Arcade Stick on the left of the bar
+        const stickCx = barX + 46;
+        const stickCy = barY + barH / 2;
+        ctx.beginPath();
+        ctx.arc(stickCx, stickCy, 24, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.45)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        const dir = phaseRef.current === 'playing' ? activeEntry.dir : '5';
+        const stickDx =
+          dir === '1' || dir === '4' || dir === '7'
+            ? -12
+            : dir === '3' || dir === '6' || dir === '9'
+            ? 12
+            : 0;
+        const stickDy =
+          dir === '7' || dir === '8' || dir === '9'
+            ? -12
+            : dir === '1' || dir === '2' || dir === '3'
+            ? 12
+            : 0;
+
+        // Stick shaft + ball top
+        ctx.beginPath();
+        ctx.moveTo(stickCx, stickCy);
+        ctx.lineTo(stickCx + stickDx, stickCy + stickDy);
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(stickCx + stickDx, stickCy + stickDy, 9, 0, Math.PI * 2);
+        ctx.fillStyle = dir === '5' ? '#64748b' : '#38bdf8';
+        ctx.shadowColor = dir === '5' ? 'transparent' : '#38bdf8';
+        ctx.shadowBlur = dir === '5' ? 0 : 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Direction arrow label next to stick
+        const dirArrows: Record<string, string> = {
+          '1': '↙', '2': '↓', '3': '↘', '4': '←', '5': '•', '6': '→', '7': '↖', '8': '↑', '9': '↗',
+        };
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '900 20px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(dirArrows[dir] ?? '•', barX + 94, stickCy - 6);
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '700 11px system-ui, sans-serif';
+        ctx.fillText(`方向 ${dir}`, barX + 94, stickCy + 14);
+
+        // Active Recorded Attack/System Buttons on the right
+        const recBtns = phaseRef.current === 'playing' ? activeEntry.buttons : [];
+        const allModeBtns: ActionButtonId[] =
+          mode === 'modern'
+            ? ['L', 'M', 'H', 'SP', 'AUTO', 'PARRY']
+            : ['LP', 'MP', 'HP', 'LK', 'MK', 'HK'];
+
+        allModeBtns.forEach((bId, bIdx) => {
+          const isLit = recBtns.includes(bId);
+          const bx = barX + 146 + bIdx * 43;
+          const by = stickCy;
+          const bColor = BUTTON_META[bId]?.color ?? '#38bdf8';
+
+          ctx.beginPath();
+          ctx.arc(bx, by, 17, 0, Math.PI * 2);
+          ctx.fillStyle = isLit ? bColor : 'rgba(30, 41, 59, 0.75)';
+          if (isLit) {
+            ctx.shadowColor = bColor;
+            ctx.shadowBlur = 14;
+          }
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.lineWidth = isLit ? 2.5 : 1.5;
+          ctx.strokeStyle = isLit ? '#ffffff' : 'rgba(148, 163, 184, 0.3)';
+          ctx.stroke();
+
+          ctx.fillStyle = isLit ? '#090d16' : '#64748b';
+          ctx.font = '900 11px system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(BUTTON_META[bId]?.shortLabel ?? bId, bx, by);
+        });
+
+        ctx.restore();
+      }
+
       rafId = requestAnimationFrame(render);
     };
 
@@ -1125,7 +1316,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
     };
-  }, [combo.notes, recordHit, resetRun]);
+  }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, recordHit, resetRun]);
 
   const totalHits = stats.perfect + stats.good + stats.earlyLate + stats.miss;
   const accuracy =

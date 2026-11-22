@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Keyboard, Gamepad2, RotateCcw, X } from 'lucide-react';
+import { Keyboard, Gamepad2, RotateCcw, X, Globe, Shield } from 'lucide-react';
 import { ActionButtonId, ControlMode, KeyBindingMap } from '../types/combo';
 import {
   BUTTON_META,
@@ -8,25 +8,36 @@ import {
   formatKeyCode,
   getButtonsForMode,
 } from '../data/bindings';
+import { AppLang, DEFAULT_OVERLAY_HOTKEYS, I18N, OverlayHotkeys } from '../data/i18n';
 import { useInputEngine } from '../hooks/useInputEngine';
 
 interface KeybindPanelProps {
   mode: ControlMode;
   bindings: KeyBindingMap;
   onChangeBindings: (next: KeyBindingMap) => void;
+  lang: AppLang;
+  onChangeLang: (next: AppLang) => void;
+  overlayHotkeys: OverlayHotkeys;
+  onChangeOverlayHotkeys: (next: OverlayHotkeys) => void;
   onClose: () => void;
 }
+
+type CaptureTarget =
+  | { kind: 'action'; buttonId: ActionButtonId; device: 'keyboard' | 'gamepad' }
+  | { kind: 'hotkey'; field: keyof OverlayHotkeys };
 
 export const KeybindPanel: React.FC<KeybindPanelProps> = ({
   mode,
   bindings,
   onChangeBindings,
+  lang,
+  onChangeLang,
+  overlayHotkeys,
+  onChangeOverlayHotkeys,
   onClose,
 }) => {
-  const [capturing, setCapturing] = useState<{
-    buttonId: ActionButtonId;
-    device: 'keyboard' | 'gamepad';
-  } | null>(null);
+  const t = I18N[lang];
+  const [capturing, setCapturing] = useState<CaptureTarget | null>(null);
 
   const buttons = getButtonsForMode(mode);
 
@@ -34,22 +45,29 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
     mode,
     bindings,
     onRawKeyCapture:
-      capturing?.device === 'keyboard'
+      capturing && (capturing.kind === 'hotkey' || capturing.device === 'keyboard')
         ? (code) => {
             if (code !== 'Escape') {
-              onChangeBindings({
-                ...bindings,
-                [capturing.buttonId]: {
-                  ...bindings[capturing.buttonId],
-                  keyboardCode: code,
-                },
-              });
+              if (capturing.kind === 'hotkey') {
+                onChangeOverlayHotkeys({
+                  ...overlayHotkeys,
+                  [capturing.field]: code,
+                });
+              } else {
+                onChangeBindings({
+                  ...bindings,
+                  [capturing.buttonId]: {
+                    ...bindings[capturing.buttonId],
+                    keyboardCode: code,
+                  },
+                });
+              }
             }
             setCapturing(null);
           }
         : undefined,
     onRawGamepadCapture:
-      capturing?.device === 'gamepad'
+      capturing?.kind === 'action' && capturing.device === 'gamepad'
         ? (btnIdx) => {
             onChangeBindings({
               ...bindings,
@@ -68,24 +86,127 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
       <div className="modal-card">
         <div className="modal-header">
           <div>
-            <h2>按鍵與控制器設定 ({mode === 'classic' ? '經典模式 Classic' : '現代模式 Modern'})</h2>
+            <h2>
+              {t.settingsTitle} ({mode === 'classic' ? t.classicLabel : t.modernLabel})
+            </h2>
             <p className="muted">
-              點擊右側欄位後按下任意鍵盤或手把按鈕即可綁定 ·{' '}
-              {gamepadName ? `已偵測控制器: ${gamepadName.slice(0, 36)}` : '未偵測到控制器（可插上手把後按任意鍵喚醒）'}
+              {t.settingsSub} ·{' '}
+              {gamepadName
+                ? `${t.gamepadDetected}: ${gamepadName.slice(0, 36)}`
+                : t.gamepadNotDetected}
             </p>
           </div>
           <div className="modal-header-actions">
             <button
               className="btn-secondary"
-              onClick={() => onChangeBindings({ ...DEFAULT_BINDINGS })}
-              title="還原預設按鍵"
+              onClick={() => {
+                onChangeBindings({ ...DEFAULT_BINDINGS });
+                onChangeOverlayHotkeys({ ...DEFAULT_OVERLAY_HOTKEYS });
+              }}
+              title={t.resetDefault}
             >
               <RotateCcw size={15} />
-              還原預設
+              {t.resetDefault}
             </button>
             <button className="btn-icon" onClick={onClose}>
               <X size={18} />
             </button>
+          </div>
+        </div>
+
+        {/* Language & Global Overlay Hotkeys */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+            marginBottom: 14,
+            padding: '12px 14px',
+            borderRadius: 10,
+            background: 'rgba(15, 23, 42, 0.7)',
+            border: '1px solid rgba(148, 163, 184, 0.22)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>
+              <Globe size={15} color="#38bdf8" />
+              <span>{t.languageLabel}</span>
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                className="btn-secondary"
+                style={
+                  lang === 'zh-TW'
+                    ? { background: 'rgba(56, 189, 248, 0.22)', borderColor: '#38bdf8', color: '#e0f2fe' }
+                    : undefined
+                }
+                onClick={() => onChangeLang('zh-TW')}
+              >
+                繁體中文
+              </button>
+              <button
+                className="btn-secondary"
+                style={
+                  lang === 'en'
+                    ? { background: 'rgba(56, 189, 248, 0.22)', borderColor: '#38bdf8', color: '#e0f2fe' }
+                    : undefined
+                }
+                onClick={() => onChangeLang('en')}
+              >
+                English
+              </button>
+            </div>
+          </div>
+
+          <div
+            style={{
+              borderTop: '1px solid rgba(148, 163, 184, 0.16)',
+              paddingTop: 10,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#94a3b8', fontWeight: 700 }}>
+              <Shield size={13} color="#a855f7" />
+              <span>{t.globalHotkeysTitle}</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div className="keybind-row" style={{ margin: 0 }}>
+                <div className="keybind-label" style={{ fontSize: 12.5 }}>
+                  <span>{t.clickThroughLabel}</span>
+                </div>
+                <button
+                  className={`bind-chip ${capturing?.kind === 'hotkey' && capturing.field === 'clickThrough' ? 'capturing' : ''}`}
+                  onClick={(e) => {
+                    e.currentTarget.blur();
+                    setCapturing({ kind: 'hotkey', field: 'clickThrough' });
+                  }}
+                >
+                  <Keyboard size={13} />
+                  {capturing?.kind === 'hotkey' && capturing.field === 'clickThrough'
+                    ? t.pressAnyKey
+                    : formatKeyCode(overlayHotkeys.clickThrough)}
+                </button>
+              </div>
+              <div className="keybind-row" style={{ margin: 0 }}>
+                <div className="keybind-label" style={{ fontSize: 12.5 }}>
+                  <span>{t.exitOverlayLabel}</span>
+                </div>
+                <button
+                  className={`bind-chip ${capturing?.kind === 'hotkey' && capturing.field === 'exitOverlay' ? 'capturing' : ''}`}
+                  onClick={(e) => {
+                    e.currentTarget.blur();
+                    setCapturing({ kind: 'hotkey', field: 'exitOverlay' });
+                  }}
+                >
+                  <Keyboard size={13} />
+                  {capturing?.kind === 'hotkey' && capturing.field === 'exitOverlay'
+                    ? t.pressAnyKey
+                    : formatKeyCode(overlayHotkeys.exitOverlay)}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -94,8 +215,10 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
             const meta = BUTTON_META[btnId];
             const bind = bindings[btnId];
             const isPressed = activeButtons.has(btnId);
-            const isCapKb = capturing?.buttonId === btnId && capturing.device === 'keyboard';
-            const isCapGp = capturing?.buttonId === btnId && capturing.device === 'gamepad';
+            const isCapKb =
+              capturing?.kind === 'action' && capturing.buttonId === btnId && capturing.device === 'keyboard';
+            const isCapGp =
+              capturing?.kind === 'action' && capturing.buttonId === btnId && capturing.device === 'gamepad';
 
             return (
               <div
@@ -117,22 +240,22 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
                     className={`bind-chip ${isCapKb ? 'capturing' : ''}`}
                     onClick={(e) => {
                       e.currentTarget.blur();
-                      setCapturing({ buttonId: btnId, device: 'keyboard' });
+                      setCapturing({ kind: 'action', buttonId: btnId, device: 'keyboard' });
                     }}
                   >
                     <Keyboard size={13} />
-                    {isCapKb ? '請按鍵盤...' : formatKeyCode(bind.keyboardCode)}
+                    {isCapKb ? t.pressAnyKey : formatKeyCode(bind.keyboardCode)}
                   </button>
 
                   <button
                     className={`bind-chip ${isCapGp ? 'capturing' : ''}`}
                     onClick={(e) => {
                       e.currentTarget.blur();
-                      setCapturing({ buttonId: btnId, device: 'gamepad' });
+                      setCapturing({ kind: 'action', buttonId: btnId, device: 'gamepad' });
                     }}
                   >
                     <Gamepad2 size={13} />
-                    {isCapGp ? '請按手把...' : formatGamepadButton(bind.gamepadButton)}
+                    {isCapGp ? t.pressGamepad : formatGamepadButton(bind.gamepadButton)}
                   </button>
                 </div>
               </div>

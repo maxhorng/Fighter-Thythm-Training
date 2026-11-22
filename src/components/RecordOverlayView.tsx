@@ -134,6 +134,10 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
 
   const handleActionPress = useCallback(
     (pressedBtn: ActionButtonId, activeSet: Set<ActionButtonId>) => {
+      if (pressedBtn === 'RESET') {
+        clearRecording();
+        return;
+      }
       const now = performance.now();
 
       // Synchronously record every direction press into dirHistoryRef so fast 1-frame
@@ -151,10 +155,74 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
           if (hist.length > 32) hist.shift();
         }
 
+        // Retroactive [2]8 / [4]6 charge upgrade: in SF6, pressing the attack button 1~2f BEFORE
+        // hitting UP (8) or RIGHT (6) still triggers Flash Kick / Sonic Boom!
+        if (startTimeRef.current !== null && (pressedBtn === 'UP' || pressedBtn === 'RIGHT')) {
+          const ch = chargeRef.current;
+          const frame = Math.round((now - startTimeRef.current) / FRAME_MS);
+          const isUpCharge =
+            pressedBtn === 'UP' && ch.lastDownChargeMs >= 630 && now - ch.lastDownReleaseTime <= 180;
+          const isFwdCharge =
+            pressedBtn === 'RIGHT' && ch.lastBackChargeMs >= 630 && now - ch.lastBackReleaseTime <= 180;
+
+          if (isUpCharge || isFwdCharge) {
+            const chargeMotion: MotionType = isUpCharge ? '28' : '46';
+            const chargeDirBtn: ActionButtonId = isUpCharge ? 'UP' : 'RIGHT';
+            const chargePrefix = isUpCharge ? '[2]8' : '[4]6';
+            setRecordedNotes((prev) => {
+              const last = prev[prev.length - 1];
+              if (!last || last.motion || frame - last.frame > 3) return prev;
+              const atkBtns = last.buttons.filter((b) => !DIRECTION_IDS.has(b));
+              if (atkBtns.length === 0) return prev;
+              const btnLabel = atkBtns.map((b) => BUTTON_META[b].shortLabel).join('+');
+              const upgraded: ComboNote = {
+                ...last,
+                buttons: [chargeDirBtn, ...atkBtns],
+                motion: chargeMotion,
+                notation: `${chargePrefix}${btnLabel}`,
+                moveName: `${chargePrefix}${btnLabel} (${last.frame}f)`,
+              };
+              return [...prev.slice(0, -1), upgraded];
+            });
+          } else if (pressedBtn === 'UP') {
+            // Record explicit Jump (9 前跳 / 8 垂直跳 / 7 後跳) for Safe Jump (安全跳) combos!
+            const jumpDirBtns: ActionButtonId[] = activeSet.has('RIGHT')
+              ? ['UP', 'RIGHT']
+              : activeSet.has('LEFT')
+              ? ['UP', 'LEFT']
+              : ['UP'];
+            const jumpNotation = activeSet.has('RIGHT') ? '9' : activeSet.has('LEFT') ? '7' : '8';
+            const jumpLabel =
+              jumpNotation === '9' ? '9 前跳' : jumpNotation === '7' ? '7 後跳' : '8 跳躍';
+            setRecordedNotes((prev) => {
+              const last = prev[prev.length - 1];
+              if (last && (last.notation === '9' || last.notation === '8' || last.notation === '7') && frame - last.frame <= 15) {
+                return prev;
+              }
+              const idx = prev.length;
+              return [
+                ...prev,
+                {
+                  id: `rec-${idx + 1}`,
+                  frame,
+                  buttons: jumpDirBtns,
+                  notation: jumpNotation,
+                  moveName: `${jumpLabel} (${frame}f)`,
+                  x: SLOTS_X[idx % SLOTS_X.length],
+                  y: 0.50,
+                },
+              ];
+            });
+          }
+        }
+
         // Detect Forward Dash (66) during an active recording!
-        if (pressedBtn === 'RIGHT' && d === '6' && startTimeRef.current !== null) {
+        if (pressedBtn === 'RIGHT' && d === '6') {
           const recentDash = hist.filter((h) => now - h.t <= 240).map((h) => h.dir).join('');
           if (/65+6$/.test(recentDash)) {
+            if (startTimeRef.current === null) {
+              startTimeRef.current = now;
+            }
             const frame = Math.round((now - startTimeRef.current) / FRAME_MS);
             setRecordedNotes((prev) => {
               const last = prev[prev.length - 1];
@@ -246,9 +314,39 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
       let detectedMotion: MotionType | undefined;
       let saLabel: string | null = null;
 
+      // Count full 4-cardinal rotations (D, L, U, R) for 360 (SPD) and 720 (SA3)
+      const countRotations = (dirs: string[]): number => {
+        let rotations = 0;
+        let mask = 0;
+        for (const d of dirs) {
+          if (d === '1' || d === '2' || d === '3') mask |= 1;
+          if (d === '1' || d === '4' || d === '7') mask |= 2;
+          if (d === '7' || d === '8' || d === '9') mask |= 4;
+          if (d === '3' || d === '6' || d === '9') mask |= 8;
+          if (mask === 15) {
+            rotations++;
+            mask = 0;
+          }
+        }
+        return rotations;
+      };
+      const recentDirs800 = dirHistoryRef.current
+        .filter((d) => now - d.t <= 800)
+        .map((d) => d.dir);
+      if (dirPrefix && recentDirs800[recentDirs800.length - 1] !== dirPrefix) {
+        recentDirs800.push(dirPrefix);
+      }
+
       if (pressedBtn !== 'PARRY' && pressedBtn !== 'DI') {
+        // 0. Full-circle 720 (轉兩圈 SA3) & 360 (轉一圈 SPD) — e.g. Zangief
+        if (countRotations(recentDirs800) >= 2) {
+          detectedMotion = '720';
+          saLabel = mode === 'modern' ? getModernSaLabel(pressedBtn, '720') : `720${btnShort}`;
+        } else if (countRotations(recentDirs550) >= 1) {
+          detectedMotion = '360';
+        }
         // 1. Double-QCF (236236) / Double-QCB (214214) Super Arts
-        if ((dirPrefix === '6' || dirPrefix === '3') && /[23][235]*6.*[23][235]*6/.test(seqLong)) {
+        else if ((dirPrefix === '6' || dirPrefix === '3') && /[23][235]*6.*[23][235]*6/.test(seqLong)) {
           detectedMotion = '236';
           saLabel = mode === 'modern' ? getModernSaLabel(pressedBtn, '236236') : `236236${btnShort}`;
         } else if ((dirPrefix === '4' || dirPrefix === '1') && /[21][215]*4.*[21][215]*4/.test(seqLong)) {
@@ -263,15 +361,24 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
           detectedMotion = '28';
           saLabel = mode === 'modern' ? getModernSaLabel(pressedBtn, '2828') : `2828${btnShort}`;
         }
-        // 3. Standard Charge Specials: [4]6 and [2]8 (within ~120ms of releasing charge)
-        else if (hasBackCharge && now - ch.lastBackReleaseTime <= 130 && (dirPrefix === '6' || dirPrefix === '3' || dirPrefix === '9')) {
+        // 3. Standard Charge Specials: [4]6 and [2]8 (SF6 keeps charge buffered for ~12f / 220ms after release!)
+        else if (hasBackCharge && now - ch.lastBackReleaseTime <= 220 && (dirPrefix === '6' || dirPrefix === '3' || dirPrefix === '9')) {
           detectedMotion = '46';
-        } else if (hasDownCharge && now - ch.lastDownReleaseTime <= 130 && (dirPrefix === '8' || dirPrefix === '7' || dirPrefix === '9')) {
+        } else if (hasDownCharge && now - ch.lastDownReleaseTime <= 220 && (dirPrefix === '8' || dirPrefix === '7' || dirPrefix === '9')) {
           detectedMotion = '28';
         }
-        // 4. Standard Motion Specials: 623 / 236 / 214 / 22
-        else if ((dirPrefix === '3' || dirPrefix === '6') && /6[35]*2[35]*[36]/.test(seq)) {
+        // 4. Standard Motion Specials: 623 (incl. SF6 323 / 33 DP shortcuts) / 236 (incl. TK 2369) / 214 (incl. TK 2147) / 22
+        else if (
+          (dirPrefix === '3' || dirPrefix === '6') &&
+          /(?:6[35]*2[35]*[36]|3[25]+3|32[5]*6)/.test(seq)
+        ) {
           detectedMotion = '623';
+        } else if (dirPrefix === '9' && /[23][235]*6[65]*9/.test(seq)) {
+          detectedMotion = '236';
+          saLabel = `2369${modPrefix}${btnShort}`;
+        } else if (dirPrefix === '7' && /[21][215]*4[45]*7/.test(seq)) {
+          detectedMotion = '214';
+          saLabel = `2147${modPrefix}${btnShort}`;
         } else if ((dirPrefix === '6' || dirPrefix === '3') && /[23][235]*6/.test(seq)) {
           detectedMotion = '236';
         } else if ((dirPrefix === '4' || dirPrefix === '1') && /[21][215]*4/.test(seq)) {
@@ -326,6 +433,48 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
   );
 
   const handleActionRelease = useCallback((releasedBtn: ActionButtonId) => {
+    // If a direction (e.g. DOWN) is released within <= 1f (~16ms) of pressing an attack button
+    // (like releasing DOWN to do 5LK out of crouch charge), strip that direction so 2LK -> 5LK!
+    if (DIRECTION_IDS.has(releasedBtn) && startTimeRef.current !== null) {
+      const nowFrame = (performance.now() - startTimeRef.current) / FRAME_MS;
+      setRecordedNotes((prev) => {
+        const last = prev[prev.length - 1];
+        if (!last || last.motion || nowFrame - last.frame > 1.2 || !last.buttons.includes(releasedBtn)) {
+          return prev;
+        }
+        const nextBtns = last.buttons.filter((b) => b !== releasedBtn);
+        const remDirs = nextBtns.filter((b) => DIRECTION_IDS.has(b));
+        const atkBtns = nextBtns.filter((b) => !DIRECTION_IDS.has(b));
+        if (atkBtns.length === 0) return prev;
+        const dirPfx =
+          remDirs.includes('DOWN') && remDirs.includes('RIGHT')
+            ? '3'
+            : remDirs.includes('DOWN') && remDirs.includes('LEFT')
+            ? '1'
+            : remDirs.includes('DOWN')
+            ? '2'
+            : remDirs.includes('LEFT')
+            ? '4'
+            : remDirs.includes('RIGHT')
+            ? '6'
+            : remDirs.includes('UP')
+            ? '8'
+            : '5';
+        const atkStr = atkBtns.map((b) => BUTTON_META[b].shortLabel).join('+');
+        const nextNotation = `${dirPfx}${atkStr}`;
+        return [
+          ...prev.slice(0, -1),
+          {
+            ...last,
+            buttons: nextBtns,
+            notation: nextNotation,
+            moveName: `${nextNotation} (${last.frame}f)`,
+          },
+        ];
+      });
+      return;
+    }
+
     const entry = holdStartRef.current.get(releasedBtn);
     if (!entry) return;
     holdStartRef.current.delete(releasedBtn);

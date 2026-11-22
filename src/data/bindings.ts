@@ -25,18 +25,19 @@ export const BUTTON_META: Record<ActionButtonId, ButtonMeta> = {
   // Shared SF6 System
   PARRY: { id: 'PARRY', label: '精防 (Parry)', shortLabel: 'PARRY', color: '#34d399', category: 'system' },
   DI: { id: 'DI', label: '迸發 (DI)', shortLabel: 'DI', color: '#fb7185', category: 'system' },
+  RESET: { id: 'RESET', label: '重置訓練場 (同步重來)', shortLabel: 'RESET', color: '#f59e0b', category: 'system' },
 };
 
 export const CLASSIC_BUTTONS: ActionButtonId[] = [
   'UP', 'DOWN', 'LEFT', 'RIGHT',
   'LP', 'MP', 'HP', 'LK', 'MK', 'HK',
-  'PARRY', 'DI',
+  'PARRY', 'DI', 'RESET',
 ];
 
 export const MODERN_BUTTONS: ActionButtonId[] = [
   'UP', 'DOWN', 'LEFT', 'RIGHT',
   'L', 'M', 'H', 'SP', 'AUTO',
-  'PARRY', 'DI',
+  'PARRY', 'DI', 'RESET',
 ];
 
 export function getButtonsForMode(mode: ControlMode): ActionButtonId[] {
@@ -68,6 +69,7 @@ export const DEFAULT_BINDINGS: KeyBindingMap = {
   // System (Shared)
   PARRY: { keyboardCode: 'KeyH', gamepadButton: 6 }, // LT / L2
   DI: { keyboardCode: 'KeyP', gamepadButton: 4 },    // LB / L1
+  RESET: { keyboardCode: 'F8', gamepadButton: 8 },   // F8 / Select (Share/Back)
 };
 
 export function formatKeyCode(code: string): string {
