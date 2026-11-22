@@ -2,6 +2,7 @@
   "name": "fighter-music-combo",
   "version": "0.2.0-beta.1",
   "author": "maxhorng / 92anini",
+  "license": "GPL-3.0-only",
   "description": "Street Fighter 6 osu!-style Rhythm Combo Trainer Overlay",
   "main": "dist-electron/main.js",
   "scripts": {
