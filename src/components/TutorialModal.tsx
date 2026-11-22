@@ -33,6 +33,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({
   const isEn = lang === 'en';
 
   const kReset = formatKeyCode(resetKeyCode || 'F8');
+  const kReview = formatKeyCode(overlayHotkeys.toggleReview || 'F7');
   const kClick = formatKeyCode(overlayHotkeys.clickThrough || 'F9');
   const kExit = formatKeyCode(overlayHotkeys.exitOverlay || 'F10');
 
@@ -127,7 +128,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: 'repeat(2, 1fr)',
             gap: 10,
             padding: '14px',
             borderRadius: 12,
@@ -137,6 +138,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({
         >
           {[
             { key: kReset, label: isEn ? 'Restart Combo' : '同步重來 / 清空', color: '#38bdf8' },
+            { key: kReview, label: isEn ? 'Toggle Combo Review' : '開啟/收合檢討紀錄', color: '#a855f7' },
             { key: kClick, label: isEn ? 'Mouse Click-Through' : '切換滑鼠穿透', color: '#f59e0b' },
             { key: kExit, label: isEn ? 'Return to Menu' : '返回主選單', color: '#f43f5e' },
           ].map((item) => (
