@@ -125,6 +125,40 @@ export function useInputEngine({
     const unsubGlobalDown = window.electronAPI?.onGlobalKeyDown(handleKeyDown);
     const unsubGlobalUp = window.electronAPI?.onGlobalKeyUp(handleKeyUp);
 
+    // Electron native Windows XInput poller (works even when SF6 is focused and Chromium pauses Web Gamepad API!)
+    let hasNativeXInput = false;
+    const unsubGlobalGamepad = window.electronAPI?.onGlobalGamepadState?.((state) => {
+      hasNativeXInput = state.connected;
+      if (state.connected && !gamepadNameRef.current) {
+        gamepadNameRef.current = 'XInput Controller / Hitbox (Global)';
+        setGamepadName('XInput Controller / Hitbox (Global)');
+      }
+      const nextGpBtns = new Set<number>(state.buttons);
+
+      if (callbacksRef.current.onRawGamepadCapture) {
+        for (const idx of nextGpBtns) {
+          if (!prevGamepadBtnsRef.current.has(idx)) {
+            callbacksRef.current.onRawGamepadCapture(idx);
+            break;
+          }
+        }
+      }
+
+      let gpChanged = nextGpBtns.size !== prevGamepadBtnsRef.current.size;
+      if (!gpChanged) {
+        for (const idx of nextGpBtns) {
+          if (!prevGamepadBtnsRef.current.has(idx)) {
+            gpChanged = true;
+            break;
+          }
+        }
+      }
+      if (gpChanged) {
+        prevGamepadBtnsRef.current = nextGpBtns;
+        syncActiveActions();
+      }
+    });
+
     // Gamepad 60fps+ polling loop (merges ALL connected controllers so Hitbox/Leverless in slot 1+ always works!)
     let rafId = 0;
     let idleCheckTimer: number | null = null;
@@ -142,7 +176,7 @@ export function useInputEngine({
     const pollGamepads = () => {
       const connectedPads = getConnectedGamepads();
 
-      if (connectedPads.length > 0) {
+      if (connectedPads.length > 0 && !hasNativeXInput) {
         const displayName =
           connectedPads.length === 1
             ? connectedPads[0].id
@@ -265,6 +299,7 @@ export function useInputEngine({
       window.removeEventListener('gamepaddisconnected', onGamepadDisconnected);
       unsubGlobalDown?.();
       unsubGlobalUp?.();
+      unsubGlobalGamepad?.();
       cancelAnimationFrame(rafId);
       if (idleCheckTimer !== null) clearInterval(idleCheckTimer);
     };

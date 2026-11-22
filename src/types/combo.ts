@@ -98,6 +98,7 @@ export interface ElectronAPI {
   closeWindow: () => Promise<void>;
   onGlobalKeyDown: (cb: (code: string) => void) => () => void;
   onGlobalKeyUp: (cb: (code: string) => void) => () => void;
+  onGlobalGamepadState?: (cb: (state: { connected: boolean; buttons: number[] }) => void) => () => void;
   onOverlayStateChanged: (cb: (state: { isOverlayMode: boolean; isClickThrough: boolean }) => void) => () => void;
   onHotkey: (cb: (action: string) => void) => () => void;
 }

@@ -9,13 +9,14 @@
     "dev": "concurrently -k \"npm:dev:vite\" \"npm:dev:electron\"",
     "dev:vite": "vite",
     "dev:electron": "wait-on tcp:51766 && npm run build:electron && electron .",
-    "build:electron": "esbuild electron/main.ts --bundle --platform=node --external:electron --external:uiohook-napi --outfile=dist-electron/main.js && esbuild electron/preload.ts --bundle --platform=node --external:electron --outfile=dist-electron/preload.js",
+    "build:electron": "esbuild electron/main.ts --bundle --platform=node --external:electron --external:uiohook-napi --external:koffi --outfile=dist-electron/main.js && esbuild electron/preload.ts --bundle --platform=node --external:electron --outfile=dist-electron/preload.js",
     "build": "vite build && npm run build:electron",
     "dist:win": "npm run build && electron-builder --win portable",
     "start": "npm run build && electron .",
     "sync:framedata": "node -e \"fetch('https://raw.githubusercontent.com/D4RKONION/FAT/master/src/js/constants/framedata/SF6FrameData.json').then(r=>r.text()).then(t=>{require('fs').writeFileSync('src/data/sf6_framedata_db.json',t);console.log('Synced SF6 Frame Data DB:',Object.keys(JSON.parse(t)).length,'characters')})\""
   },
   "dependencies": {
+    "koffi": "^3.3.8",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -46,13 +47,16 @@
       "package.json"
     ],
     "asarUnpack": [
-      "**/uiohook-napi/**"
+      "**/uiohook-napi/**",
+      "**/koffi/**"
     ],
     "win": {
       "target": [
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "artifactName": "Fighter-Thythm-Training-${version}-win-portable.exe"

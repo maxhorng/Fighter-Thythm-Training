@@ -24,6 +24,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('global-keyup', handler);
     return () => ipcRenderer.removeListener('global-keyup', handler);
   },
+  onGlobalGamepadState: (callback: (state: { connected: boolean; buttons: number[] }) => void) => {
+    const handler = (
+      _event: Electron.IpcRendererEvent,
+      state: { connected: boolean; buttons: number[] }
+    ) => callback(state);
+    ipcRenderer.on('global-gamepad-state', handler);
+    return () => ipcRenderer.removeListener('global-gamepad-state', handler);
+  },
   onOverlayStateChanged: (callback: (state: OverlayState) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, state: OverlayState) => callback(state);
     ipcRenderer.on('overlay-state-changed', handler);

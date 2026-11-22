@@ -178,9 +178,83 @@ function registerOverlayHotkeys(next: { clickThrough?: string; exitOverlay?: str
   // detects bindings.RESET so both SF6 Training Mode and the overlay reset simultaneously.
 }
 
+let xinputTimer: NodeJS.Timeout | null = null;
+
+function startGlobalXInputPoller() {
+  if (process.platform !== 'win32') return;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const koffi = require('koffi');
+    let lib: any = null;
+    for (const dll of ['xinput1_4.dll', 'xinput1_3.dll', 'xinput9_1_0.dll']) {
+      try {
+        lib = koffi.load(dll);
+        break;
+      } catch {
+        // try next XInput DLL
+      }
+    }
+    if (!lib) return;
+
+    const XInputGetState = lib.func('uint32 __stdcall XInputGetState(uint32 dwUserIndex, uint8 *pState)');
+    const stateBuf = Buffer.alloc(16); // XINPUT_STATE = DWORD(4) + XINPUT_GAMEPAD(12)
+    let lastKey = '';
+
+    xinputTimer = setInterval(() => {
+      if (!mainWindow || mainWindow.isDestroyed()) return;
+      let anyConnected = false;
+      const btns = new Set<number>();
+
+      for (let i = 0; i < 4; i++) {
+        stateBuf.fill(0);
+        const res = XInputGetState(i, stateBuf);
+        if (res === 0) {
+          anyConnected = true;
+          const wButtons = stateBuf.readUInt16LE(4);
+          const bLeftTrigger = stateBuf.readUInt8(6);
+          const bRightTrigger = stateBuf.readUInt8(7);
+          const sThumbLX = stateBuf.readInt16LE(8);
+          const sThumbLY = stateBuf.readInt16LE(10);
+
+          // Standard Gamepad API button index mapping (0..15)
+          if (wButtons & 0x1000) btns.add(0);  // A
+          if (wButtons & 0x2000) btns.add(1);  // B
+          if (wButtons & 0x4000) btns.add(2);  // X
+          if (wButtons & 0x8000) btns.add(3);  // Y
+          if (wButtons & 0x0100) btns.add(4);  // LB
+          if (wButtons & 0x0200) btns.add(5);  // RB
+          if (bLeftTrigger > 120) btns.add(6); // LT
+          if (bRightTrigger > 120) btns.add(7);// RT
+          if (wButtons & 0x0020) btns.add(8);  // Back / Select
+          if (wButtons & 0x0010) btns.add(9);  // Start
+          if (wButtons & 0x0040) btns.add(10); // L3
+          if (wButtons & 0x0080) btns.add(11); // R3
+          if ((wButtons & 0x0001) || sThumbLY > 16000) btns.add(12);  // Up
+          if ((wButtons & 0x0002) || sThumbLY < -16000) btns.add(13); // Down
+          if ((wButtons & 0x0004) || sThumbLX < -16000) btns.add(14); // Left
+          if ((wButtons & 0x0008) || sThumbLX > 16000) btns.add(15);  // Right
+        }
+      }
+
+      const arr = Array.from(btns).sort((a, b) => a - b);
+      const key = `${anyConnected ? 1 : 0}|${arr.join(',')}`;
+      if (key !== lastKey) {
+        lastKey = key;
+        mainWindow.webContents.send('global-gamepad-state', {
+          connected: anyConnected,
+          buttons: arr,
+        });
+      }
+    }, 8);
+  } catch (err) {
+    console.warn('Global XInput poller unavailable:', err);
+  }
+}
+
 app.whenReady().then(() => {
   createWindow();
   startGlobalKeyHook();
+  startGlobalXInputPoller();
   registerOverlayHotkeys(currentHotkeys);
 });
 
