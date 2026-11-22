@@ -646,8 +646,9 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   });
 
   const [runLog, setRunLog] = useState<
-    { step: number; notation: string; rank: HitResult['rank']; deltaFrames: number }[]
+    { noteId: string; step: number; notation: string; rank: HitResult['rank']; deltaFrames: number }[]
   >([]);
+  const [showReview, setShowReview] = useState(false);
 
   const resetRun = useCallback(() => {
     phaseRef.current = triggerMode === 'trigger-first' ? 'waiting-first' : 'countdown';
@@ -676,6 +677,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       setRunLog((prev) => [
         ...prev,
         {
+          noteId: result.noteId,
           step: noteIdx + 1,
           notation,
           rank: result.rank,
@@ -1503,6 +1505,18 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         <div className="hud-controls">
           {!isClickThrough && (
             <>
+              <button
+                className="hud-btn"
+                onClick={() => setShowReview((v) => !v)}
+                style={
+                  hasIssueInRun
+                    ? { borderColor: 'rgba(251, 146, 60, 0.7)', color: '#fed7aa' }
+                    : undefined
+                }
+                title="展開/收合當次連段檢討"
+              >
+                檢討 {showReview ? '▲' : '▼'}
+              </button>
               <button className="hud-btn" onClick={resetRun} title="重來 (F8)">
                 <RotateCcw size={13} /> 重來
               </button>
@@ -1519,79 +1533,128 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         </div>
       </div>
 
-      {/* Per-Run Timing Review Strip (auto-clears on next attempt / RESET) */}
-      {hasIssueInRun && (
+      {/* Collapsible Per-Run Combo Review Dropdown (auto-clears on RESET) */}
+      {showReview && (
         <div
           style={{
             position: 'fixed',
             top: 58,
             left: '50%',
             transform: 'translateX(-50%)',
-            maxWidth: '90vw',
-            padding: '6px 12px',
-            borderRadius: 10,
-            background: 'rgba(10, 14, 24, 0.84)',
-            border: '1px solid rgba(148, 163, 184, 0.28)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            flexWrap: 'wrap',
-            pointerEvents: 'none',
-            zIndex: 20,
+            width: 'min(760px, 92vw)',
+            maxHeight: '45vh',
+            overflowY: 'auto',
+            padding: '12px 16px',
+            borderRadius: 12,
+            background: 'rgba(10, 14, 24, 0.92)',
+            border: '1px solid rgba(148, 163, 184, 0.32)',
+            boxShadow: '0 12px 32px rgba(0, 0, 0, 0.55)',
+            zIndex: 25,
           }}
         >
-          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#e2e8f0', whiteSpace: 'nowrap' }}>
-            當次檢討
-            {firstIssue
-              ? `（第 ${firstIssue.step} 擊 ${firstIssue.notation} ${
-                  firstIssue.rank === 'EARLY'
-                    ? `太早 ${firstIssue.deltaFrames.toFixed(1)}f`
-                    : firstIssue.rank === 'LATE'
-                    ? `太晚 +${firstIssue.deltaFrames.toFixed(1)}f`
-                    : 'MISS'
-                }）`
-              : ''}
-            ：
-          </span>
-          {runLog.map((entry, idx) => {
-            const color =
-              entry.rank === 'PERFECT'
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 10,
+              fontSize: 12.5,
+              fontWeight: 800,
+              color: '#e2e8f0',
+            }}
+          >
+            <span>
+              當次連段檢討（共 {combo.notes.length} 擊）
+              {firstIssue
+                ? ` · 首次失誤：第 ${firstIssue.step} 擊 ${firstIssue.notation}（${
+                    firstIssue.rank === 'EARLY'
+                      ? `太早 ${firstIssue.deltaFrames.toFixed(1)}f`
+                      : firstIssue.rank === 'LATE'
+                      ? `太晚 +${firstIssue.deltaFrames.toFixed(1)}f`
+                      : 'MISS'
+                  }）`
+                : runLog.length > 0
+                ? ' · 目前全中！'
+                : ' · 尚未開始'}
+            </span>
+            {!isClickThrough && (
+              <button
+                className="hud-btn"
+                style={{ padding: '2px 8px', fontSize: 11 }}
+                onClick={() => setShowReview(false)}
+              >
+                收合
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {combo.notes.map((note, idx) => {
+              const res = runLog.find((r) => r.noteId === note.id);
+              const isProblem =
+                res && (res.rank === 'EARLY' || res.rank === 'LATE' || res.rank === 'MISS');
+              const primaryBtn = note.buttons[note.buttons.length - 1];
+              const normalColor = BUTTON_META[primaryBtn]?.color ?? '#38bdf8';
+
+              const statusText = !res
+                ? `${note.frame}f`
+                : res.rank === 'PERFECT'
+                ? 'PERFECT'
+                : res.rank === 'GOOD'
+                ? `GOOD ${res.deltaFrames >= 0 ? '+' : ''}${res.deltaFrames.toFixed(1)}f`
+                : res.rank === 'EARLY'
+                ? `太早 ${res.deltaFrames.toFixed(1)}f`
+                : res.rank === 'LATE'
+                ? `太晚 +${res.deltaFrames.toFixed(1)}f`
+                : 'MISS';
+
+              const statusColor = !res
+                ? '#cbd5e1'
+                : res.rank === 'PERFECT'
                 ? '#facc15'
-                : entry.rank === 'GOOD'
+                : res.rank === 'GOOD'
                 ? '#38bdf8'
-                : entry.rank === 'EARLY'
+                : res.rank === 'EARLY'
                 ? '#fb923c'
-                : entry.rank === 'LATE'
+                : res.rank === 'LATE'
                 ? '#f472b6'
                 : '#f43f5e';
-            const label =
-              entry.rank === 'PERFECT'
-                ? 'P'
-                : entry.rank === 'GOOD'
-                ? `${entry.deltaFrames >= 0 ? '+' : ''}${entry.deltaFrames.toFixed(1)}f`
-                : entry.rank === 'EARLY'
-                ? `太早 ${entry.deltaFrames.toFixed(1)}f`
-                : entry.rank === 'LATE'
-                ? `太晚 +${entry.deltaFrames.toFixed(1)}f`
-                : 'MISS';
-            return (
-              <span
-                key={`${entry.step}-${idx}`}
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  padding: '2px 7px',
-                  borderRadius: 6,
-                  background: `${color}1f`,
-                  border: `1px solid ${color}77`,
-                  color,
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                #{entry.step} {entry.notation} · {label}
-              </span>
-            );
-          })}
+
+              return (
+                <div
+                  key={note.id}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                    padding: '6px 10px',
+                    borderRadius: 8,
+                    minWidth: 86,
+                    background: isProblem
+                      ? 'rgba(100, 116, 139, 0.22)'
+                      : `${normalColor}22`,
+                    border: isProblem
+                      ? '1px solid rgba(148, 163, 184, 0.45)'
+                      : `1px solid ${normalColor}99`,
+                    opacity: isProblem ? 0.72 : 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 800,
+                      color: isProblem ? '#94a3b8' : '#f8fafc',
+                    }}
+                  >
+                    #{idx + 1} {note.notation}
+                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: statusColor }}>
+                    {statusText}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
