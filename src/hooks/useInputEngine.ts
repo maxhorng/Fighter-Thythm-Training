@@ -125,41 +125,63 @@ export function useInputEngine({
     const unsubGlobalDown = window.electronAPI?.onGlobalKeyDown(handleKeyDown);
     const unsubGlobalUp = window.electronAPI?.onGlobalKeyUp(handleKeyUp);
 
-    // Gamepad 60fps+ polling loop (only runs while a gamepad is connected)
+    // Gamepad 60fps+ polling loop (merges ALL connected controllers so Hitbox/Leverless in slot 1+ always works!)
     let rafId = 0;
+    let idleCheckTimer: number | null = null;
     let isPollingGamepad = false;
 
-    const getConnectedGamepad = (): Gamepad | null => {
+    const getConnectedGamepads = (): Gamepad[] => {
       const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+      const connected: Gamepad[] = [];
       for (const p of pads) {
-        if (p && p.connected) return p;
+        if (p && p.connected) connected.push(p);
       }
-      return null;
+      return connected;
     };
 
     const pollGamepads = () => {
-      const activePad = getConnectedGamepad();
+      const connectedPads = getConnectedGamepads();
 
-      if (activePad) {
-        if (gamepadNameRef.current !== activePad.id) {
-          gamepadNameRef.current = activePad.id;
-          setGamepadName(activePad.id);
+      if (connectedPads.length > 0) {
+        const displayName =
+          connectedPads.length === 1
+            ? connectedPads[0].id
+            : `${connectedPads[0].id} (+${connectedPads.length - 1})`;
+        if (gamepadNameRef.current !== displayName) {
+          gamepadNameRef.current = displayName;
+          setGamepadName(displayName);
         }
         const nextGpBtns = new Set<number>();
 
-        activePad.buttons.forEach((btn, idx) => {
-          if (btn.pressed || btn.value > 0.5) {
-            nextGpBtns.add(idx);
-          }
-        });
+        for (const pad of connectedPads) {
+          pad.buttons.forEach((btn, idx) => {
+            if (btn.pressed || btn.value > 0.5) {
+              nextGpBtns.add(idx);
+            }
+          });
 
-        // Map Left Analog Stick to D-Pad (12=Up, 13=Down, 14=Left, 15=Right)
-        const axX = activePad.axes[0] ?? 0;
-        const axY = activePad.axes[1] ?? 0;
-        if (axY < -0.5) nextGpBtns.add(12);
-        if (axY > 0.5) nextGpBtns.add(13);
-        if (axX < -0.5) nextGpBtns.add(14);
-        if (axX > 0.5) nextGpBtns.add(15);
+          // Map Left Analog Stick to D-Pad (12=Up, 13=Down, 14=Left, 15=Right)
+          const axX = pad.axes[0] ?? 0;
+          const axY = pad.axes[1] ?? 0;
+          if (axY < -0.5) nextGpBtns.add(12);
+          if (axY > 0.5) nextGpBtns.add(13);
+          if (axX < -0.5) nextGpBtns.add(14);
+          if (axX > 0.5) nextGpBtns.add(15);
+
+          // Map DirectInput / PS4 / PS5 / GP2040-CE Hitbox POV Hat (axes[9]) to D-Pad (12..15)
+          if (pad.axes.length > 9) {
+            const pov = pad.axes[9];
+            if (pov !== undefined && pov <= 1.05 && pov >= -1.05) {
+              // Standard Windows DInput POV Hat encoding:
+              // -1.0=U, -0.714=UR, -0.429=R, -0.143=DR, 0.143=D, 0.429=DL, 0.714=L, 1.0=UL
+              const step = Math.round(((pov + 1) / 2) * 7);
+              if (step === 0 || step === 1 || step === 7) nextGpBtns.add(12); // Up
+              if (step === 3 || step === 4 || step === 5) nextGpBtns.add(13); // Down
+              if (step === 5 || step === 6 || step === 7) nextGpBtns.add(14); // Left
+              if (step === 1 || step === 2 || step === 3) nextGpBtns.add(15); // Right
+            }
+          }
+        }
 
         // Raw capture mode for keybinding
         if (callbacksRef.current.onRawGamepadCapture) {
@@ -210,7 +232,7 @@ export function useInputEngine({
 
     const onGamepadConnected = () => startGamepadPolling();
     const onGamepadDisconnected = () => {
-      if (!getConnectedGamepad() && isPollingGamepad) {
+      if (getConnectedGamepads().length === 0 && isPollingGamepad) {
         cancelAnimationFrame(rafId);
         isPollingGamepad = false;
         if (gamepadNameRef.current !== null) {
@@ -226,9 +248,15 @@ export function useInputEngine({
 
     window.addEventListener('gamepadconnected', onGamepadConnected);
     window.addEventListener('gamepaddisconnected', onGamepadDisconnected);
-    if (getConnectedGamepad()) {
+    if (getConnectedGamepads().length > 0) {
       startGamepadPolling();
     }
+    // Low-cost 500ms fallback check so controllers plugged in before launch or woken in background are always detected
+    idleCheckTimer = window.setInterval(() => {
+      if (!isPollingGamepad && getConnectedGamepads().length > 0) {
+        startGamepadPolling();
+      }
+    }, 500);
 
     return () => {
       window.removeEventListener('keydown', onWinKeyDown);
@@ -238,6 +266,7 @@ export function useInputEngine({
       unsubGlobalDown?.();
       unsubGlobalUp?.();
       cancelAnimationFrame(rafId);
+      if (idleCheckTimer !== null) clearInterval(idleCheckTimer);
     };
   }, []);
 
