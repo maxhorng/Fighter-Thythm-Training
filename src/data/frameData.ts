@@ -410,7 +410,7 @@ export const SF6_CHARACTER_FRAME_DATA: Record<string, CharacterFrameData> = {
   mbison: {
     id: 'mbison',
     name: 'M. Bison',
-    zhName: '貝卡',
+    zhName: '將軍',
     accent: '#991b1b',
     jump: {
       preJumpFrames: 4,
