@@ -166,9 +166,9 @@ export const MenuView: React.FC<MenuViewProps> = ({
           </div>
 
           <div className="section-label" style={{ marginTop: 20 }}>
-            2. 選擇訓練角色
+            2. 選擇訓練角色（全 {CHARACTERS.length} 角色）
           </div>
-          <div className="char-grid">
+          <div className="char-grid" style={{ maxHeight: 230, overflowY: 'auto', paddingRight: 4 }}>
             {CHARACTERS.map((char) => (
               <button
                 key={char.id}
@@ -223,7 +223,21 @@ export const MenuView: React.FC<MenuViewProps> = ({
             </div>
           </div>
           <div className="combo-list">
-            {filteredCombos.map((combo) => (
+            {filteredCombos.length === 0 ? (
+              <div
+                style={{
+                  padding: '28px 16px',
+                  textAlign: 'center',
+                  color: '#94a3b8',
+                  border: '1px dashed rgba(148, 163, 184, 0.25)',
+                  borderRadius: 12,
+                  fontSize: 13,
+                }}
+              >
+                此角色目前尚未有連段，點上方「● 錄製我的連段」或「+ 匯入 / 指令轉譜面」即可新增。
+              </div>
+            ) : (
+              filteredCombos.map((combo) => (
               <div
                 key={combo.id}
                 className={`combo-card ${selectedCombo.id === combo.id ? 'selected' : ''}`}
@@ -273,9 +287,10 @@ export const MenuView: React.FC<MenuViewProps> = ({
                       {idx < combo.notes.length - 1 && <span className="step-arrow">→</span>}
                     </React.Fragment>
                   ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* Trigger Mode & Launch */}

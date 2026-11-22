@@ -6,6 +6,7 @@ interface UseInputEngineOptions {
   mode: ControlMode;
   bindings: KeyBindingMap;
   onActionPress?: (button: ActionButtonId, activeButtons: Set<ActionButtonId>) => void;
+  onActionRelease?: (button: ActionButtonId, activeButtons: Set<ActionButtonId>) => void;
   onRawKeyCapture?: (keyboardCode: string) => void;
   onRawGamepadCapture?: (gamepadButton: number) => void;
 }
@@ -14,6 +15,7 @@ export function useInputEngine({
   mode,
   bindings,
   onActionPress,
+  onActionRelease,
   onRawKeyCapture,
   onRawGamepadCapture,
 }: UseInputEngineOptions) {
@@ -24,8 +26,8 @@ export function useInputEngine({
   const prevGamepadBtnsRef = useRef<Set<number>>(new Set());
   const prevActiveActionsRef = useRef<Set<ActionButtonId>>(new Set());
 
-  const callbacksRef = useRef({ onActionPress, onRawKeyCapture, onRawGamepadCapture });
-  callbacksRef.current = { onActionPress, onRawKeyCapture, onRawGamepadCapture };
+  const callbacksRef = useRef({ onActionPress, onActionRelease, onRawKeyCapture, onRawGamepadCapture });
+  callbacksRef.current = { onActionPress, onActionRelease, onRawKeyCapture, onRawGamepadCapture };
 
   const bindingsRef = useRef(bindings);
   bindingsRef.current = bindings;
@@ -54,6 +56,13 @@ export function useInputEngine({
       for (const btnId of nextActive) {
         if (!prevActiveActionsRef.current.has(btnId)) {
           callbacksRef.current.onActionPress?.(btnId, nextActive);
+        }
+      }
+
+      // Detect falling edges (button releases — used for charge/hold moves like Luke Flash Knuckle)
+      for (const btnId of prevActiveActionsRef.current) {
+        if (!nextActive.has(btnId)) {
+          callbacksRef.current.onActionRelease?.(btnId, nextActive);
         }
       }
 

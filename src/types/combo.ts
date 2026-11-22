@@ -8,7 +8,7 @@ export type ModernAttackId = 'L' | 'M' | 'H' | 'SP' | 'AUTO' | 'PARRY' | 'DI';
 
 export type ActionButtonId = DirectionButtonId | ClassicAttackId | ModernAttackId;
 
-export type MotionType = '236' | '214' | '623' | '22' | '66';
+export type MotionType = '236' | '214' | '623' | '6214' | '22' | '66' | '46' | '28';
 
 export interface ButtonMeta {
   id: ActionButtonId;
@@ -37,6 +37,8 @@ export interface ComboNote {
   motion?: MotionType;
   /** SF6 real input window category: link (tight), cancel (medium-wide), juggle (wide) */
   windowType?: TimingWindowType;
+  /** Optional intentional hold duration in 60fps frames (e.g. Luke Flash Knuckle charge / JP feint hold) */
+  holdFrames?: number;
   /** Optional display notation shown inside/below the osu! circle (e.g., "2MK", "236HP", "Auto+H") */
   notation: string;
   /** Optional move name (e.g., "蹲中腳", "波動拳", "OD 昇龍拳") */
@@ -45,6 +47,17 @@ export interface ComboNote {
   x: number;
   /** Normalized screen position Y (0.25 to 0.75) */
   y: number;
+}
+
+export interface InputHistoryEntry {
+  /** Start frame relative to combo start (0f), 1-decimal precision */
+  startFrame: number;
+  /** Duration in 60fps frames this exact direction+button state was held */
+  durationFrames: number;
+  /** Numpad direction ('1'..'9', '5' = neutral) */
+  dir: string;
+  /** Non-direction buttons held during this state */
+  buttons: ActionButtonId[];
 }
 
 export interface ComboData {
@@ -57,6 +70,8 @@ export interface ComboData {
   description: string;
   tags: string[];
   notes: ComboNote[];
+  /** Optional SF6-style frame-by-frame state-change input history captured during live recording */
+  inputHistory?: InputHistoryEntry[];
 }
 
 export type StartTriggerMode = 'trigger-first' | 'countdown';
