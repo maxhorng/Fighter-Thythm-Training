@@ -639,10 +639,15 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   const [stats, setStats] = useState({
     perfect: 0,
     good: 0,
-    earlyLate: 0,
+    early: 0,
+    late: 0,
     miss: 0,
     streak: 0,
   });
+
+  const [runLog, setRunLog] = useState<
+    { step: number; notation: string; rank: HitResult['rank']; deltaFrames: number }[]
+  >([]);
 
   const resetRun = useCallback(() => {
     phaseRef.current = triggerMode === 'trigger-first' ? 'waiting-first' : 'countdown';
@@ -651,6 +656,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     judgedNotesRef.current = new Set();
     hitEffectsRef.current = [];
     activeHoldRef.current = null;
+    setRunLog([]);
   }, [triggerMode]);
 
   useEffect(() => {
@@ -664,6 +670,19 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
 
   const recordHit = useCallback((result: HitResult) => {
     hitEffectsRef.current.push(result);
+    const noteIdx = combo.notes.findIndex((n) => n.id === result.noteId);
+    if (noteIdx !== -1) {
+      const notation = combo.notes[noteIdx].notation;
+      setRunLog((prev) => [
+        ...prev,
+        {
+          step: noteIdx + 1,
+          notation,
+          rank: result.rank,
+          deltaFrames: result.deltaFrames,
+        },
+      ]);
+    }
     setStats((prev) => {
       if (result.rank === 'PERFECT') {
         return { ...prev, perfect: prev.perfect + 1, streak: prev.streak + 1 };
@@ -671,12 +690,15 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       if (result.rank === 'GOOD') {
         return { ...prev, good: prev.good + 1, streak: prev.streak + 1 };
       }
-      if (result.rank === 'EARLY' || result.rank === 'LATE') {
-        return { ...prev, earlyLate: prev.earlyLate + 1, streak: prev.streak + 1 };
+      if (result.rank === 'EARLY') {
+        return { ...prev, early: prev.early + 1, streak: prev.streak + 1 };
+      }
+      if (result.rank === 'LATE') {
+        return { ...prev, late: prev.late + 1, streak: prev.streak + 1 };
       }
       return { ...prev, miss: prev.miss + 1, streak: 0 };
     });
-  }, []);
+  }, [combo.notes]);
 
   const handleActionPress = useCallback(
     (pressedBtn: ActionButtonId, activeSet: Set<ActionButtonId>) => {
@@ -1445,11 +1467,18 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     };
   }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, recordHit, resetRun, activeButtonsRef]);
 
-  const totalHits = stats.perfect + stats.good + stats.earlyLate + stats.miss;
+  const totalHits = stats.perfect + stats.good + stats.early + stats.late + stats.miss;
   const accuracy =
     totalHits === 0
       ? 100
-      : Math.round((stats.perfect * 100 + stats.good * 70 + stats.earlyLate * 40) / totalHits);
+      : Math.round((stats.perfect * 100 + stats.good * 70 + (stats.early + stats.late) * 40) / totalHits);
+
+  const hasIssueInRun = runLog.some(
+    (item) => item.rank === 'EARLY' || item.rank === 'LATE' || item.rank === 'MISS'
+  );
+  const firstIssue = runLog.find(
+    (item) => item.rank === 'EARLY' || item.rank === 'LATE' || item.rank === 'MISS'
+  );
 
   return (
     <div className="overlay-root">
@@ -1465,6 +1494,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         <div className="hud-stats">
           <span className="stat-item perfect">P {stats.perfect}</span>
           <span className="stat-item good">G {stats.good}</span>
+          <span className="stat-item" style={{ color: '#fb923c', fontWeight: 800 }}>早 {stats.early}</span>
+          <span className="stat-item" style={{ color: '#f472b6', fontWeight: 800 }}>晚 {stats.late}</span>
           <span className="stat-item miss">M {stats.miss}</span>
           <span className="stat-item acc">{accuracy}%</span>
         </div>
@@ -1487,6 +1518,82 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           <span className="hud-hotkey">F8 重來 · F10 選單</span>
         </div>
       </div>
+
+      {/* Per-Run Timing Review Strip (auto-clears on next attempt / RESET) */}
+      {hasIssueInRun && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 58,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            maxWidth: '90vw',
+            padding: '6px 12px',
+            borderRadius: 10,
+            background: 'rgba(10, 14, 24, 0.84)',
+            border: '1px solid rgba(148, 163, 184, 0.28)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            flexWrap: 'wrap',
+            pointerEvents: 'none',
+            zIndex: 20,
+          }}
+        >
+          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#e2e8f0', whiteSpace: 'nowrap' }}>
+            當次檢討
+            {firstIssue
+              ? `（第 ${firstIssue.step} 擊 ${firstIssue.notation} ${
+                  firstIssue.rank === 'EARLY'
+                    ? `太早 ${firstIssue.deltaFrames.toFixed(1)}f`
+                    : firstIssue.rank === 'LATE'
+                    ? `太晚 +${firstIssue.deltaFrames.toFixed(1)}f`
+                    : 'MISS'
+                }）`
+              : ''}
+            ：
+          </span>
+          {runLog.map((entry, idx) => {
+            const color =
+              entry.rank === 'PERFECT'
+                ? '#facc15'
+                : entry.rank === 'GOOD'
+                ? '#38bdf8'
+                : entry.rank === 'EARLY'
+                ? '#fb923c'
+                : entry.rank === 'LATE'
+                ? '#f472b6'
+                : '#f43f5e';
+            const label =
+              entry.rank === 'PERFECT'
+                ? 'P'
+                : entry.rank === 'GOOD'
+                ? `${entry.deltaFrames >= 0 ? '+' : ''}${entry.deltaFrames.toFixed(1)}f`
+                : entry.rank === 'EARLY'
+                ? `太早 ${entry.deltaFrames.toFixed(1)}f`
+                : entry.rank === 'LATE'
+                ? `太晚 +${entry.deltaFrames.toFixed(1)}f`
+                : 'MISS';
+            return (
+              <span
+                key={`${entry.step}-${idx}`}
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  padding: '2px 7px',
+                  borderRadius: 6,
+                  background: `${color}1f`,
+                  border: `1px solid ${color}77`,
+                  color,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                #{entry.step} {entry.notation} · {label}
+              </span>
+            );
+          })}
+        </div>
+      )}
 
       {/* Live Input Strip at Bottom Center (DOM only in standard mode; Canvas in low-perf mode) */}
       {!lowPerfMode && (
