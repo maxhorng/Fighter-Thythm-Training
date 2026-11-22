@@ -143,13 +143,12 @@ function codeToAccelerator(code: string): string | null {
   return map[code] ?? null;
 }
 
-let currentHotkeys = { clickThrough: 'F9', exitOverlay: 'F10', restart: 'F8' };
+let currentHotkeys = { clickThrough: 'F9', exitOverlay: 'F10' };
 
-function registerOverlayHotkeys(next: { clickThrough?: string; exitOverlay?: string; restart?: string }) {
+function registerOverlayHotkeys(next: { clickThrough?: string; exitOverlay?: string }) {
   currentHotkeys = {
     clickThrough: next.clickThrough || currentHotkeys.clickThrough,
     exitOverlay: next.exitOverlay || currentHotkeys.exitOverlay,
-    restart: next.restart || currentHotkeys.restart,
   };
   globalShortcut.unregisterAll();
 
@@ -174,14 +173,9 @@ function registerOverlayHotkeys(next: { clickThrough?: string; exitOverlay?: str
       mainWindow.webContents.send('hotkey', 'EXIT_OVERLAY');
     });
   }
-
-  const restartAcc = codeToAccelerator(currentHotkeys.restart);
-  if (restartAcc && restartAcc !== ctAcc && restartAcc !== exitAcc) {
-    globalShortcut.register(restartAcc, () => {
-      if (!mainWindow || mainWindow.isDestroyed() || !isOverlayMode) return;
-      mainWindow.webContents.send('hotkey', 'RESTART_COMBO');
-    });
-  }
+  // Note: RESET / RESTART_COMBO is intentionally NOT registered via globalShortcut,
+  // because globalShortcut swallows the key from SF6! Instead, uiohook-napi passively
+  // detects bindings.RESET so both SF6 Training Mode and the overlay reset simultaneously.
 }
 
 app.whenReady().then(() => {
@@ -190,7 +184,7 @@ app.whenReady().then(() => {
   registerOverlayHotkeys(currentHotkeys);
 });
 
-ipcMain.handle('set-hotkeys', (_event, hotkeys: { clickThrough?: string; exitOverlay?: string; restart?: string }) => {
+ipcMain.handle('set-hotkeys', (_event, hotkeys: { clickThrough?: string; exitOverlay?: string }) => {
   registerOverlayHotkeys(hotkeys);
   return currentHotkeys;
 });
