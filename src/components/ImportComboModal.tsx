@@ -176,21 +176,53 @@ export const ImportComboModal: React.FC<ImportComboModalProps> = ({
             )}
           </div>
         ) : (
-          <textarea
-            rows={7}
-            placeholder='貼上 ComboData JSON（例如 tools/yt_combo_extractor.py 輸出的 JSON）...'
-            value={jsonText}
-            onChange={(e) => setJsonText(e.target.value)}
-            style={{
-              padding: '10px 12px',
-              borderRadius: 8,
-              border: '1px solid rgba(255,255,255,0.14)',
-              background: '#1a2235',
-              color: '#fff',
-              fontSize: 12,
-              fontFamily: 'monospace',
-            }}
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <label
+              className="btn-secondary"
+              style={{
+                width: 'fit-content',
+                cursor: 'pointer',
+                borderColor: 'rgba(56, 189, 248, 0.55)',
+                color: '#bae6fd',
+              }}
+            >
+              <FileJson size={14} />
+              <span>選擇 .json 檔案匯入 / Load .json File</span>
+              <input
+                type="file"
+                accept=".json,application/json"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    if (typeof reader.result === 'string') {
+                      setJsonText(reader.result);
+                      setError(null);
+                    }
+                  };
+                  reader.readAsText(file, 'utf-8');
+                  e.target.value = '';
+                }}
+              />
+            </label>
+            <textarea
+              rows={7}
+              placeholder='貼上 ComboData JSON，或點上方按鈕直接選擇 .json 檔案...'
+              value={jsonText}
+              onChange={(e) => setJsonText(e.target.value)}
+              style={{
+                padding: '10px 12px',
+                borderRadius: 8,
+                border: '1px solid rgba(255,255,255,0.14)',
+                background: '#1a2235',
+                color: '#fff',
+                fontSize: 12,
+                fontFamily: 'monospace',
+              }}
+            />
+          </div>
         )}
 
         {error && <div style={{ color: '#f43f5e', fontSize: 12 }}>{error}</div>}

@@ -12,6 +12,7 @@ import {
   Plus,
   Trash2,
   HelpCircle,
+  Download,
 } from 'lucide-react';
 import {
   ComboData,
@@ -94,6 +95,21 @@ export const MenuView: React.FC<MenuViewProps> = ({
       setCopiedId(combo.id);
       setTimeout(() => setCopiedId(null), 1500);
     });
+  };
+
+  const handleExportJson = (e: React.MouseEvent, combo: ComboData) => {
+    e.stopPropagation();
+    const safeTitle = combo.title.replace(/[\\/:*?"<>|]/g, '_');
+    const filename = `${combo.characterId}-${combo.mode}-${safeTitle}.json`;
+    const blob = new Blob([JSON.stringify(combo, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   };
 
   const { activeButtons, gamepadName } = useInputEngine({
@@ -313,13 +329,24 @@ export const MenuView: React.FC<MenuViewProps> = ({
                         🔒 解鎖（後果自負）
                       </button>
                     ) : (
-                      <button
-                        className="btn-secondary"
-                        style={{ padding: '2px 8px', fontSize: 11 }}
-                        onClick={(e) => handleCopyJson(e, combo)}
-                      >
-                        {copiedId === combo.id ? '已複製!' : '複製 JSON'}
-                      </button>
+                      <>
+                        <button
+                          className="btn-secondary"
+                          style={{ padding: '2px 8px', fontSize: 11 }}
+                          onClick={(e) => handleCopyJson(e, combo)}
+                        >
+                          {copiedId === combo.id ? t.copiedJson : t.copyJson}
+                        </button>
+                        <button
+                          className="btn-secondary"
+                          style={{ padding: '2px 8px', fontSize: 11, borderColor: 'rgba(56, 189, 248, 0.45)', color: '#bae6fd' }}
+                          title={lang === 'en' ? 'Export as .json file' : '匯出成 .json 檔案'}
+                          onClick={(e) => handleExportJson(e, combo)}
+                        >
+                          <Download size={12} />
+                          {lang === 'en' ? 'Export' : '匯出'}
+                        </button>
+                      </>
                     )}
                     {customComboIds.has(combo.id) && (
                       <button
