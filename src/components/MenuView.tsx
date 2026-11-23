@@ -61,6 +61,8 @@ interface MenuViewProps {
   onChangeShowRecordedInputs: (v: boolean) => void;
   lowPerfMode: boolean;
   onChangeLowPerfMode: (v: boolean) => void;
+  sfxEnabled: boolean;
+  onChangeSfxEnabled: (v: boolean) => void;
   onStartOverlay: () => void;
   onStartRecording: (charId: string) => void;
 }
@@ -90,6 +92,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
   onChangeShowRecordedInputs,
   lowPerfMode,
   onChangeLowPerfMode,
+  sfxEnabled,
+  onChangeSfxEnabled,
   onStartOverlay,
   onStartRecording,
 }) => {
@@ -1024,6 +1028,18 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 style={{ accentColor: '#4ade80', width: 15, height: 15 }}
               />
               <span>{t.lowPerfMode}</span>
+            </label>
+
+            <label
+              style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: sfxEnabled ? '#4ade80' : '#cbd5e1', cursor: 'pointer', marginBottom: 8, userSelect: 'none' }}
+            >
+              <input
+                type="checkbox"
+                checked={sfxEnabled}
+                onChange={(e) => onChangeSfxEnabled(e.target.checked)}
+                style={{ accentColor: '#4ade80', width: 15, height: 15 }}
+              />
+              <span>{t.sfxEnabled}</span>
             </label>
 
             <div

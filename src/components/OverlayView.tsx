@@ -16,6 +16,7 @@ import {
 import { BUTTON_META } from '../data/bindings';
 import { useInputEngine } from '../hooks/useInputEngine';
 
+import { playBeatCue } from '../utils/soundEngine';
 import { AppLang, getComboTitle, I18N } from '../data/i18n';
 
 interface OverlayViewProps {
@@ -27,6 +28,7 @@ interface OverlayViewProps {
   playerSide: PlayerSide;
   showRecordedInputs: boolean;
   lowPerfMode: boolean;
+  sfxEnabled?: boolean;
   isClickThrough: boolean;
   onExitOverlay: () => void;
 }
@@ -797,6 +799,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   playerSide,
   showRecordedInputs,
   lowPerfMode,
+  sfxEnabled = true,
   isClickThrough,
   onExitOverlay,
 }) => {
@@ -810,6 +813,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   const startTimeRef = useRef<number>(performance.now());
   const nextNoteIndexRef = useRef<number>(0);
   const judgedNotesRef = useRef<Set<string>>(new Set());
+  const cuedNotesRef = useRef<Set<string>>(new Set());
   const hitEffectsRef = useRef<HitResult[]>([]);
   const activeHoldRef = useRef<{
     noteId: string;
@@ -914,6 +918,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     startTimeRef.current = performance.now();
     nextNoteIndexRef.current = 0;
     judgedNotesRef.current = new Set();
+    cuedNotesRef.current = new Set();
     hitEffectsRef.current = [];
     activeHoldRef.current = null;
     dirHistoryRef.current = [];
@@ -965,7 +970,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       }
       return { ...prev, miss: prev.miss + 1, streak: 0 };
     });
-  }, [combo.notes]);
+  }, [combo.notes, sfxEnabled]);
 
   const handleActionPress = useCallback(
     (rawPressedBtn: ActionButtonId, rawActiveSet: Set<ActionButtonId>) => {
@@ -996,6 +1001,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         phaseRef.current = 'playing';
         startTimeRef.current = now;
         judgedNotesRef.current.add(targetNote.id);
+        cuedNotesRef.current.add(targetNote.id);
+        if (sfxEnabled) playBeatCue();
         nextNoteIndexRef.current = 1;
         const diagHint = diagnoseExecution(
           targetNote,
@@ -1174,6 +1181,17 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         }
       } else if (phaseRef.current === 'playing') {
         currentFrame = (now - startTimeRef.current) / FRAME_MS;
+
+        // Play crisp beat cue sound at each note's exact target frame (independent of user input)
+        if (sfxEnabled) {
+          for (let i = 0; i < notes.length; i++) {
+            const n = notes[i];
+            if (currentFrame >= n.frame && !cuedNotesRef.current.has(n.id)) {
+              cuedNotesRef.current.add(n.id);
+              playBeatCue();
+            }
+          }
+        }
 
         while (nextNoteIndexRef.current < notes.length) {
           const n = notes[nextNoteIndexRef.current];
@@ -1796,7 +1814,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
     };
-  }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, recordHit, resetRun, activeButtonsRef, getCurrentChargeMs, isRightSide, lang]);
+  }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, sfxEnabled, recordHit, resetRun, activeButtonsRef, getCurrentChargeMs, isRightSide, lang]);
 
   const totalHits = stats.perfect + stats.good + stats.early + stats.late + stats.miss;
   const accuracy =

@@ -5,6 +5,7 @@ import { DEFAULT_BINDINGS } from './data/bindings';
 import { AppLang, DEFAULT_OVERLAY_HOTKEYS, OverlayHotkeys } from './data/i18n';
 import { MenuView } from './components/MenuView';
 import { GameHubView } from './components/GameHubView';
+import { setEnabled as setSoundEnabled } from './utils/soundEngine';
 import { OverlayView } from './components/OverlayView';
 import { RecordOverlayView } from './components/RecordOverlayView';
 
@@ -13,6 +14,15 @@ const STORAGE_KEY_CUSTOM_COMBOS = 'fmc_custom_combos_v1';
 const STORAGE_KEY_LANG = 'fmc_lang_v1';
 const STORAGE_KEY_HOTKEYS = 'fmc_hotkeys_v1';
 const STORAGE_KEY_LOW_PERF = 'fmc_low_perf_v1';
+const STORAGE_KEY_SFX = 'fmc_sfx_enabled_v1';
+
+function loadSfxEnabled(): boolean {
+  try {
+    return localStorage.getItem(STORAGE_KEY_SFX) !== '0';
+  } catch {
+    return true;
+  }
+}
 
 function loadLowPerfMode(): boolean {
   try {
@@ -79,6 +89,11 @@ export const App: React.FC = () => {
   const [playerSide, setPlayerSide] = useState<PlayerSide>('left');
   const [showRecordedInputs, setShowRecordedInputs] = useState(true);
   const [lowPerfMode, setLowPerfMode] = useState<boolean>(loadLowPerfMode);
+  const [sfxEnabled, setSfxEnabled] = useState<boolean>(() => {
+    const v = loadSfxEnabled();
+    setSoundEnabled(v);
+    return v;
+  });
   const [isOverlayMode, setIsOverlayMode] = useState(false);
   const [isRecordingMode, setIsRecordingMode] = useState(false);
   const [recordingCharId, setRecordingCharId] = useState<string>('ryu');
@@ -160,6 +175,16 @@ export const App: React.FC = () => {
     setOverlayHotkeys(next);
     try {
       localStorage.setItem(STORAGE_KEY_HOTKEYS, JSON.stringify(next));
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleChangeSfxEnabled = (next: boolean) => {
+    setSfxEnabled(next);
+    setSoundEnabled(next);
+    try {
+      localStorage.setItem(STORAGE_KEY_SFX, next ? '1' : '0');
     } catch {
       // ignore
     }
@@ -275,6 +300,7 @@ export const App: React.FC = () => {
         playerSide={playerSide}
         showRecordedInputs={showRecordedInputs}
         lowPerfMode={lowPerfMode}
+        sfxEnabled={sfxEnabled}
         isClickThrough={isClickThrough}
         onExitOverlay={handleExitOverlay}
       />
@@ -318,6 +344,8 @@ export const App: React.FC = () => {
       onChangeShowRecordedInputs={setShowRecordedInputs}
       lowPerfMode={lowPerfMode}
       onChangeLowPerfMode={handleChangeLowPerfMode}
+      sfxEnabled={sfxEnabled}
+      onChangeSfxEnabled={handleChangeSfxEnabled}
       onStartOverlay={handleStartOverlay}
       onStartRecording={handleStartRecording}
     />

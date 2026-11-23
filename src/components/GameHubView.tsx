@@ -116,7 +116,10 @@ export const GameHubView: React.FC<GameHubViewProps> = ({
           <span className="brand-sub">{txt.subtitle}</span>
         </div>
 
-        <div className="titlebar-actions">
+        <div
+          className="titlebar-right"
+          style={{ display: 'flex', alignItems: 'center', gap: 8, WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <Globe size={14} color="#38bdf8" />
             <select
