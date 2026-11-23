@@ -252,6 +252,7 @@ export const App: React.FC = () => {
         mode={mode}
         combo={selectedCombo}
         bindings={bindings}
+        lang={lang}
         triggerMode={triggerMode}
         showRecordedInputs={showRecordedInputs}
         lowPerfMode={lowPerfMode}

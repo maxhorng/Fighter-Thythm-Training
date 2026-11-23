@@ -12,6 +12,80 @@ export const DEFAULT_OVERLAY_HOTKEYS: OverlayHotkeys = {
   toggleReview: 'F7',
 };
 
+/**
+ * Returns the localized combo title. When lang === 'en', uses explicit combo.titleEn
+ * if provided, or cleanly translates standard Chinese FGC terms into English FGC notation.
+ */
+export function getComboTitle(
+  combo: { title: string; titleEn?: string },
+  lang: AppLang
+): string {
+  if (lang !== 'en') return combo.title;
+  if (combo.titleEn) return combo.titleEn;
+
+  const replacements: [RegExp, string][] = [
+    [/🚧\s*施工中\.\.\./g, '🚧 WIP...'],
+    [/\[角落\]/g, '[Corner]'],
+    [/角落連段/g, 'Corner Combo'],
+    [/角落/g, 'Corner'],
+    [/現代雙震地連段/g, 'Modern Double Seismo Combo'],
+    [/雙震地/g, 'Double Seismo'],
+    [/練習震地大跳取消火腿/g, 'Seismo SJC Burn Kick Drill'],
+    [/震地\+重腳大跳取消/g, 'Seismo + 5HK SJC'],
+    [/火腿/g, 'Burn Kick'],
+    [/震地/g, 'Seismo'],
+    [/中段後續壓持續/g, 'Overhead Oki'],
+    [/全資源綠衝連段/g, 'Full-Meter DR Combo'],
+    [/全資源大招連段/g, 'Full-Meter Super Combo'],
+    [/一鍵 SA3/g, '1-Button SA3'],
+    [/消費幀/g, 'Frame Kill'],
+    [/安全跳連段/g, 'Safe Jump Combo'],
+    [/安全跳/g, 'Safe Jump'],
+    [/三綠衝/g, 'Triple DR'],
+    [/雙綠衝/g, 'Double DR'],
+    [/綠衝起手/g, 'DR'],
+    [/綠衝長連段/g, 'DR Long Combo'],
+    [/綠衝蓄力收尾/g, 'DR Charge Ender'],
+    [/綠衝/g, 'DR'],
+    [/目標連疾跑連段/g, 'TC Run Combo'],
+    [/目標連蓄力頭槌/g, 'TC Charge Headbutt'],
+    [/目標連/g, 'Target Combo'],
+    [/蓄力頭槌接/g, 'Charge Headbutt into'],
+    [/大銀杏投/g, 'Oicho Throw'],
+    [/蓄力起始/g, 'Charge Starter'],
+    [/蓄力/g, 'Charge'],
+    [/輕攻擊確反/g, 'Light Punish'],
+    [/基礎確反/g, 'Basic Punish'],
+    [/基礎連段/g, 'BnB Combo'],
+    [/浮空壓制/g, 'Juggle Oki'],
+    [/浮空連段/g, 'Juggle Combo'],
+    [/空連/g, 'Air Combo'],
+    [/瞬移壓制/g, 'Teleport Oki'],
+    [/壓制連段/g, 'Oki Combo'],
+    [/壓制/g, 'Oki'],
+    [/後衝投/g, 'Backdash Throw'],
+    [/前衝/g, 'Dash'],
+    [/雙 OD/g, 'Double OD'],
+    [/全套/g, 'Full'],
+    [/大招/g, 'Super'],
+    [/新夢幻連段/g, 'Shin Dream'],
+    [/實錄連段/g, 'Recorded Combo'],
+    [/起始/g, 'Starter'],
+    [/長連段/g, 'Long Combo'],
+    [/連段/g, 'Combo'],
+    [/範例/g, 'Sample'],
+    [/接/g, 'into'],
+    [/投/g, 'Throw'],
+    [/(\d+)\s*擊/g, '$1 Hits'],
+  ];
+
+  let out = combo.title;
+  for (const [pattern, rep] of replacements) {
+    out = out.replace(pattern, ` ${rep} `);
+  }
+  return out.replace(/\s+/g, ' ').replace(/\(\s+/g, '(').replace(/\s+\)/g, ')').trim();
+}
+
 export const I18N = {
   'zh-TW': {
     appSubtitle: 'Street Fighter 6 · osu! 風格透明覆蓋節奏連段訓練器',

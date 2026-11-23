@@ -66,6 +66,8 @@ export interface ComboData {
   characterName: string;
   mode: ControlMode;
   title: string;
+  /** Optional explicit English title shown when UI language is 'en' */
+  titleEn?: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced' | 'Ultra Hard';
   description: string;
   tags: string[];

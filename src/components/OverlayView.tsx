@@ -14,10 +14,13 @@ import {
 import { BUTTON_META } from '../data/bindings';
 import { useInputEngine } from '../hooks/useInputEngine';
 
+import { AppLang, getComboTitle } from '../data/i18n';
+
 interface OverlayViewProps {
   mode: ControlMode;
   combo: ComboData;
   bindings: KeyBindingMap;
+  lang: AppLang;
   triggerMode: StartTriggerMode;
   showRecordedInputs: boolean;
   lowPerfMode: boolean;
@@ -612,6 +615,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   mode,
   combo,
   bindings,
+  lang,
   triggerMode,
   showRecordedInputs,
   lowPerfMode,
@@ -1492,7 +1496,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       <div className={`overlay-hud ${lowPerfMode ? 'low-perf' : ''}`}>
         <div className="hud-left">
           <span className="hud-mode-badge">{mode === 'classic' ? 'C' : 'M'}</span>
-          <span className="hud-combo-name">{combo.characterName} · {combo.title}</span>
+          <span className="hud-combo-name">{combo.characterName} · {getComboTitle(combo, lang)}</span>
         </div>
 
         <div className="hud-stats">

@@ -22,7 +22,7 @@ import {
 } from '../types/combo';
 import { CHARACTERS } from '../data/combos';
 import { BUTTON_META, formatKeyCode } from '../data/bindings';
-import { AppLang, I18N, OverlayHotkeys } from '../data/i18n';
+import { AppLang, getComboTitle, I18N, OverlayHotkeys } from '../data/i18n';
 import { KeybindPanel } from './KeybindPanel';
 import { ImportComboModal } from './ImportComboModal';
 import { TutorialModal } from './TutorialModal';
@@ -490,7 +490,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 }}
               >
                 <div className="combo-card-top">
-                  <div className="combo-title">{combo.title}</div>
+                  <div className="combo-title">{getComboTitle(combo, lang)}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     {isLocked ? (
                       <button
