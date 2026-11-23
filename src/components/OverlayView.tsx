@@ -1182,11 +1182,12 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       } else if (phaseRef.current === 'playing') {
         currentFrame = (now - startTimeRef.current) / FRAME_MS;
 
-        // Play crisp beat cue sound at each note's exact target frame (independent of user input)
+        // Play crisp beat cue sound at each note's exact target frame + 1f visual sync offset
+        const AUDIO_SYNC_OFFSET_FRAMES = 1.0;
         if (sfxEnabled) {
           for (let i = 0; i < notes.length; i++) {
             const n = notes[i];
-            if (currentFrame >= n.frame && !cuedNotesRef.current.has(n.id)) {
+            if (currentFrame >= n.frame + AUDIO_SYNC_OFFSET_FRAMES && !cuedNotesRef.current.has(n.id)) {
               cuedNotesRef.current.add(n.id);
               playBeatCue();
             }

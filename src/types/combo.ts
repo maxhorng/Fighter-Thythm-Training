@@ -97,7 +97,7 @@ export interface HitResult {
 }
 
 export interface ElectronAPI {
-  setOverlayMode: (enabled: boolean) => Promise<{ isOverlayMode: boolean; isClickThrough: boolean }>;
+  setOverlayMode: (enabled: boolean, compact?: boolean) => Promise<{ isOverlayMode: boolean; isClickThrough: boolean }>;
   setClickThrough: (enabled: boolean) => Promise<boolean>;
   setHotkeys?: (hotkeys: { clickThrough?: string; exitOverlay?: string; toggleReview?: string; restart?: string }) => Promise<void>;
   minimizeWindow: () => Promise<void>;

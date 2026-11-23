@@ -6,8 +6,8 @@ export interface OverlayState {
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  setOverlayMode: (enabled: boolean): Promise<OverlayState> =>
-    ipcRenderer.invoke('set-overlay-mode', enabled),
+  setOverlayMode: (enabled: boolean, compact = false): Promise<OverlayState> =>
+    ipcRenderer.invoke('set-overlay-mode', enabled, compact),
   setClickThrough: (enabled: boolean): Promise<boolean> =>
     ipcRenderer.invoke('set-click-through', enabled),
   setHotkeys: (hotkeys: { clickThrough?: string; exitOverlay?: string; toggleReview?: string; restart?: string }): Promise<void> =>

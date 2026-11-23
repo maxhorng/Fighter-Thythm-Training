@@ -147,7 +147,7 @@ function createWindow() {
   });
 }
 
-function applyOverlayMode(enabled: boolean) {
+function applyOverlayMode(enabled: boolean, compact = false) {
   if (!mainWindow || mainWindow.isDestroyed()) return;
   isOverlayMode = enabled;
 
@@ -157,8 +157,18 @@ function applyOverlayMode(enabled: boolean) {
     mainWindow.setResizable(false);
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-    // Use height - 1 on Windows so DWM does not disable alpha transparency for exact fullscreen bounds
-    mainWindow.setBounds({ x, y, width, height: height - 1 });
+    if (compact) {
+      // Compact centered transparent overlay in Low-Performance Mode:
+      // drastically reduces Windows DWM alpha-compositing pixels (~70-80% fewer pixels!)
+      const ow = Math.min(width, 1080);
+      const oh = Math.min(height - 1, 620);
+      const ox = x + Math.round((width - ow) / 2);
+      const oy = y + Math.round((height - oh) * 0.22);
+      mainWindow.setBounds({ x: ox, y: oy, width: ow, height: oh });
+    } else {
+      // Use height - 1 on Windows so DWM does not disable alpha transparency for exact fullscreen bounds
+      mainWindow.setBounds({ x, y, width, height: height - 1 });
+    }
     isClickThrough = true;
     mainWindow.setIgnoreMouseEvents(true, { forward: true });
   } else {
@@ -267,9 +277,21 @@ function startGlobalXInputPoller() {
         // try next XInput DLL
       }
     }
-    if (!lib) return;
+    let XInputGetState: any = null;
+    if (lib) {
+      try { XInputGetState = lib.func('uint32 __stdcall XInputGetState(uint32 dwUserIndex, uint8 *pState)'); } catch { XInputGetState = null; }
+    }
 
-    const XInputGetState = lib.func('uint32 __stdcall XInputGetState(uint32 dwUserIndex, uint8 *pState)');
+    // winmm.dll joyGetPosEx fallback (DirectInput devices: PS4/PS5/Switch Pro/fightsticks)
+    let joyGetPosEx: any = null;
+    try {
+      const winmm = koffi.load('winmm.dll');
+      joyGetPosEx = winmm.func('uint32 __stdcall joyGetPosEx(uint32 uJoyID, uint8 *pji)');
+    } catch {
+      joyGetPosEx = null;
+    }
+    if (!XInputGetState && !joyGetPosEx) return;
+    const joyBuf = Buffer.alloc(52); // JOYINFOEX = 13 x uint32
     const stateBuf = Buffer.alloc(16); // XINPUT_STATE = DWORD(4) + XINPUT_GAMEPAD(12)
     let lastKey = '';
 
@@ -280,7 +302,7 @@ function startGlobalXInputPoller() {
 
       for (let i = 0; i < 4; i++) {
         stateBuf.fill(0);
-        const res = XInputGetState(i, stateBuf);
+        const res = XInputGetState ? XInputGetState(i, stateBuf) : 1167;
         if (res === 0) {
           anyConnected = true;
           const wButtons = stateBuf.readUInt16LE(4);
@@ -306,6 +328,36 @@ function startGlobalXInputPoller() {
           if ((wButtons & 0x0002) || sThumbLY < -16000) btns.add(13); // Down
           if ((wButtons & 0x0004) || sThumbLX < -16000) btns.add(14); // Left
           if ((wButtons & 0x0008) || sThumbLX > 16000) btns.add(15);  // Right
+        }
+      }
+
+      // DirectInput fallback: only when XInput sees no controller
+      if (!anyConnected && joyGetPosEx) {
+        for (let id = 0; id < 4; id++) {
+          joyBuf.fill(0);
+          joyBuf.writeUInt32LE(52, 0);     // dwSize
+          joyBuf.writeUInt32LE(0xFF, 4);   // dwFlags = JOY_RETURNALL
+          let jr = 1;
+          try { jr = joyGetPosEx(id, joyBuf); } catch { jr = 1; }
+          if (jr !== 0) continue;
+          anyConnected = true;
+          const xPos = joyBuf.readUInt32LE(8);
+          const yPos = joyBuf.readUInt32LE(12);
+          const dwButtons = joyBuf.readUInt32LE(32);
+          const pov = joyBuf.readUInt32LE(40);
+          for (let b = 0; b < 12; b++) {
+            if (dwButtons & (1 << b)) btns.add(b);
+          }
+          if (pov !== 65535 && pov < 36000) {
+            if (pov <= 4500 || pov >= 31500) btns.add(12);
+            if (pov >= 4500 && pov <= 13500) btns.add(15);
+            if (pov >= 13500 && pov <= 22500) btns.add(13);
+            if (pov >= 22500 && pov <= 31500) btns.add(14);
+          }
+          if (yPos < 16000) btns.add(12);
+          if (yPos > 49500) btns.add(13);
+          if (xPos < 16000) btns.add(14);
+          if (xPos > 49500) btns.add(15);
         }
       }
 
@@ -336,8 +388,8 @@ ipcMain.handle('set-hotkeys', (_event, hotkeys: { clickThrough?: string; exitOve
   return currentHotkeys;
 });
 
-ipcMain.handle('set-overlay-mode', (_event, enabled: boolean) => {
-  applyOverlayMode(enabled);
+ipcMain.handle('set-overlay-mode', (_event, enabled: boolean, compact = false) => {
+  applyOverlayMode(enabled, compact);
   return { isOverlayMode, isClickThrough };
 });
 

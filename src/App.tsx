@@ -232,7 +232,7 @@ export const App: React.FC = () => {
   const handleStartOverlay = async () => {
     setIsRecordingMode(false);
     if (window.electronAPI) {
-      const state = await window.electronAPI.setOverlayMode(true);
+      const state = await window.electronAPI.setOverlayMode(true, lowPerfMode);
       setIsOverlayMode(state.isOverlayMode);
       setIsClickThrough(state.isClickThrough);
     } else {
@@ -245,7 +245,7 @@ export const App: React.FC = () => {
     setRecordingCharId(charId);
     setIsRecordingMode(true);
     if (window.electronAPI) {
-      const state = await window.electronAPI.setOverlayMode(true);
+      const state = await window.electronAPI.setOverlayMode(true, lowPerfMode);
       setIsOverlayMode(state.isOverlayMode);
       setIsClickThrough(state.isClickThrough);
     } else {
