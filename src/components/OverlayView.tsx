@@ -898,7 +898,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     };
   }, []);
 
-  const resetRun = useCallback(() => {
+  const resetRun = useCallback((clearReviewLog = true) => {
     phaseRef.current = triggerMode === 'trigger-first' ? 'waiting-first' : 'countdown';
     startTimeRef.current = performance.now();
     nextNoteIndexRef.current = 0;
@@ -906,7 +906,9 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     hitEffectsRef.current = [];
     activeHoldRef.current = null;
     dirHistoryRef.current = [];
-    setRunLog([]);
+    if (clearReviewLog) {
+      setRunLog([]);
+    }
   }, [triggerMode]);
 
   useEffect(() => {
@@ -926,7 +928,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     if (noteIdx !== -1) {
       const notation = combo.notes[noteIdx].notation;
       setRunLog((prev) => [
-        ...prev,
+        ...prev.filter((item) => item.noteId !== result.noteId),
         {
           noteId: result.noteId,
           step: noteIdx + 1,
@@ -1194,7 +1196,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
 
         const lastNoteFrame = notes[notes.length - 1]?.frame ?? 0;
         if (currentFrame > lastNoteFrame + 150) {
-          resetRun();
+          resetRun(false);
         }
       }
 
@@ -1843,7 +1845,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
               >
                 {t.reviewBtn} {showReview ? '▲' : '▼'}
               </button>
-              <button className="hud-btn" onClick={resetRun} title={`${t.restartBtn} (F8)`}>
+              <button className="hud-btn" onClick={() => resetRun(true)} title={`${t.restartBtn} (F8)`}>
                 <RotateCcw size={13} /> {t.restartBtn}
               </button>
               <button className="hud-btn exit" onClick={onExitOverlay} title={`${t.menuBtn} (F10)`}>
