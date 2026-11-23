@@ -89,6 +89,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
 }) => {
   const t = I18N[lang];
   const [selectedCharId, setSelectedCharId] = useState<string>(selectedCombo.characterId);
+  const [charSearch, setCharSearch] = useState('');
+  const [difficultyFilter, setDifficultyFilter] = useState<'ALL' | ComboData['difficulty']>('ALL');
   const [showKeybinds, setShowKeybinds] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [showTutorial, setShowTutorial] = useState<boolean>(() => {
@@ -150,9 +152,26 @@ export const MenuView: React.FC<MenuViewProps> = ({
     bindings,
   });
 
+  const filteredCharacters = useMemo(() => {
+    const q = charSearch.trim().toLowerCase();
+    if (!q) return CHARACTERS;
+    return CHARACTERS.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        c.id.toLowerCase().includes(q) ||
+        c.title.toLowerCase().includes(q)
+    );
+  }, [charSearch]);
+
   const filteredCombos = useMemo(
-    () => combos.filter((c) => c.mode === mode && c.characterId === selectedCharId),
-    [combos, mode, selectedCharId]
+    () =>
+      combos.filter(
+        (c) =>
+          c.mode === mode &&
+          c.characterId === selectedCharId &&
+          (difficultyFilter === 'ALL' || c.difficulty === difficultyFilter)
+      ),
+    [combos, mode, selectedCharId, difficultyFilter]
   );
 
   const handleModeSwitch = (nextMode: ControlMode) => {
@@ -309,8 +328,59 @@ export const MenuView: React.FC<MenuViewProps> = ({
             </button>
           </div>
 
-          <div className="section-label" style={{ marginTop: 14 }}>
-            {t.step2Title} ({CHARACTERS.length})
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 8,
+              marginTop: 14,
+              marginBottom: 8,
+            }}
+          >
+            <div className="section-label" style={{ marginBottom: 0 }}>
+              {t.step2Title} ({filteredCharacters.length}/{CHARACTERS.length})
+            </div>
+            <div style={{ position: 'relative', width: 148 }}>
+              <input
+                type="text"
+                value={charSearch}
+                onChange={(e) => setCharSearch(e.target.value)}
+                placeholder={lang === 'en' ? 'Search fighter...' : '搜尋角色名...'}
+                style={{
+                  width: '100%',
+                  padding: '4px 22px 4px 8px',
+                  fontSize: 12,
+                  borderRadius: 7,
+                  border: '1px solid rgba(148, 163, 184, 0.3)',
+                  background: 'rgba(15, 23, 42, 0.85)',
+                  color: '#f8fafc',
+                  outline: 'none',
+                }}
+              />
+              {charSearch && (
+                <button
+                  type="button"
+                  onClick={() => setCharSearch('')}
+                  style={{
+                    position: 'absolute',
+                    right: 4,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: 13,
+                    lineHeight: 1,
+                    padding: '0 3px',
+                  }}
+                  title="清除"
+                >
+                  ×
+                </button>
+              )}
+            </div>
           </div>
           <div
             className="char-grid"
@@ -324,7 +394,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
               gap: 8,
             }}
           >
-            {CHARACTERS.map((char) => {
+            {filteredCharacters.map((char) => {
               const isSelected = selectedCharId === char.id;
               const comboCount = combos.filter(
                 (c) => c.mode === mode && c.characterId === char.id
@@ -467,6 +537,41 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 <Plus size={14} /> {t.importBtn}
               </button>
             </div>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
+            {(
+              [
+                { id: 'ALL', label: lang === 'en' ? 'All' : '全部', color: '#38bdf8' },
+                { id: 'Beginner', label: lang === 'en' ? 'Easy' : '簡單', color: '#4ade80' },
+                { id: 'Intermediate', label: lang === 'en' ? 'Medium' : '中等', color: '#facc15' },
+                { id: 'Advanced', label: lang === 'en' ? 'Hard' : '困難', color: '#fb7185' },
+                { id: 'Ultra Hard', label: 'Ultra Hard', color: '#c084fc' },
+              ] as const
+            ).map((opt) => {
+              const active = difficultyFilter === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setDifficultyFilter(opt.id)}
+                  style={{
+                    padding: '3px 9px',
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    borderRadius: 999,
+                    cursor: 'pointer',
+                    border: active
+                      ? `1px solid ${opt.color}`
+                      : '1px solid rgba(148, 163, 184, 0.28)',
+                    background: active ? `${opt.color}28` : 'rgba(15, 23, 42, 0.65)',
+                    color: active ? opt.color : '#cbd5e1',
+                    transition: 'all 0.12s ease',
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
           </div>
           <div className="combo-list">
             {filteredCombos.length === 0 ? (
