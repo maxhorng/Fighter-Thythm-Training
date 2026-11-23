@@ -211,20 +211,27 @@ export const MenuView: React.FC<MenuViewProps> = ({
   const isCornerCombo = (c: ComboData): boolean => {
     if (c.position === 'corner') return true;
     if (c.position === 'midscreen') return false;
-    return /角落|corner|版邊/i.test(c.title) || c.tags.some((tg) => /角落|corner/i.test(tg));
+    if (c.tags.some((tg) => /^非角落$/i.test(tg))) return false;
+    return /角落|corner|版邊/i.test(c.title) || c.tags.some((tg) => !/非角落/.test(tg) && /角落|corner/i.test(tg));
   };
 
-  const filteredCombos = useMemo(
-    () =>
-      combos.filter((c) => {
+  const filteredCombos = useMemo(() => {
+    const diffOrder: Record<ComboData['difficulty'], number> = {
+      Beginner: 0,
+      Intermediate: 1,
+      Advanced: 2,
+      'Ultra Hard': 3,
+    };
+    return combos
+      .filter((c) => {
         if (c.mode !== mode || c.characterId !== selectedCharId) return false;
         if (difficultyFilter !== 'ALL' && c.difficulty !== difficultyFilter) return false;
         if (positionFilter === 'corner' && !isCornerCombo(c)) return false;
         if (positionFilter === 'midscreen' && isCornerCombo(c)) return false;
         return true;
-      }),
-    [combos, mode, selectedCharId, difficultyFilter, positionFilter]
-  );
+      })
+      .sort((a, b) => diffOrder[a.difficulty] - diffOrder[b.difficulty]);
+  }, [combos, mode, selectedCharId, difficultyFilter, positionFilter]);
 
   const openEditModal = (e: React.MouseEvent, combo: ComboData) => {
     e.stopPropagation();

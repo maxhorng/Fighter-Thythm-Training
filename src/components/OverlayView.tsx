@@ -661,7 +661,18 @@ function diagnoseExecution(
   const t = I18N[lang];
   const windowMs =
     note.motion === '360' || note.motion === '720' || note.motion === '4646' ? 680 : 420;
-  const recent = dirHistory.filter((d) => now - d.t <= windowMs);
+  const cutoff = now - windowMs;
+  const inWindow = dirHistory.filter((d) => d.t >= cutoff);
+  // Include the direction state that was ALREADY being held when entering the window
+  // (e.g., holding 2 during 2MP/2MK and rolling directly 3 -> 6 for 236P!)
+  let carryIn: { dir: string; t: number } | undefined;
+  for (let i = dirHistory.length - 1; i >= 0; i--) {
+    if (dirHistory[i].t < cutoff) {
+      carryIn = dirHistory[i];
+      break;
+    }
+  }
+  const recent = carryIn && carryIn.dir !== '5' ? [carryIn, ...inWindow] : inWindow;
   const rawSeq = recent.map((d) => d.dir).join('');
   const nonNeutral = recent.filter((d) => d.dir !== '5').map((d) => d.dir);
   let cleanSeq = '';

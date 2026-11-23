@@ -3,7 +3,7 @@
  * SF6 實錄連段自動匯入腳本
  *
  * 用法：
- *   1. 直接複製 1 組或多組連段 JSON 到剪貼簿，然後執行：
+ *   1. 直接執行（會跳出記事本視窗，貼上 1 組或多組 JSON → Ctrl+S 存檔 → 關閉視窗即自動匯入）：
  *      npm run add-combo
  *   2. 加上可選標記（套用到本次匯入的所有連段）：
  *      npm run add-combo -- --corner
@@ -11,21 +11,23 @@
  *      npm run add-combo -- --note "安全跳"
  *      npm run add-combo -- --diff "Ultra Hard"
  *      npm run add-combo -- --tag "壓持續,確反"
+ *      npm run add-combo -- --clip           (改直接讀取剪貼簿，不開記事本)
  *      npm run add-combo -- --dry            (只預覽，不寫入)
  *      npm run add-combo -- --no-tsc         (跳過 TypeScript 檢查)
- *   3. 或從檔案匯入：
+ *   3. 或直接匯入指定檔案：
  *      npm run add-combo -- path/to/combos.json --corner
  */
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execSync, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const ts = require('typescript');
 
 const COMBOS_PATH = path.resolve(process.cwd(), 'src/data/combos.ts');
+const PAD_FILE = path.resolve(process.cwd(), 'scripts/_combo_paste.txt');
 
 const CANCEL_MOTIONS = new Set([
   '236', '214', '623', '6214', '46', '4646', '28', '360', '720',
@@ -33,49 +35,88 @@ const CANCEL_MOTIONS = new Set([
 const LIGHT_OR_MED_BTNS = new Set(['LP', 'LK', 'L', 'MP', 'MK', 'M']);
 const HEAVY_OR_SPEC_BTNS = new Set(['HP', 'HK', 'H', 'SP', 'PARRY', 'DI']);
 
-// ── CLI 參數解析 ──
+function normalizeDifficulty(raw) {
+  if (!raw) return '';
+  const s = String(raw).trim().toLowerCase();
+  if (s === 'beginner' || s === 'easy' || s === '簡單') return 'Beginner';
+  if (s === 'intermediate' || s === 'medium' || s === 'mid' || s === '中級') return 'Intermediate';
+  if (s === 'advanced' || s === 'advance' || s === 'hard' || s === '進階') return 'Advanced';
+  if (s === 'ultra hard' || s === 'ultrahard' || s === 'ultra') return 'Ultra Hard';
+  return raw.trim();
+}
+
+// ── CLI 參數解析（同時相容有沒有打 -- 分隔符，以及 npm_config_*） ──
 function parseArgs(argv) {
   const opts = {
     file: null,
-    corner: false,
-    mid: false,
-    note: '',
-    diff: '',
-    tags: [],
-    dry: false,
-    noTsc: false,
+    clip: process.env.npm_config_clip === 'true',
+    corner: process.env.npm_config_corner === 'true',
+    mid: process.env.npm_config_mid === 'true',
+    note: process.env.npm_config_note || '',
+    diff: normalizeDifficulty(process.env.npm_config_diff || ''),
+    tags: process.env.npm_config_tag
+      ? process.env.npm_config_tag.split(',').map((s) => s.trim()).filter(Boolean)
+      : [],
+    dry: process.env.npm_config_dry === 'true',
+    noTsc: process.env.npm_config_no_tsc === 'true',
   };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === '--corner') opts.corner = true;
-    else if (arg === '--mid') opts.mid = true;
-    else if (arg === '--dry') opts.dry = true;
+    if (arg === '--corner' || arg === '-corner') opts.corner = true;
+    else if (arg === '--mid' || arg === '-mid') opts.mid = true;
+    else if (arg === '--clip' || arg === '-clip') opts.clip = true;
+    else if (arg === '--dry' || arg === '-dry') opts.dry = true;
     else if (arg === '--no-tsc') opts.noTsc = true;
-    else if (arg === '--note' && argv[i + 1]) opts.note = argv[++i];
-    else if (arg === '--diff' && argv[i + 1]) opts.diff = argv[++i];
-    else if (arg === '--tag' && argv[i + 1]) {
+    else if ((arg === '--note' || arg === '-note') && argv[i + 1]) opts.note = argv[++i];
+    else if ((arg === '--diff' || arg === '-diff') && argv[i + 1]) {
+      opts.diff = normalizeDifficulty(argv[++i]);
+    } else if ((arg === '--tag' || arg === '-tag') && argv[i + 1]) {
       opts.tags.push(...argv[++i].split(',').map((s) => s.trim()).filter(Boolean));
-    } else if (!arg.startsWith('--') && !opts.file) {
-      opts.file = arg;
+    } else if (!arg.startsWith('-') && !opts.file) {
+      // 如果有人打 npm run add-combo --diff Beginner 漏了 --，
+      // npm 會把 --diff 設成 npm_config_diff='true'，而把 "Beginner" 當成位置參數傳進來
+      const maybeDiff = normalizeDifficulty(arg);
+      if (
+        process.env.npm_config_diff === 'true' &&
+        ['Beginner', 'Intermediate', 'Advanced', 'Ultra Hard'].includes(maybeDiff)
+      ) {
+        opts.diff = maybeDiff;
+      } else {
+        opts.file = arg;
+      }
     }
   }
   return opts;
 }
 
-// ── 讀取剪貼簿或檔案 ──
-function readInputText(file) {
-  if (file) {
-    return fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+// ── 讀取檔案、剪貼簿或開啟記事本 ──
+function readInputText(opts) {
+  if (opts.file) {
+    return fs.readFileSync(path.resolve(process.cwd(), opts.file), 'utf8');
   }
+  if (opts.clip) {
+    try {
+      return execSync('powershell -NoProfile -Command "Get-Clipboard -Raw"', {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+    } catch {
+      console.error('❌ 無法讀取剪貼簿，請確認剪貼簿有 JSON 內容。');
+      process.exit(1);
+    }
+  }
+
+  // 預設：開啟記事本讓使用者貼上 JSON，存檔並關閉後自動繼續
+  fs.writeFileSync(PAD_FILE, '', 'utf8');
+  console.log('📝 已開啟記事本視窗！請貼上 1 組或多組連段 JSON → 按 Ctrl+S 存檔 → 關閉記事本即可自動匯入...');
+  spawnSync('notepad.exe', [PAD_FILE], { stdio: 'inherit' });
+  const content = fs.existsSync(PAD_FILE) ? fs.readFileSync(PAD_FILE, 'utf8') : '';
   try {
-    return execSync('powershell -NoProfile -Command "Get-Clipboard -Raw"', {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-  } catch (err) {
-    console.error('❌ 無法讀取剪貼簿，請確認剪貼簿有 JSON 內容，或改傳檔案路徑。');
-    process.exit(1);
+    fs.unlinkSync(PAD_FILE);
+  } catch {
+    // ignore cleanup error
   }
+  return content;
 }
 
 // ── 解析單組、陣列、或相連多組 JSON ({...}{...}) ──
@@ -285,7 +326,7 @@ function formatComboEntry(c) {
 // ── 主流程 ──
 function main() {
   const opts = parseArgs(process.argv.slice(2));
-  const rawText = readInputText(opts.file);
+  const rawText = readInputText(opts);
   const incoming = extractJsonObjects(rawText);
 
   if (incoming.length === 0) {
@@ -344,6 +385,12 @@ function main() {
     }
     existingIds.add(finalId);
 
+    const position = opts.corner
+      ? 'corner'
+      : opts.mid
+        ? 'midscreen'
+        : raw.position || undefined;
+
     toAppend.push({
       id: finalId,
       characterId: raw.characterId,
@@ -351,7 +398,7 @@ function main() {
       mode: raw.mode,
       title,
       difficulty,
-      ...(opts.corner ? { position: 'corner' } : opts.mid ? { position: 'midscreen' } : {}),
+      ...(position ? { position } : {}),
       description: raw.description || '',
       tags,
       notes: processedNotes,
