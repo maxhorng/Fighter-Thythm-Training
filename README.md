@@ -1,17 +1,19 @@
 # RhythmCombo Trainer (Beta)
 
 **Street Fighter 6 · Transparent Rhythm Combo Trainer Overlay**  
-**快打旋風 6 · 透明覆蓋節奏連段訓練器**
+**快打旋風 6 · 透明覆蓋節奏連段訓練器**  
+**ストリートファイター6 · 透過オーバーレイ リズムコンボ練習ツール**
 
-[English](#english) | [繁體中文](#繁體中文)
+> **Author / 作者 / 制作**: `maxhorng / 92anini`  
+> **Latest Version / 最新版本 / 最新版**: `v0.2.0-beta.6`  
+> **Download / 永久最新版下載 / ダウンロード**: **[Download Latest Windows Portable `.exe` (Releases Latest)](https://github.com/maxhorng/Rhythm-Combo-Trainer/releases/latest)**
 
-> **Author / 作者**: `maxhorng / 92anini`  
-> **Latest Version / 最新版本**: `v0.2.0-beta.6`  
-> **Download / 永久最新版下載**: **[Download Latest Windows Portable `.exe` (Releases Latest)](https://github.com/maxhorng/Rhythm-Combo-Trainer/releases/latest)**
+Click a language below to expand / 點擊下方語言展開說明 / 下の言語をクリックして展開:
 
 ---
 
-## English
+<details open>
+<summary><strong>English</strong></summary>
 
 ### Concrete Features
 
@@ -57,9 +59,10 @@
    - Open **Settings / Keys & Lang** in the top-right to choose your language, customize global hotkeys (`F7` Review, `F8` Reset, `F9` Click-Through, `F10` Menu), and bind your keyboard/controller.
    - Pick **Classic** or **Modern**, select a character, side (**1P Left / 2P Right**), and combo, then click **Launch Transparent Overlay Mode**.
 
----
+</details>
 
-## 繁體中文
+<details>
+<summary><strong>繁體中文 (Traditional Chinese)</strong></summary>
 
 ### 具體功能一覽
 
@@ -104,6 +107,57 @@
 3. **開始練習**：
    - 點右上角 **「設定 / 按鍵與語言」** 選擇語言、自訂快捷鍵（`F7` 檢討、`F8` 重來、`F9` 穿透、`F10` 選單）並綁定鍵盤／手把。
    - 選好模式、角色、站位（**1P 左側 / 2P 右側**）與連段，點擊 **「開始透明覆蓋訓練模式 (Overlay)」** 即可開始練習。
+
+</details>
+
+<details>
+<summary><strong>日本語 (Japanese)</strong></summary>
+
+### 主な機能
+
+1. **透過オーバーレイ ＆ 軽量モード**
+   - 『ストリートファイター6』のゲーム画面上に直接オーバーレイ表示（SF6 の表示設定は**ボーダーレスウィンドウ**推奨）。クリック透過の切替（初期設定 `F9`、変更可能）に対応。
+   - **軽量モード**：ぼかし・発光エフェクトを無効化し、1x 解像度かつ Canvas 直接描画（DOM 再描画ゼロ）でゲーム側の FPS 低下を最小限に抑えます。
+2. **Windows ネイティブ バックグラウンド入力検出（キーボード / アケコン / レバーレス）**
+   - グローバルキーボード監視（`uiohook-napi`）に加え、**Windows ネイティブ XInput ポーリング**（`xinput1_4.dll`）を内蔵。**Haute42 / GP2040-CE / Hitbox / レバーレス / アケコン / Xbox コントローラー**が SF6 にフォーカスした状態でもそのまま反応します。
+   - 複数コントローラーの統合読み取りおよび DInput POV Hat にも対応。
+3. **60fps フレーム精度判定 ＆ リアルタイム入力ミス診断（`F7`）**
+   - 各ヒットを `PERFECT`（±0.35f）、`GOOD`（SF6 の実戦的な目押し・キャンセル・ラッシュ猶予）、`EARLY`、`LATE`、`MISS` で判定。
+   - **動的リシンク**：キャンセル、ドライブラッシュ、SA は実際の入力タイミングに自動で追従し、目押し（Link）は厳密なリズムを維持します。
+   - **コンボ振り返りドロップダウン（初期設定 `F7`、変更可能）**：各ステップのフレーム誤差と**技が出なかった原因の自動診断**を表示します：
+     - コマンド未成立（例：`236` を `23` で早押しして `6` 抜け、`214` の `4` 抜け、`623 / 63214 / 22 / 66 / 44 / 360 / 720` の入力不完全）。
+     - キャンセルラッシュ時の方向ミス（`2MK -> ラッシュ` で下や後ろを押しっぱなしにしてしまいラッシュが出ないケース）。
+     - `[4]6`、`[2]8`、`[4]646` のタメ時間不足。
+     - 方向キー付き通常技（例：`2MK`）やモダン操作の `AUTO` ボタン押し忘れ。
+4. **1P 左側 / 2P 右側（反転）両サイド練習**
+   - 練習開始前に **1P 左側（標準）** と **2P 右側（反転）** をワンクリックで切替可能。
+   - 2P 側ではコマンドスライダー、方向矢印、入力判定、タメ計測、ミス診断のすべてが自動で左右反転されます。
+5. **キャラ検索・お気に入りピン留め・コンボ絞り込み**
+   - キャラ一覧に**検索ボックス**（英語・日本語・韓国語・中国語および `M. Bison / ベガ (Vega)` の両表記に対応）と**お気に入りピン留め機能**を搭載。
+   - コンボ一覧を**難易度**（すべて / 初級 / 中級 / 上級 / Ultra Hard）と**位置**（位置すべて / 中央 / 画面端）で絞り込み可能。
+   - 初期キャラ〜豪鬼までのクラシック / モダン両対応 60fps 実機録画コンボを内蔵（今後の DLC キャラも順次追加予定）。
+6. **実機 60fps コンボ録画 ＆ JSON 共有**
+   - `236 / 214 / 623 / 323 / 33 / 633（6押しっぱなし+2連打） / 63214 / 2147 / 2369 / 360 / 720 / [4]6 / 4646 / [2]8 / 66 / 44`、初段タメ技、ホールド＆リリース、フレーム単位のキー履歴再生に対応。
+   - 録画中に**画面端 / 中央**の切替や**カスタムタグ**の付与が可能。
+   - ワンクリックで `.json` ファイルへ書き出し・共有、およびファイルからのインポートに対応。
+7. **5 言語対応・リサイズ可能ウィンドウ・アップデート通知**
+   - **繁體中文 / 简体中文 / English / 日本語 / 한국어** の 5 言語に完全対応（ボタン、キー設定、CAPCOM 公式キャラ名、タグ、HUD、入力ミス診断まで対応）。
+   - クライアントウィンドウは**サイズ変更可能**（最小 `1120x760`、右下にリサイズグリップ付き）で、再起動後もサイズを記憶します。
+   - 起動時に GitHub Releases の最新版を自動チェックして通知します。
+
+### クイックスタート（Windows ポータブル `.exe`）
+
+1. **ダウンロード**：**[Releases Latest](https://github.com/maxhorng/Rhythm-Combo-Trainer/releases/latest)** から **`RhythmCombo-Trainer-*-win-portable.exe`** をダウンロードし、ダブルクリックで起動（インストール・Node.js 不要）。
+   - *Windows SmartScreen が表示された場合*：**詳細情報 -> 実行** を選択してください。ソースコードは GitHub で公開されており、全リリースに **SHA-256 チェックサム**を添付しています。純粋な視覚リズム練習ツールであり、マクロ・自動入力・メモリ読み書きは一切行いません。
+2. **ゲーム設定**：
+   - 『ストリートファイター6』を **ボーダーレスウィンドウ** に設定してください。
+   - 安定した 60fps 動作のため、アプリ内の**軽量モード**の有効化をおすすめします。
+   - レバーレス / Haute42 / アケコンは **XInput（Xbox）モード** での使用を推奨します。
+3. **練習開始**：
+   - 右上の **「設定 / キー・言語」** から言語を「日本語」に切り替え、ショートカット（`F7` 振り返り / `F8` リトライ / `F9` 透過切替 / `F10` メニュー）とキー割り当てを設定。
+   - 操作タイプ、キャラ、立ち位置（**1P 左側 / 2P 右側**）、コンボを選び、**「透過オーバーレイ練習を開始 (Overlay)」** をクリックして練習開始です。
+
+</details>
 
 ---
 
