@@ -36,6 +36,8 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
 }) => {
   const startTimeRef = useRef<number | null>(null);
   const [recordedNotes, setRecordedNotes] = useState<ComboNote[]>([]);
+  const [position, setPosition] = useState<'midscreen' | 'corner'>('midscreen');
+  const [customTagsInput, setCustomTagsInput] = useState('');
   const recordedRef = useRef<ComboNote[]>([]);
   recordedRef.current = recordedNotes;
   const dirHistoryRef = useRef<{ dir: string; t: number }[]>([]);
@@ -96,19 +98,27 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
       }
     }
 
+    const parsedCustomTags = customTagsInput
+      .split(/[,，、\s]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const posTag = position === 'corner' ? '角落' : '非角落';
+    const finalTags = Array.from(new Set([posTag, ...parsedCustomTags]));
+
     return {
       id: `rec-${Date.now()}`,
       characterId: charMeta.id,
       characterName: charMeta.name,
       mode,
-      title: `${charMeta.name} 實錄連段 (${notes.length} 擊 · ${notes[notes.length - 1].frame}f)`,
+      title: `${position === 'corner' ? '[角落] ' : ''}${charMeta.name} 實錄連段 (${notes.length} 擊 · ${notes[notes.length - 1].frame}f)`,
       difficulty: notes.length >= 6 ? 'Advanced' : 'Intermediate',
+      position,
       description: `${notes.map((n) => `${n.notation}(${n.frame}f)`).join(' → ')}`,
-      tags: ['實機錄製', '60fps原味'],
+      tags: finalTags,
       notes,
       inputHistory: history,
     };
-  }, [charMeta.id, charMeta.name, mode]);
+  }, [charMeta.id, charMeta.name, customTagsInput, mode, position]);
 
   const finishAndSave = useCallback(() => {
     const combo = buildCombo();
@@ -706,6 +716,34 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
         <div className="hud-controls">
           {!isClickThrough && (
             <>
+              <button
+                className="hud-btn"
+                onClick={() => setPosition((p) => (p === 'midscreen' ? 'corner' : 'midscreen'))}
+                style={
+                  position === 'corner'
+                    ? { borderColor: 'rgba(251, 146, 60, 0.8)', color: '#fdba74', background: 'rgba(251, 146, 60, 0.18)' }
+                    : { borderColor: 'rgba(45, 212, 191, 0.6)', color: '#99f6e4' }
+                }
+                title="切換此連段為角落或非角落"
+              >
+                {position === 'corner' ? '角落' : '非角落'}
+              </button>
+              <input
+                type="text"
+                value={customTagsInput}
+                onChange={(e) => setCustomTagsInput(e.target.value)}
+                placeholder="自訂標籤(如:確反,安全跳)"
+                style={{
+                  width: 155,
+                  padding: '4px 8px',
+                  fontSize: 11.5,
+                  borderRadius: 6,
+                  border: '1px solid rgba(148, 163, 184, 0.35)',
+                  background: 'rgba(15, 23, 42, 0.9)',
+                  color: '#f8fafc',
+                  outline: 'none',
+                }}
+              />
               <button className="hud-btn" onClick={clearRecording}>
                 <RotateCcw size={13} /> 清空 (F8)
               </button>

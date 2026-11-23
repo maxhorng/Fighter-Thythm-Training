@@ -71,6 +71,8 @@ export interface ComboData {
   /** Optional explicit English title shown when UI language is 'en' */
   titleEn?: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced' | 'Ultra Hard';
+  /** Whether this combo requires the corner or works midscreen */
+  position?: 'midscreen' | 'corner';
   description: string;
   tags: string[];
   notes: ComboNote[];

@@ -8,7 +8,7 @@ import {
   formatKeyCode,
   getButtonsForMode,
 } from '../data/bindings';
-import { AppLang, DEFAULT_OVERLAY_HOTKEYS, I18N, LANG_OPTIONS, OverlayHotkeys } from '../data/i18n';
+import { AppLang, DEFAULT_OVERLAY_HOTKEYS, getButtonLabel, I18N, LANG_OPTIONS, OverlayHotkeys } from '../data/i18n';
 import { useInputEngine } from '../hooks/useInputEngine';
 
 interface KeybindPanelProps {
@@ -246,7 +246,7 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
                   >
                     {meta.shortLabel}
                   </span>
-                  <span>{meta.label}</span>
+                  <span>{getButtonLabel(btnId, lang)}</span>
                 </div>
 
                 <div className="keybind-inputs">

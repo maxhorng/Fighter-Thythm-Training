@@ -1,3 +1,5 @@
+import { ActionButtonId } from '../types/combo';
+
 export type AppLang = 'zh-TW' | 'zh-CN' | 'en' | 'ja' | 'ko';
 
 export const LANG_OPTIONS: { id: AppLang; label: string }[] = [
@@ -35,6 +37,7 @@ export function getComboTitle(
     [/🚧\s*施工中\.\.\./g, '🚧 WIP...'],
     [/\[角落\]/g, '[Corner]'],
     [/角落連段/g, 'Corner Combo'],
+    [/角落限定/g, 'Corner'],
     [/角落/g, 'Corner'],
     [/現代雙震地連段/g, 'Modern Double Seismo Combo'],
     [/雙震地/g, 'Double Seismo'],
@@ -605,3 +608,242 @@ export const I18N = {
     sideRight: '2P 오른쪽 (좌우반전) ▶',
   },
 } as const;
+
+export const BUTTON_LABELS: Record<AppLang, Record<ActionButtonId, string>> = {
+  'zh-TW': {
+    UP: '上 (Up)',
+    DOWN: '下 (Down)',
+    LEFT: '左 (Left)',
+    RIGHT: '右 (Right)',
+    LP: '輕拳 (LP)',
+    MP: '中拳 (MP)',
+    HP: '重拳 (HP)',
+    LK: '輕腳 (LK)',
+    MK: '中腳 (MK)',
+    HK: '重腳 (HK)',
+    L: '輕攻擊 (L)',
+    M: '中攻擊 (M)',
+    H: '重攻擊 (H)',
+    SP: '必殺技 (SP)',
+    AUTO: '輔助鍵 (AUTO)',
+    PARRY: '精防 / 綠衝 (Parry)',
+    DI: '迸發 (DI)',
+    RESET: '重置訓練場 (同步重來)',
+  },
+  'zh-CN': {
+    UP: '上 (Up)',
+    DOWN: '下 (Down)',
+    LEFT: '左 (Left)',
+    RIGHT: '右 (Right)',
+    LP: '轻拳 (LP)',
+    MP: '中拳 (MP)',
+    HP: '重拳 (HP)',
+    LK: '轻脚 (LK)',
+    MK: '中脚 (MK)',
+    HK: '重脚 (HK)',
+    L: '轻攻击 (L)',
+    M: '中攻击 (M)',
+    H: '重攻击 (H)',
+    SP: '必杀技 (SP)',
+    AUTO: '辅助键 (AUTO)',
+    PARRY: '招架 / 绿冲 (Parry)',
+    DI: '迸发 (DI)',
+    RESET: '重置训练场 (同步重来)',
+  },
+  en: {
+    UP: 'Up',
+    DOWN: 'Down',
+    LEFT: 'Left',
+    RIGHT: 'Right',
+    LP: 'Light Punch (LP)',
+    MP: 'Medium Punch (MP)',
+    HP: 'Heavy Punch (HP)',
+    LK: 'Light Kick (LK)',
+    MK: 'Medium Kick (MK)',
+    HK: 'Heavy Kick (HK)',
+    L: 'Light Attack (L)',
+    M: 'Medium Attack (M)',
+    H: 'Heavy Attack (H)',
+    SP: 'Special (SP)',
+    AUTO: 'Assist (AUTO)',
+    PARRY: 'Drive Parry / DR',
+    DI: 'Drive Impact (DI)',
+    RESET: 'Training Reset (Sync)',
+  },
+  ja: {
+    UP: '上 (Up)',
+    DOWN: '下 (Down)',
+    LEFT: '左 (Left)',
+    RIGHT: '右 (Right)',
+    LP: '弱パンチ (LP)',
+    MP: '中パンチ (MP)',
+    HP: '強パンチ (HP)',
+    LK: '弱キック (LK)',
+    MK: '中キック (MK)',
+    HK: '強キック (HK)',
+    L: '弱攻撃 (L)',
+    M: '中攻撃 (M)',
+    H: '強攻撃 (H)',
+    SP: '必殺技 (SP)',
+    AUTO: 'アシスト (AUTO)',
+    PARRY: 'パリィ / ラッシュ (Parry)',
+    DI: 'インパクト (DI)',
+    RESET: 'トレモ再開 (同期リセット)',
+  },
+  ko: {
+    UP: '위 (Up)',
+    DOWN: '아래 (Down)',
+    LEFT: '왼쪽 (Left)',
+    RIGHT: '오른쪽 (Right)',
+    LP: '약펀치 (LP)',
+    MP: '중펀치 (MP)',
+    HP: '강펀치 (HP)',
+    LK: '약킥 (LK)',
+    MK: '중킥 (MK)',
+    HK: '강킥 (HK)',
+    L: '약공격 (L)',
+    M: '중공격 (M)',
+    H: '강공격 (H)',
+    SP: '필살기 (SP)',
+    AUTO: '어시스트 (AUTO)',
+    PARRY: '패리 / 러시 (Parry)',
+    DI: '임팩트 (DI)',
+    RESET: '트레이닝 초기화 (동기화)',
+  },
+};
+
+export function getButtonLabel(id: ActionButtonId, lang: AppLang): string {
+  return BUTTON_LABELS[lang]?.[id] ?? BUTTON_LABELS['zh-TW'][id];
+}
+
+const TAG_REPLACEMENTS: Record<'en' | 'ja' | 'ko', [RegExp, string][]> = {
+  en: [
+    [/基本夢連/g, 'Basic Dream'],
+    [/新夢幻連段/g, 'Shin Dream'],
+    [/基本傷害連段/g, 'Basic Damage'],
+    [/高傷害/g, 'High Damage'],
+    [/綠衝/g, 'DR'],
+    [/安全跳/g, 'Safe Jump'],
+    [/確反/g, 'Punish'],
+    [/蓄力/g, 'Charge'],
+    [/壓制/g, 'Oki'],
+    [/斬殺/g, 'Kill Combo'],
+    [/目標連/g, 'Target Combo'],
+    [/浮空/g, 'Juggle'],
+    [/大招/g, 'Super'],
+    [/連段/g, 'Combo'],
+    [/入門/g, 'Beginner'],
+    [/進階/g, 'Advanced'],
+    [/實用/g, 'Practical'],
+    [/角落限定/g, 'Corner'],
+    [/角落/g, 'Corner'],
+    [/非角落/g, 'Midscreen'],
+    [/現代/g, 'Modern'],
+    [/經典/g, 'Classic'],
+  ],
+  ja: [
+    [/基本夢連/g, '基本ドリーム'],
+    [/新夢幻連段/g, '新ドリーム'],
+    [/基本傷害連段/g, '基本火力'],
+    [/高傷害/g, '高火力'],
+    [/綠衝/g, 'ラッシュ'],
+    [/安全跳/g, '詐欺飛び'],
+    [/確反/g, '確反'],
+    [/蓄力/g, 'タメ'],
+    [/壓制/g, '起き攻め'],
+    [/斬殺/g, 'リーサル'],
+    [/目標連/g, 'TC'],
+    [/浮空/g, '空中追撃'],
+    [/大招/g, 'SA'],
+    [/連段/g, 'コンボ'],
+    [/入門/g, '入門'],
+    [/進階/g, '上級'],
+    [/實用/g, '実戦向け'],
+    [/角落限定/g, '画面端'],
+    [/角落/g, '画面端'],
+    [/非角落/g, '中央'],
+    [/現代/g, 'モダン'],
+    [/經典/g, 'クラシック'],
+  ],
+  ko: [
+    [/基本夢連/g, '기본 드림'],
+    [/新夢幻連段/g, '신 드림'],
+    [/基本傷害連段/g, '기본 데미지'],
+    [/高傷害/g, '고화력'],
+    [/綠衝/g, '드라이브 러시'],
+    [/安全跳/g, '안전 점프'],
+    [/確反/g, '확정 반격'],
+    [/蓄力/g, '차지'],
+    [/壓制/g, '기상 압박'],
+    [/斬殺/g, '킬 콤보'],
+    [/目標連/g, '타겟 콤보'],
+    [/浮空/g, '공중 콤보'],
+    [/大招/g, 'SA'],
+    [/連段/g, '콤보'],
+    [/入門/g, '입문'],
+    [/進階/g, '고급'],
+    [/實用/g, '실전용'],
+    [/角落限定/g, '구석'],
+    [/角落/g, '구석'],
+    [/非角落/g, '중앙'],
+    [/現代/g, '모던'],
+    [/經典/g, '클래식'],
+  ],
+};
+
+export function translateTag(tag: string, lang: AppLang): string {
+  if (lang === 'zh-TW' || lang === 'zh-CN') return tag;
+  let out = tag;
+  for (const [pattern, rep] of TAG_REPLACEMENTS[lang]) {
+    out = out.replace(pattern, rep);
+  }
+  return out;
+}
+
+/**
+ * Official CAPCOM SF6 localized character names (plus common FGC names).
+ * The big English name (`char.name`) is always preserved on the character card;
+ * this provides the localized subtitle for zh-TW / zh-CN / ja / ko.
+ */
+export const CHARACTER_LOCALIZED_NAMES: Record<
+  string,
+  { 'zh-TW': string; 'zh-CN': string; ja: string; ko: string }
+> = {
+  ryu: { 'zh-TW': '隆', 'zh-CN': '隆', ja: 'リュウ', ko: '류' },
+  ken: { 'zh-TW': '肯', 'zh-CN': '肯', ja: 'ケン', ko: '켄' },
+  luke: { 'zh-TW': '路克', 'zh-CN': '卢克', ja: 'ルーク', ko: '루크' },
+  chunli: { 'zh-TW': '春麗', 'zh-CN': '春丽', ja: '春麗', ko: '춘리' },
+  cammy: { 'zh-TW': '嘉米', 'zh-CN': '嘉米', ja: 'キャミィ', ko: '캐미' },
+  guile: { 'zh-TW': '凱爾', 'zh-CN': '古烈', ja: 'ガイル', ko: '가일' },
+  juri: { 'zh-TW': '韓蛛俐', 'zh-CN': '蛛俐', ja: 'ジュリ', ko: '주리' },
+  jamie: { 'zh-TW': '傑米', 'zh-CN': '杰米', ja: 'ジェイミー', ko: '제이미' },
+  kimberly: { 'zh-TW': '金伯莉', 'zh-CN': '金佰莉', ja: 'キンバリー', ko: '킴벌리' },
+  manon: { 'zh-TW': '瑪儂', 'zh-CN': '玛浓', ja: 'マノン', ko: '마농' },
+  marisa: { 'zh-TW': '瑪麗莎', 'zh-CN': '玛丽莎', ja: 'マリーザ', ko: '마리사' },
+  zangief: { 'zh-TW': '桑吉爾夫', 'zh-CN': '桑吉尔夫', ja: 'ザンギエフ', ko: '장기에프' },
+  dhalsim: { 'zh-TW': '達爾西姆', 'zh-CN': '达尔锡', ja: 'ダルシム', ko: '달심' },
+  ehonda: { 'zh-TW': '本田', 'zh-CN': '本田', ja: 'エドモンド本田', ko: 'E. 혼다' },
+  blanka: { 'zh-TW': '布蘭卡', 'zh-CN': '布兰卡', ja: 'ブランカ', ko: '블랑카' },
+  deejay: { 'zh-TW': '迪傑', 'zh-CN': '迪杰', ja: 'ディージェイ', ko: '디 제이' },
+  lily: { 'zh-TW': '莉莉', 'zh-CN': '莉莉', ja: 'リリー', ko: '릴리' },
+  jp: { 'zh-TW': 'JP', 'zh-CN': 'JP', ja: 'JP', ko: 'JP' },
+  rashid: { 'zh-TW': '拉希德', 'zh-CN': '拉希德', ja: 'ラシード', ko: '라시드' },
+  aki: { 'zh-TW': '阿鬼', 'zh-CN': '阿鬼', ja: 'A.K.I.', ko: 'A.K.I.' },
+  ed: { 'zh-TW': '艾德', 'zh-CN': '爱德', ja: 'エド', ko: '에드' },
+  akuma: { 'zh-TW': '豪鬼', 'zh-CN': '豪鬼', ja: '豪鬼', ko: '고우키' },
+  mbison: { 'zh-TW': '維加 / 將軍 (Vega)', 'zh-CN': '维加 / 将军 (Vega)', ja: 'ベガ (Vega)', ko: '베가 (Vega)' },
+  terry: { 'zh-TW': '泰瑞', 'zh-CN': '特瑞', ja: 'テリー', ko: '테리' },
+  mai: { 'zh-TW': '不知火舞', 'zh-CN': '不知火舞', ja: '舞', ko: '마이' },
+  elena: { 'zh-TW': '艾蓮娜', 'zh-CN': '艾琳娜', ja: 'エレナ', ko: '엘레나' },
+  sagat: { 'zh-TW': '沙加特', 'zh-CN': '沙加特', ja: 'サガット', ko: '사가트' },
+  cviper: { 'zh-TW': '深紅毒蛇', 'zh-CN': '深红毒蛇', ja: 'クリムゾン・ヴァイパー', ko: 'C. 바이퍼' },
+  alex: { 'zh-TW': '亞歷克斯', 'zh-CN': '阿历克斯', ja: 'アレックス', ko: '알렉스' },
+  ingrid: { 'zh-TW': '英格麗特', 'zh-CN': '英格丽特', ja: 'イングリッド', ko: '잉그리드' },
+  yasmine: { 'zh-TW': '雅絲敏', 'zh-CN': '雅丝敏', ja: 'ヤスミン', ko: '야스민' },
+  arjun: { 'zh-TW': '阿爾俊', 'zh-CN': '阿尔俊', ja: 'アルジュン', ko: '아르준' },
+};
+
+export function getCharacterSubName(id: string, fallback: string, lang: AppLang): string {
+  if (lang === 'en') return '';
+  return CHARACTER_LOCALIZED_NAMES[id]?.[lang] ?? fallback;
+}

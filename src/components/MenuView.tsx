@@ -23,7 +23,7 @@ import {
 } from '../types/combo';
 import { CHARACTERS } from '../data/combos';
 import { BUTTON_META, formatKeyCode } from '../data/bindings';
-import { AppLang, getComboTitle, I18N, OverlayHotkeys } from '../data/i18n';
+import { AppLang, getCharacterSubName, getComboTitle, I18N, OverlayHotkeys, translateTag } from '../data/i18n';
 import { KeybindPanel } from './KeybindPanel';
 import { ImportComboModal } from './ImportComboModal';
 import { TutorialModal } from './TutorialModal';
@@ -101,6 +101,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
     return new Set();
   });
   const [difficultyFilter, setDifficultyFilter] = useState<'ALL' | ComboData['difficulty']>('ALL');
+  const [positionFilter, setPositionFilter] = useState<'ALL' | 'midscreen' | 'corner'>('ALL');
   const [showKeybinds, setShowKeybinds] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [showTutorial, setShowTutorial] = useState<boolean>(() => {
@@ -188,7 +189,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
           (c) =>
             c.name.toLowerCase().includes(q) ||
             c.id.toLowerCase().includes(q) ||
-            c.title.toLowerCase().includes(q)
+            c.title.toLowerCase().includes(q) ||
+            getCharacterSubName(c.id, c.title, lang).toLowerCase().includes(q)
         );
     return [...list].sort((a, b) => {
       const pa = pinnedChars.has(a.id) ? 0 : 1;
@@ -197,15 +199,22 @@ export const MenuView: React.FC<MenuViewProps> = ({
     });
   }, [charSearch, pinnedChars]);
 
+  const isCornerCombo = (c: ComboData): boolean => {
+    if (c.position === 'corner') return true;
+    if (c.position === 'midscreen') return false;
+    return /角落|corner|版邊/i.test(c.title) || c.tags.some((tg) => /角落|corner/i.test(tg));
+  };
+
   const filteredCombos = useMemo(
     () =>
-      combos.filter(
-        (c) =>
-          c.mode === mode &&
-          c.characterId === selectedCharId &&
-          (difficultyFilter === 'ALL' || c.difficulty === difficultyFilter)
-      ),
-    [combos, mode, selectedCharId, difficultyFilter]
+      combos.filter((c) => {
+        if (c.mode !== mode || c.characterId !== selectedCharId) return false;
+        if (difficultyFilter !== 'ALL' && c.difficulty !== difficultyFilter) return false;
+        if (positionFilter === 'corner' && !isCornerCombo(c)) return false;
+        if (positionFilter === 'midscreen' && isCornerCombo(c)) return false;
+        return true;
+      }),
+    [combos, mode, selectedCharId, difficultyFilter, positionFilter]
   );
 
   const handleModeSwitch = (nextMode: ControlMode) => {
@@ -497,17 +506,19 @@ export const MenuView: React.FC<MenuViewProps> = ({
                     >
                       {char.name}
                     </div>
-                    <div
-                      className="char-title"
-                      style={{
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        fontSize: 10.5,
-                      }}
-                    >
-                      {char.title}
-                    </div>
+                    {getCharacterSubName(char.id, char.title, lang) && (
+                      <div
+                        className="char-title"
+                        style={{
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          fontSize: 10.5,
+                        }}
+                      >
+                        {getCharacterSubName(char.id, char.title, lang)}
+                      </div>
+                    )}
                   </div>
                   {comboCount > 0 && (
                     <span
@@ -606,7 +617,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
               </button>
             </div>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 5, marginBottom: 8 }}>
             {(
               [
                 { id: 'ALL', label: t.filterAll, color: '#38bdf8' },
@@ -622,6 +633,38 @@ export const MenuView: React.FC<MenuViewProps> = ({
                   key={opt.id}
                   type="button"
                   onClick={() => setDifficultyFilter(opt.id)}
+                  style={{
+                    padding: '3px 9px',
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    borderRadius: 999,
+                    cursor: 'pointer',
+                    border: active
+                      ? `1px solid ${opt.color}`
+                      : '1px solid rgba(148, 163, 184, 0.28)',
+                    background: active ? `${opt.color}28` : 'rgba(15, 23, 42, 0.65)',
+                    color: active ? opt.color : '#cbd5e1',
+                    transition: 'all 0.12s ease',
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+            <span style={{ color: 'rgba(148, 163, 184, 0.35)', margin: '0 2px' }}>|</span>
+            {(
+              [
+                { id: 'ALL', label: lang === 'en' ? 'Any Pos' : lang === 'ja' ? '位置すべて' : lang === 'ko' ? '전체 위치' : '全部位置', color: '#94a3b8' },
+                { id: 'midscreen', label: lang === 'en' ? 'Midscreen' : lang === 'ja' ? '中央' : lang === 'ko' ? '중앙' : '非角落', color: '#2dd4bf' },
+                { id: 'corner', label: lang === 'en' ? 'Corner' : lang === 'ja' ? '画面端' : lang === 'ko' ? '구석' : '角落', color: '#fb923c' },
+              ] as const
+            ).map((opt) => {
+              const active = positionFilter === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setPositionFilter(opt.id)}
                   style={{
                     padding: '3px 9px',
                     fontSize: 11.5,
@@ -668,7 +711,57 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 }}
               >
                 <div className="combo-card-top">
-                  <div className="combo-title">{getComboTitle(combo, lang)}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6, minWidth: 0 }}>
+                    <span
+                      style={{
+                        fontSize: 10.5,
+                        fontWeight: 800,
+                        padding: '1px 6px',
+                        borderRadius: 999,
+                        background: isCornerCombo(combo) ? 'rgba(251, 146, 60, 0.2)' : 'rgba(45, 212, 191, 0.16)',
+                        color: isCornerCombo(combo) ? '#fdba74' : '#5eead4',
+                        border: isCornerCombo(combo)
+                          ? '1px solid rgba(251, 146, 60, 0.55)'
+                          : '1px solid rgba(45, 212, 191, 0.45)',
+                      }}
+                    >
+                      {isCornerCombo(combo)
+                        ? lang === 'en'
+                          ? 'Corner'
+                          : lang === 'ja'
+                          ? '画面端'
+                          : lang === 'ko'
+                          ? '구석'
+                          : '角落'
+                        : lang === 'en'
+                        ? 'Mid'
+                        : lang === 'ja'
+                        ? '中央'
+                        : lang === 'ko'
+                        ? '중앙'
+                        : '非角落'}
+                    </span>
+                    <div className="combo-title">{getComboTitle(combo, lang)}</div>
+                    {combo.tags
+                      .filter((tg) => !/^(角落|角落限定|非角落|實機錄製|60fps原味)$/i.test(tg))
+                      .slice(0, 3)
+                      .map((tg) => (
+                        <span
+                          key={tg}
+                          style={{
+                            fontSize: 10,
+                            fontWeight: 700,
+                            padding: '1px 6px',
+                            borderRadius: 999,
+                            background: 'rgba(148, 163, 184, 0.16)',
+                            color: '#cbd5e1',
+                            border: '1px solid rgba(148, 163, 184, 0.3)',
+                          }}
+                        >
+                          #{translateTag(tg, lang)}
+                        </span>
+                      ))}
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     {isLocked ? (
                       <button
