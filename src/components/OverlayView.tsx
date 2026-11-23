@@ -16,7 +16,7 @@ import {
 import { BUTTON_META } from '../data/bindings';
 import { useInputEngine } from '../hooks/useInputEngine';
 
-import { AppLang, getComboTitle } from '../data/i18n';
+import { AppLang, getComboTitle, I18N } from '../data/i18n';
 
 interface OverlayViewProps {
   mode: ControlMode;
@@ -658,7 +658,7 @@ function diagnoseExecution(
   chargeMs: { back: number; down: number },
   lang: AppLang
 ): string | undefined {
-  const isEn = lang === 'en';
+  const t = I18N[lang];
   const windowMs =
     note.motion === '360' || note.motion === '720' || note.motion === '4646' ? 680 : 420;
   const recent = dirHistory.filter((d) => now - d.t <= windowMs);
@@ -677,21 +677,9 @@ function diagnoseExecution(
   if (isDriveRushNote) {
     const holdingDown = activeSet.has('DOWN');
     const holdingBack = activeSet.has('LEFT');
-    if (holdingDown && holdingBack) {
-      return isEn
-        ? 'Held Down-Back (1) during DR (release to dash)'
-        : '綠衝時仍按住 ↙ (1)（需放開下/後才能衝出）';
-    }
-    if (holdingDown) {
-      return isEn
-        ? 'Held Down (2) during DR (release Down to dash)'
-        : '綠衝時仍按住 ↓ (2)（需放開下方向才能衝出）';
-    }
-    if (holdingBack) {
-      return isEn
-        ? 'Held Back (4) during DR (cannot hold Back)'
-        : '綠衝時仍按住 ← (4)（不可按後方向）';
-    }
+    if (holdingDown && holdingBack) return t.diagDrDownBack;
+    if (holdingDown) return t.diagDrDown;
+    if (holdingBack) return t.diagDrBack;
   }
 
   // 1. Motion command diagnostics
@@ -700,30 +688,18 @@ function diagnoseExecution(
     if (m === '236') {
       const ok = /2.*3.*6/.test(cleanSeq) || /2.*6/.test(cleanSeq);
       if (!ok) {
-        if (/2.*3/.test(cleanSeq)) {
-          return isEn ? 'Pressed attack at 23 (missing 6)' : '轉到 23 就按鍵（缺少 6，按太快）';
-        }
-        if (cleanSeq.includes('2')) {
-          return isEn ? 'Only input 2 (missing 3→6)' : '只按到 2（未轉到 6）';
-        }
-        if (cleanSeq.includes('6')) {
-          return isEn ? 'Missing 2 (pressed 6 only)' : '缺少下方向 2（只按了 6）';
-        }
-        return isEn ? 'No 236 motion detected' : '未偵測到 236 指令';
+        if (/2.*3/.test(cleanSeq)) return t.diag236Only23;
+        if (cleanSeq.includes('2')) return t.diag236Only2;
+        if (cleanSeq.includes('6')) return t.diag236No2;
+        return t.diag236None;
       }
     } else if (m === '214') {
       const ok = /2.*1.*4/.test(cleanSeq) || /2.*4/.test(cleanSeq);
       if (!ok) {
-        if (/2.*1/.test(cleanSeq)) {
-          return isEn ? 'Pressed attack at 21 (missing 4)' : '轉到 21 就按鍵（缺少 4，按太快）';
-        }
-        if (cleanSeq.includes('2')) {
-          return isEn ? 'Only input 2 (missing 1→4)' : '只按到 2（未轉到 4）';
-        }
-        if (cleanSeq.includes('4')) {
-          return isEn ? 'Missing 2 (pressed 4 only)' : '缺少下方向 2（只按了 4）';
-        }
-        return isEn ? 'No 214 motion detected' : '未偵測到 214 指令';
+        if (/2.*1/.test(cleanSeq)) return t.diag214Only21;
+        if (cleanSeq.includes('2')) return t.diag214Only2;
+        if (cleanSeq.includes('4')) return t.diag214No2;
+        return t.diag214None;
       }
     } else if (m === '623') {
       const ok =
@@ -733,65 +709,47 @@ function diagnoseExecution(
         /6.*2.*6/.test(cleanSeq) ||
         /3.*5.*3/.test(rawSeq);
       if (!ok) {
-        if (/6.*2/.test(cleanSeq)) {
-          return isEn ? '623 missing final 3 (↘)' : '623 缺少最後的 3（↘）';
-        }
-        if (/2.*3/.test(cleanSeq)) {
-          return isEn ? 'Input 23 (missing leading 6)' : '只轉到 23（缺少起手 6）';
-        }
-        return isEn ? 'Incomplete 623 DP motion' : '623 昇龍指令不完整';
+        if (/6.*2/.test(cleanSeq)) return t.diag623No3;
+        if (/2.*3/.test(cleanSeq)) return t.diag623No6;
+        return t.diag623Inc;
       }
     } else if (m === '6214') {
       const ok = /6.*2.*4/.test(cleanSeq) || /6.*1.*4/.test(cleanSeq) || /3.*2.*4/.test(cleanSeq);
       if (!ok) {
-        if (/6.*2/.test(cleanSeq) || /3.*2/.test(cleanSeq)) {
-          return isEn ? '63214 incomplete (missing 4)' : '63214 未轉到底（缺少 4）';
-        }
-        return isEn ? 'Incomplete 63214 half-circle' : '63214 半圈指令不完整';
+        if (/6.*2/.test(cleanSeq) || /3.*2/.test(cleanSeq)) return t.diag6214No4;
+        return t.diag6214Inc;
       }
     } else if (m === '22') {
       const ok = /2.*5.*2/.test(rawSeq) || (rawSeq.match(/2/g)?.length ?? 0) >= 2;
-      if (!ok) {
-        return isEn ? 'Only one 2 (need 22)' : '只按了一次 2（需連按 22）';
-      }
+      if (!ok) return t.diag22Inc;
     } else if (m === '66') {
       const ok = /6.*5.*6/.test(rawSeq) || (rawSeq.match(/6/g)?.length ?? 0) >= 2;
-      if (!ok) {
-        return isEn ? 'Incomplete 66 dash' : '前衝 66 未完成（需連按 6）';
-      }
+      if (!ok) return t.diag66Inc;
     } else if (m === '44') {
       const ok = /4.*5.*4/.test(rawSeq) || (rawSeq.match(/4/g)?.length ?? 0) >= 2;
-      if (!ok) {
-        return isEn ? 'Incomplete 44 backdash' : '後退 44 未完成（需連按 4）';
-      }
+      if (!ok) return t.diag44Inc;
     } else if (m === '46') {
       if (!cleanSeq.includes('6') && !cleanSeq.includes('3') && !cleanSeq.includes('9')) {
-        return isEn ? '[4]6 missing forward 6' : '[4]6 缺少往前推 6';
+        return t.diag46No6;
       }
       if (chargeMs.back < 580) {
         const frames = Math.round(chargeMs.back / FRAME_MS);
-        return isEn ? `[4]6 short charge (~${frames}f)` : `[4]6 蓄力時間不足（約 ${frames}f）`;
+        return `${t.diag46Charge} (~${frames}f)`;
       }
     } else if (m === '28') {
       if (!cleanSeq.includes('8') && !cleanSeq.includes('7') && !cleanSeq.includes('9')) {
-        return isEn ? '[2]8 missing up 8' : '[2]8 缺少往上推 8';
+        return t.diag28No8;
       }
       if (chargeMs.down < 580) {
         const frames = Math.round(chargeMs.down / FRAME_MS);
-        return isEn ? `[2]8 short charge (~${frames}f)` : `[2]8 蓄力時間不足（約 ${frames}f）`;
+        return `${t.diag28Charge} (~${frames}f)`;
       }
     } else if (m === '4646') {
-      if (chargeMs.back < 580) {
-        return isEn ? '[4]646 short charge' : '[4]646 蓄力時間不足';
-      }
-      if (!/4.*6.*4.*6/.test(cleanSeq)) {
-        return isEn ? 'Incomplete [4]646 motion' : '[4]646 左右來回未完成';
-      }
+      if (chargeMs.back < 580) return t.diag4646Charge;
+      if (!/4.*6.*4.*6/.test(cleanSeq)) return t.diag4646Inc;
     } else if (m === '360' || m === '720') {
       const cardinals = ['4', '2', '6', '8'].filter((c) => cleanSeq.includes(c));
-      if (cardinals.length < 3) {
-        return isEn ? `Incomplete ${m} spin` : `${m} 旋轉指令不完整`;
-      }
+      if (cardinals.length < 3) return `${m} ${t.diagSpinInc}`;
     }
   } else {
     // 2. Directional normal check (e.g. 2MK, 4HP, 6MP)
@@ -806,14 +764,14 @@ function diagnoseExecution(
           UP: '↑ (8)',
         };
         const dLabel = dirLabelMap[missingDir] ?? missingDir;
-        return isEn ? `Missing direction ${dLabel}` : `未按住方向 ${dLabel}`;
+        return `${t.diagMissingDir} ${dLabel}`;
       }
     }
   }
 
   // 3. Modern AUTO modifier check
   if (note.buttons.includes('AUTO') && !activeSet.has('AUTO')) {
-    return isEn ? 'Missing AUTO hold' : '未按住 AUTO 鍵';
+    return t.diagMissingAuto;
   }
 
   return undefined;
@@ -831,6 +789,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   isClickThrough,
   onExitOverlay,
 }) => {
+  const t = I18N[lang];
   const isRightSide = playerSide === 'right';
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -1863,8 +1822,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         <div className="hud-stats">
           <span className="stat-item perfect">P {stats.perfect}</span>
           <span className="stat-item good">G {stats.good}</span>
-          <span className="stat-item" style={{ color: '#fb923c', fontWeight: 800 }}>早 {stats.early}</span>
-          <span className="stat-item" style={{ color: '#f472b6', fontWeight: 800 }}>晚 {stats.late}</span>
+          <span className="stat-item" style={{ color: '#fb923c', fontWeight: 800 }}>{t.earlyShort} {stats.early}</span>
+          <span className="stat-item" style={{ color: '#f472b6', fontWeight: 800 }}>{t.lateShort} {stats.late}</span>
           <span className="stat-item miss">M {stats.miss}</span>
           <span className="stat-item acc">{accuracy}%</span>
         </div>
@@ -1880,15 +1839,15 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
                     ? { borderColor: 'rgba(251, 146, 60, 0.7)', color: '#fed7aa' }
                     : undefined
                 }
-                title="展開/收合當次連段檢討"
+                title={t.reviewTitle}
               >
-                檢討 {showReview ? '▲' : '▼'}
+                {t.reviewBtn} {showReview ? '▲' : '▼'}
               </button>
-              <button className="hud-btn" onClick={resetRun} title="重來 (F8)">
-                <RotateCcw size={13} /> 重來
+              <button className="hud-btn" onClick={resetRun} title={`${t.restartBtn} (F8)`}>
+                <RotateCcw size={13} /> {t.restartBtn}
               </button>
-              <button className="hud-btn exit" onClick={onExitOverlay} title="返回選單 (F10)">
-                <ArrowLeft size={13} /> 選單
+              <button className="hud-btn exit" onClick={onExitOverlay} title={`${t.menuBtn} (F10)`}>
+                <ArrowLeft size={13} /> {t.menuBtn}
               </button>
             </>
           )}
@@ -1931,20 +1890,20 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
             }}
           >
             <span>
-              當次連段檢討（共 {combo.notes.length} 擊）
+              {t.reviewTitle} ({combo.notes.length} {t.hitsUnit})
               {firstIssue
-                ? ` · 首次失誤：第 ${firstIssue.step} 擊 ${firstIssue.notation}（${
+                ? ` · ${t.firstIssuePrefix}${firstIssue.step} ${firstIssue.notation} (${
                     firstIssue.diagHint
                       ? firstIssue.diagHint
                       : firstIssue.rank === 'EARLY'
-                      ? `太早 ${firstIssue.deltaFrames.toFixed(1)}f`
+                      ? `${t.earlyWord} ${firstIssue.deltaFrames.toFixed(1)}f`
                       : firstIssue.rank === 'LATE'
-                      ? `太晚 +${firstIssue.deltaFrames.toFixed(1)}f`
+                      ? `${t.lateWord} +${firstIssue.deltaFrames.toFixed(1)}f`
                       : 'MISS'
-                  }）`
+                  })`
                 : runLog.length > 0
-                ? ' · 目前全中！'
-                : ' · 尚未開始'}
+                ? ` · ${t.allGoodText}`
+                : ` · ${t.notStartedText}`}
             </span>
             {!isClickThrough && (
               <button
@@ -1952,7 +1911,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
                 style={{ padding: '2px 8px', fontSize: 11 }}
                 onClick={() => setShowReview(false)}
               >
-                收合
+                {t.collapseBtn}
               </button>
             )}
           </div>
@@ -1976,9 +1935,9 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
                 : res.rank === 'GOOD'
                 ? `GOOD ${res.deltaFrames >= 0 ? '+' : ''}${res.deltaFrames.toFixed(1)}f`
                 : res.rank === 'EARLY'
-                ? `太早 ${res.deltaFrames.toFixed(1)}f`
+                ? `${t.earlyWord} ${res.deltaFrames.toFixed(1)}f`
                 : res.rank === 'LATE'
-                ? `太晚 +${res.deltaFrames.toFixed(1)}f`
+                ? `${t.lateWord} +${res.deltaFrames.toFixed(1)}f`
                 : 'MISS';
 
               const statusColor = !res

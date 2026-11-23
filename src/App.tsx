@@ -24,7 +24,9 @@ function loadLowPerfMode(): boolean {
 function loadLang(): AppLang {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_LANG);
-    if (raw === 'en' || raw === 'zh-TW') return raw;
+    if (raw === 'zh-TW' || raw === 'zh-CN' || raw === 'en' || raw === 'ja' || raw === 'ko') {
+      return raw;
+    }
   } catch {
     // ignore
   }

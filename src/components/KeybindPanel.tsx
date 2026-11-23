@@ -8,7 +8,7 @@ import {
   formatKeyCode,
   getButtonsForMode,
 } from '../data/bindings';
-import { AppLang, DEFAULT_OVERLAY_HOTKEYS, I18N, OverlayHotkeys } from '../data/i18n';
+import { AppLang, DEFAULT_OVERLAY_HOTKEYS, I18N, LANG_OPTIONS, OverlayHotkeys } from '../data/i18n';
 import { useInputEngine } from '../hooks/useInputEngine';
 
 interface KeybindPanelProps {
@@ -132,30 +132,27 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
               <Globe size={15} color="#38bdf8" />
               <span>{t.languageLabel}</span>
             </div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button
-                className="btn-secondary"
-                style={
-                  lang === 'zh-TW'
-                    ? { background: 'rgba(56, 189, 248, 0.22)', borderColor: '#38bdf8', color: '#e0f2fe' }
-                    : undefined
-                }
-                onClick={() => onChangeLang('zh-TW')}
-              >
-                繁體中文
-              </button>
-              <button
-                className="btn-secondary"
-                style={
-                  lang === 'en'
-                    ? { background: 'rgba(56, 189, 248, 0.22)', borderColor: '#38bdf8', color: '#e0f2fe' }
-                    : undefined
-                }
-                onClick={() => onChangeLang('en')}
-              >
-                English
-              </button>
-            </div>
+            <select
+              value={lang}
+              onChange={(e) => onChangeLang(e.target.value as AppLang)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 700,
+                background: 'rgba(15, 23, 42, 0.95)',
+                color: '#e0f2fe',
+                border: '1px solid rgba(56, 189, 248, 0.65)',
+                outline: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              {LANG_OPTIONS.map((opt) => (
+                <option key={opt.id} value={opt.id} style={{ background: '#0f172a', color: '#f8fafc' }}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div
