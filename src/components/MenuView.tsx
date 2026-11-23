@@ -262,7 +262,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
             onClick={() => setShowTutorial(true)}
           >
             <HelpCircle size={15} />
-            {lang === 'en' ? 'Guide' : '使用教學'}
+            {t.guideBtn}
           </button>
           <button
             className="btn-secondary"
@@ -321,7 +321,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
               onClick={() => window.open(RELEASES_LATEST_URL, '_blank')}
             >
               <Download size={12} />
-              {lang === 'en' ? 'Download Update' : '前往下載新版'}
+              {t.downloadUpdateBtn}
             </button>
             <button
               className="btn-icon"
@@ -346,8 +346,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
             >
               <span className="mode-tag">C</span>
               <div>
-                <div className="mode-name">經典模式 Classic</div>
-                <div className="mode-desc">方向 + 攻擊六鍵 (LP/MP/HP/LK/MK/HK)</div>
+                <div className="mode-name">{t.classicLabel}</div>
+                <div className="mode-desc">{t.classicSub}</div>
               </div>
             </button>
             <button
@@ -356,8 +356,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
             >
               <span className="mode-tag">M</span>
               <div>
-                <div className="mode-name">現代模式 Modern</div>
-                <div className="mode-desc">方向 + 輕/中/重 + SP + AUTO + Parry + DI</div>
+                <div className="mode-name">{t.modernLabel}</div>
+                <div className="mode-desc">{t.modernSub}</div>
               </div>
             </button>
           </div>
@@ -380,7 +380,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 type="text"
                 value={charSearch}
                 onChange={(e) => setCharSearch(e.target.value)}
-                placeholder={lang === 'en' ? 'Search fighter...' : '搜尋角色名...'}
+                placeholder={t.searchFighterPlaceholder}
                 style={{
                   width: '100%',
                   padding: '4px 22px 4px 8px',
@@ -569,11 +569,11 @@ export const MenuView: React.FC<MenuViewProps> = ({
           {/* Live Input Tester */}
           <div className="live-input-box">
             <div className="section-label" style={{ marginBottom: 8 }}>
-              即時輸入測試
+              {t.liveInputTitle}
             </div>
             <div className="live-pills">
               {activeButtons.size === 0 ? (
-                <span className="muted">按下鍵盤或搖桿測試按鍵...</span>
+                <span className="muted">{t.liveInputIdle}</span>
               ) : (
                 Array.from(activeButtons).map((btnId) => (
                   <span
@@ -609,10 +609,10 @@ export const MenuView: React.FC<MenuViewProps> = ({
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
             {(
               [
-                { id: 'ALL', label: lang === 'en' ? 'All' : '全部', color: '#38bdf8' },
-                { id: 'Beginner', label: lang === 'en' ? 'Easy' : '簡單', color: '#4ade80' },
-                { id: 'Intermediate', label: lang === 'en' ? 'Medium' : '中等', color: '#facc15' },
-                { id: 'Advanced', label: lang === 'en' ? 'Hard' : '困難', color: '#fb7185' },
+                { id: 'ALL', label: t.filterAll, color: '#38bdf8' },
+                { id: 'Beginner', label: t.filterEasy, color: '#4ade80' },
+                { id: 'Intermediate', label: t.filterMedium, color: '#facc15' },
+                { id: 'Advanced', label: t.filterHard, color: '#fb7185' },
                 { id: 'Ultra Hard', label: 'Ultra Hard', color: '#c084fc' },
               ] as const
             ).map((opt) => {
@@ -703,7 +703,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
                           onClick={(e) => handleExportJson(e, combo)}
                         >
                           <Download size={12} />
-                          {lang === 'en' ? 'Export' : '匯出'}
+                          {t.exportBtn}
                         </button>
                       </>
                     )}
@@ -768,8 +768,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
               >
                 <Zap size={15} />
                 <div>
-                  <div className="t-title">第一擊觸發啟動（推薦）</div>
-                  <div className="t-sub">按下第一招瞬間開始後續節拍</div>
+                  <div className="t-title">{t.triggerFirstTitle}</div>
+                  <div className="t-sub">{t.triggerFirstSub}</div>
                 </div>
               </button>
               <button
@@ -778,8 +778,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
               >
                 <Timer size={15} />
                 <div>
-                  <div className="t-title">倒數循環模式</div>
-                  <div className="t-sub">自動倒數並循環播放節奏圓圈</div>
+                  <div className="t-title">{t.triggerCountdownTitle}</div>
+                  <div className="t-sub">{t.triggerCountdownSub}</div>
                 </div>
               </button>
             </div>
@@ -835,7 +835,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
               }}
             >
               <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', marginRight: 2 }}>
-                {lang === 'en' ? 'Side:' : '站位方向：'}
+                {t.sideLabel}
               </span>
               <button
                 type="button"
@@ -844,7 +844,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 onClick={() => onChangePlayerSide('left')}
               >
                 <span style={{ fontSize: 12.5, fontWeight: 800 }}>
-                  {lang === 'en' ? '◀ 1P Left (Default)' : '◀ 1P 左側（預設）'}
+                  {t.sideLeft}
                 </span>
               </button>
               <button
@@ -854,7 +854,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 onClick={() => onChangePlayerSide('right')}
               >
                 <span style={{ fontSize: 12.5, fontWeight: 800 }}>
-                  {lang === 'en' ? '2P Right (Mirrored) ▶' : '2P 右側（鏡像） ▶'}
+                  {t.sideRight}
                 </span>
               </button>
             </div>
