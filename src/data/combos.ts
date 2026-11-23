@@ -25,7 +25,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Ed 經典簡單夢連 (10 擊 · 559f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：214HP+MP(0f) → 214214LP(86f) → 214HP(235f) → 623HP(319f) → 6LK+MK(383f) → 6HP(401f) → 66(438f) → 623HP(462f) → 6MK+LK(527f) → 623HP(559f)（含完整搖桿輸入軌跡重播）。',
+      '214HP+MP(0f) → 214214LP(86f) → 214HP(235f) → 623HP(319f) → 6LK+MK(383f) → 6HP(401f) → 66(438f) → 623HP(462f) → 6MK+LK(527f) → 623HP(559f)（含完整搖桿輸入軌跡重播）。',
     tags: ['Classic', 'Ed', '簡單夢連', 'SA2'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['LEFT', 'HP', 'MP'], motion: '214', windowType: 'link', notation: '214HP+MP', moveName: 'OD 精神閃擊 (0f)', x: 0.54, y: 0.50 },
@@ -98,7 +98,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Ed 經典基本傷害連段 (12 擊 · 363f)',
     difficulty: 'Intermediate',
     description:
-      '實機 60fps 錄製：HP(0f) → 236LK+MK(17f) → 236LP(86f) → 6LP(110f) → PARRY(146f) → 66(156f) → HP(170f) → 6MK+LK(193f) → 6HP(213f) → 214HP(255f) → 6MK+LK(332f) → MP(363f)（含完整搖桿輸入軌跡重播）。',
+      'HP(0f) → 236LK+MK(17f) → 236LP(86f) → 6LP(110f) → PARRY(146f) → 66(156f) → HP(170f) → 6MK+LK(193f) → 6HP(213f) → 214HP(255f) → 6MK+LK(332f) → MP(363f)（含完整搖桿輸入軌跡重播）。',
     tags: ['Classic', 'Ed', '基本傷害連段', '生綠衝'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['HP'], windowType: 'link', notation: '5HP', moveName: '5HP (0f)', x: 0.54, y: 0.50 },
@@ -171,7 +171,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Ed 基礎中攻擊確認 2LK 小連段 (4 擊 · 113f)',
     difficulty: 'Beginner',
     description:
-      '實機 60fps 錄製：5MP(0f) → 2LK(33f) → 623MP(48f) → 6LK+MK(113f)（含完整搖桿輸入軌跡重播）。',
+      '5MP(0f) → 2LK(33f) → 623MP(48f) → 6LK+MK(113f)（含完整搖桿輸入軌跡重播）。',
     tags: ['Classic', 'Ed', '基礎確認', '小連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['MP'], windowType: 'link', notation: '5MP', moveName: '5MP (0f)', x: 0.54, y: 0.50 },
@@ -202,7 +202,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Ed 中攻擊 TC 安全跳連段 (5 擊 · 152f)',
     difficulty: 'Intermediate',
     description:
-      '實機 60fps 錄製：5MP(0f) → 5HP(12f) → 214HP(39f) → 9 前跳壓住(99f) → j.HP(152f)（含完整搖桿輸入軌跡重播）。',
+      '5MP(0f) → 5HP(12f) → 214HP(39f) → 9 前跳壓住(99f) → j.HP(152f)（含完整搖桿輸入軌跡重播）。',
     tags: ['Classic', 'Ed', '安全跳', 'Safe Jump'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['MP'], windowType: 'link', notation: '5MP', moveName: '5MP (0f)', x: 0.54, y: 0.50 },
@@ -236,7 +236,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Ed 重攻擊 OD 繩子安全跳 (11 擊 · 382f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：5HP(0f) → 236MK+LK(16f) → 236LP(85f) → 6LP(103f) → PARRY(141f) → 66(152f) → 5HP(168f) → 236LK蓄力38f(193f) → 214HP(272f) → 9前跳(332f) → j.HP(382f)（含完整搖桿輸入軌跡重播）。',
+      '5HP(0f) → 236MK+LK(16f) → 236LP(85f) → 6LP(103f) → PARRY(141f) → 66(152f) → 5HP(168f) → 236LK蓄力38f(193f) → 214HP(272f) → 9前跳(332f) → j.HP(382f)（含完整搖桿輸入軌跡重播）。',
     tags: ['Classic', 'Ed', 'OD繩子', '安全跳'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['HP'], windowType: 'link', notation: '5HP', moveName: '5HP (0f)', x: 0.54, y: 0.50 },
@@ -307,7 +307,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Ed 輕攻擊簡單連段 (5 擊 · 112f)',
     difficulty: 'Beginner',
     description:
-      '實機 60fps 錄製：2LP(0f) → 5LP(16f) → 5LP(28f) → 214MP(47f) → 6MK+LK(112f)（含完整搖桿輸入軌跡重播）。',
+      '2LP(0f) → 5LP(16f) → 5LP(28f) → 214MP(47f) → 6MK+LK(112f)（含完整搖桿輸入軌跡重播）。',
     tags: ['Classic', 'Ed', '輕攻擊', '基礎連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'LP'], windowType: 'link', notation: '2LP', moveName: '2LP (0f)', x: 0.54, y: 0.50 },
@@ -370,7 +370,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'modern jp 5HPSA2範例',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：H(0f) → H(22f) → SA2(214214M)(58f) → 2M(185f) → H(228f) → H(250f) → 214H(284f) → H(335f) → H(355f) → 22L(394f) → 3SP(451f) → 236M(521f) → 22H(576f) → 214H(631f)',
+      'H(0f) → H(22f) → SA2(214214M)(58f) → 2M(185f) → H(228f) → H(250f) → 214H(284f) → H(335f) → H(355f) → 22L(394f) → 3SP(451f) → 236M(521f) → 22H(576f) → 214H(631f)',
     tags: ['Modern', 'JP', 'SA2', '實機錄製'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['H'], windowType: 'link', notation: 'H', moveName: '5H (0f)', x: 0.54, y: 0.50 },
@@ -398,7 +398,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Guile 基礎蓄力腳刀 (3 擊 · 49f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：1AUTO+H(0f) → 1AUTO+H(16f) → [2]8H(49f)（全程按住 1 集氣，最後瞬間甩上 8H 出腳刀）。',
+    description: '1AUTO+H(0f) → 1AUTO+H(16f) → [2]8H(49f)（全程按住 1 集氣，最後瞬間甩上 8H 出腳刀）。',
     tags: ['Modern', 'Guile', '集氣', '基礎連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'LEFT', 'AUTO', 'H'], windowType: 'link', notation: '1AUTO+H', moveName: '1AUTO+H (0f 開始集氣)', x: 0.54, y: 0.50 },
@@ -414,7 +414,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: '現代 Guile 綠衝波循環 → 腳刀 (10 擊 · 261f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：1AUTO+H(0f) → 1AUTO+M(33f) → PARRY(44f) → 4AUTO+H(64f) → 4AUTO+H(103f) → 1AUTO+M(136f) → [4]6L(153f) → 4H(197f) → [4]6L(215f) → [2]8H(261f)',
+      '1AUTO+H(0f) → 1AUTO+M(33f) → PARRY(44f) → 4AUTO+H(64f) → 4AUTO+H(103f) → 1AUTO+M(136f) → [4]6L(153f) → 4H(197f) → [4]6L(215f) → [2]8H(261f)',
     tags: ['Modern', 'Guile', '集氣循環', '綠衝'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'LEFT', 'AUTO', 'H'], windowType: 'link', notation: '1AUTO+H', moveName: '1AUTO+H (0f)', x: 0.54, y: 0.50 },
@@ -437,7 +437,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: '現代 Guile 4H 綠衝連段 → 腳刀 214L (7 擊 · 191f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：4H(0f) → PARRY(14f) → 1AUTO+H(36f) → 1AUTO+H(73f) → 1AUTO+H(84f) → [2]8H(124f) → 214L(191f)',
+      '4H(0f) → PARRY(14f) → 1AUTO+H(36f) → 1AUTO+H(73f) → 1AUTO+H(84f) → [2]8H(124f) → 214L(191f)',
     tags: ['Modern', 'Guile', '綠衝連段', '集氣'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['LEFT', 'H'], windowType: 'link', notation: '4H', moveName: '4H (0f)', x: 0.54, y: 0.50 },
@@ -457,8 +457,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'Guile',
     mode: 'classic',
     title: 'Guile 經典輕攻擊確認 → 5LK 腳刀 (4 擊 · 51f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(16f) → 5LK(41f) → [2]8MK(51f)（含完整搖桿輸入軌跡重播）。',
+    difficulty: 'Beginner',
+    description: '2LK(0f) → 2LP(16f) → 5LK(41f) → [2]8MK(51f)（含完整搖桿輸入軌跡重播）。',
     tags: ['Classic', 'Guile', '集氣', '基礎連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'LK'], windowType: 'link', notation: '2LK', moveName: '2LK (0f 開始拉下集氣)', x: 0.54, y: 0.50 },
@@ -485,7 +485,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Guile 經典 4HP 綠衝連段 → 重腳刀 214LP (7 擊 · 194f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：4HP(0f) → PARRY(11f) → 4MP(32f) → 4MP(72f) → 1HP(83f) → [2]8HK(125f) → 214LP(194f)（含完整搖桿輸入軌跡重播）。',
+      '4HP(0f) → PARRY(11f) → 4MP(32f) → 4MP(72f) → 1HP(83f) → [2]8HK(125f) → 214LP(194f)（含完整搖桿輸入軌跡重播）。',
     tags: ['Classic', 'Guile', '綠衝連段', '集氣'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['LEFT', 'HP'], windowType: 'link', notation: '4HP', moveName: '4HP (0f)', x: 0.54, y: 0.50 },
@@ -530,7 +530,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Ryu 最基礎輕攻擊連段（可接安全跳）(4 擊 · 50f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(15f) → 2LP(26f) → 236LK(50f)（命中後可接安全跳，含完整搖桿軌跡重播）。',
+    description: '2LK(0f) → 2LP(15f) → 2LP(26f) → 236LK(50f)（命中後可接安全跳，含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Ryu', '基礎連段', '安全跳起手'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'LK'], windowType: 'link', notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.50 },
@@ -556,7 +556,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Ryu 輕攻擊銜接壓制連段 (6 擊 · 161f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2LK(0f) → 5LP(17f) → 214LK(31f) → 66(90f) → 214LP(113f) → LK+LP(161f)（含完整搖桿軌跡重播）。',
+    description: '2LK(0f) → 5LP(17f) → 214LK(31f) → 66(90f) → 214LP(113f) → LK+LP(161f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Ryu', '壓制', '輕攻擊'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'LK'], windowType: 'link', notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.50 },
@@ -598,7 +598,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Ryu 經典綠衝連段 (6 擊 · 129f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：5MP(0f) → 2MP(30f) → PARRY(42f) → 5HP(54f) → 4HP(111f) → 623HP(129f)（含完整搖桿軌跡重播）。',
+    description: '5MP(0f) → 2MP(30f) → PARRY(42f) → 5HP(54f) → 4HP(111f) → 623HP(129f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Ryu', '綠衝連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['MP'], windowType: 'link', notation: '5MP', moveName: '5MP (0f)', x: 0.54, y: 0.50 },
@@ -636,7 +636,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Ryu 輕攻擊全資源連段 (11 擊 · 264f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：2LK(0f) → 2LP(15f) → 2LP(26f) → PARRY(48f) → 2LP(62f) → 5MP(91f) → 2MP(122f) → PARRY(135f) → 5HP(149f) → 4HP(203f) → 236236LK(264f)（含完整搖桿軌跡重播）。',
+      '2LK(0f) → 2LP(15f) → 2LP(26f) → PARRY(48f) → 2LP(62f) → 5MP(91f) → 2MP(122f) → PARRY(135f) → 5HP(149f) → 4HP(203f) → 236236LK(264f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Ryu', '全資源', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'LK'], windowType: 'link', notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.50 },
@@ -699,7 +699,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Ryu 下中腳綠衝連段 (5 擊 · 83f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2MK(0f) → PARRY(13f) → 5MP(26f) → 2HP(67f) → 236MK(83f)（含完整搖桿軌跡重播）。',
+    description: '2MK(0f) → PARRY(13f) → 5MP(26f) → 2HP(67f) → 236MK(83f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Ryu', '下中腳綠衝'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'MK'], windowType: 'link', notation: '2MK', moveName: '2MK 下中腳 (0f)', x: 0.54, y: 0.50 },
@@ -732,7 +732,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Ryu 下中綠衝連段 (5 擊 · 80f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(12f) → 5M(26f) → 2H(68f) → 2SP(80f)（含完整搖桿軌跡重播）。',
+    description: '2M(0f) → PARRY(12f) → 5M(26f) → 2H(68f) → 2SP(80f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Ryu', '綠衝連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'M'], windowType: 'link', notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.50 },
@@ -762,7 +762,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: '現代 Ryu 輕攻擊全資源 SA3 連段 (12 擊 · 232f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：2L(0f) → L(16f) → L(32f) → PARRY(47f) → L(62f) → M(93f) → AUTO+M(121f) → PARRY(133f) → M(150f) → 2H(188f) → 2SP(204f) → 2SP+H(232f)（含完整搖桿軌跡重播）。',
+      '2L(0f) → L(16f) → L(32f) → PARRY(47f) → L(62f) → M(93f) → AUTO+M(121f) → PARRY(133f) → M(150f) → 2H(188f) → 2SP(204f) → 2SP+H(232f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Ryu', '全資源', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'L'], windowType: 'link', notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.50 },
@@ -816,7 +816,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: '現代 Ryu 高傷波掌擊循環 SA3 (12 擊 · 341f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：AUTO+H(0f) → AUTO+M(60f) → PARRY(71f) → 5H(88f) → 214H(111f) → 6PARRY(191f) → 66(199f) → 4H(212f) → PARRY(258f) → 4H(275f) → 623H(324f) → 2H+SP(341f)（含完整搖桿軌跡重播）。',
+      'AUTO+H(0f) → AUTO+M(60f) → PARRY(71f) → 5H(88f) → 214H(111f) → 6PARRY(191f) → 66(199f) → 4H(212f) → PARRY(258f) → 4H(275f) → 623H(324f) → 2H+SP(341f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Ryu', '高傷連段', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['AUTO', 'H'], windowType: 'link', notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.50 },
@@ -882,7 +882,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Ken 5MP TC 起始連段 → 跑步龍捲壓制 (7 擊 · 192f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：5MP(0f) → 5HP(12f) → MK+LK(35f) → 214LK(52f) → 66(156f) → 66(174f) → LK+LP(192f)（含完整搖桿軌跡重播）。',
+    description: '5MP(0f) → 5HP(12f) → MK+LK(35f) → 214LK(52f) → 66(156f) → 66(174f) → LK+LP(192f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Ken', '5MP起始', '壓制'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['MP'], windowType: 'link', notation: '5MP', moveName: '5MP (0f)', x: 0.54, y: 0.50 },
@@ -926,7 +926,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Ken 5MP TC 起始連段 → 跑步奮迅腳 214HP (5 擊 · 126f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：5MP(0f) → 5HP(13f) → MK+LK(34f) → 623LK(52f) → 214HP(126f)（含完整搖桿軌跡重播）。',
+    description: '5MP(0f) → 5HP(13f) → MK+LK(34f) → 623LK(52f) → 214HP(126f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Ken', '5MP起始'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['MP'], windowType: 'link', notation: '5MP', moveName: '5MP (0f)', x: 0.54, y: 0.50 },
@@ -962,7 +962,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Ken 2MK 起始綠衝連段 → 跑步昇龍 (7 擊 · 125f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2MK(0f) → PARRY(13f) → 5MP(29f) → 5MP(67f) → 5HP(79f) → LK+MK(102f) → 623HP(125f)（含完整搖桿軌跡重播）。',
+    description: '2MK(0f) → PARRY(13f) → 5MP(29f) → 5MP(67f) → 5HP(79f) → LK+MK(102f) → 623HP(125f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Ken', '2MK起始', '綠衝連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'MK'], windowType: 'link', notation: '2MK', moveName: '2MK 下中腳 (0f)', x: 0.54, y: 0.50 },
@@ -1002,7 +1002,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Ken 5MP TC 起始連段 → 迅雷循環昇龍 (7 擊 · 206f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：5MP(0f) → 5HP(11f) → 236LK(41f) → 6LK(87f) → 236LK(123f) → 6LK(168f) → 623HP(206f)（含完整搖桿軌跡重播）。',
+    description: '5MP(0f) → 5HP(11f) → 236LK(41f) → 6LK(87f) → 236LK(123f) → 6LK(168f) → 623HP(206f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Ken', '5MP起始', '迅雷循環'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['MP'], windowType: 'link', notation: '5MP', moveName: '5MP (0f)', x: 0.54, y: 0.50 },
@@ -1048,7 +1048,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Ken 5HP 起始全資源跑步連段 SA3 (17 擊 · 314f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：5HP(0f) → PARRY(10f) → 2HP(34f) → MK+LK(51f) → LK(68f) → 2MP(88f) → 5MP(119f) → PARRY(131f) → 2HP(150f) → LK+MK(166f) → LK(183f) → 2MP(202f) → 5MP(233f) → 5HP(245f) → LK+MK(268f) → 623HP(291f) → 236236HP(314f)（含完整搖桿軌跡重播）。',
+      '5HP(0f) → PARRY(10f) → 2HP(34f) → MK+LK(51f) → LK(68f) → 2MP(88f) → 5MP(119f) → PARRY(131f) → 2HP(150f) → LK+MK(166f) → LK(183f) → 2MP(202f) → 5MP(233f) → 5HP(245f) → LK+MK(268f) → 623HP(291f) → 236236HP(314f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Ken', '5HP起始', '全資源跑步連段', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['HP'], windowType: 'link', notation: '5HP', moveName: '5HP (0f)', x: 0.54, y: 0.50 },
@@ -1140,7 +1140,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Ken 火焰旋風腿銜接跑步中段連 (7 擊 · 180f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：AUTO+M(0f) → AUTO+M(10f) → H+M(33f) → 214L(51f) → 5L(157f) → 6M+H(169f) → 6M(180f)（含完整搖桿軌跡重播）。',
+    description: 'AUTO+M(0f) → AUTO+M(10f) → H+M(33f) → 214L(51f) → 5L(157f) → 6M+H(169f) → 6M(180f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Ken', '火焰旋風腿', '跑步中段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['AUTO', 'M'], windowType: 'link', notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.50 },
@@ -1183,7 +1183,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Ken 2M 起始綠衝連段 → 跑步昇龍 (7 擊 · 117f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(12f) → AUTO+M(31f) → AUTO+M(67f) → AUTO+M(78f) → M+H(100f) → 6SP(117f)（含完整搖桿軌跡重播）。',
+    description: '2M(0f) → PARRY(12f) → AUTO+M(31f) → AUTO+M(67f) → AUTO+M(78f) → M+H(100f) → 6SP(117f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Ken', '2M起始', '綠衝連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'M'], windowType: 'link', notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.50 },
@@ -1222,7 +1222,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Ken AUTO+M 起始迅雷昇龍連段 (5 擊 · 136f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：AUTO+M(0f) → AUTO+M(11f) → 236M(39f) → 6H(86f) → 623H(136f)（含完整搖桿軌跡重播）。',
+    description: 'AUTO+M(0f) → AUTO+M(11f) → 236M(39f) → 6H(86f) → 623H(136f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Ken', 'AUTO+M起始', '迅雷昇龍'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['AUTO', 'M'], windowType: 'link', notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.50 },
@@ -1259,7 +1259,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: '現代 Ken AUTO+H 起始全資源連段 SA3 (11 擊 · 286f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：AUTO+H(0f) → PARRY(16f) → AUTO+H(35f) → AUTO+M(84f) → PARRY(96f) → AUTO+H(114f) → AUTO+M(162f) → AUTO+M(174f) → AUTO+M(199f) → AUTO+M(221f) → 2H+SP(286f)（含完整搖桿軌跡重播）。',
+      'AUTO+H(0f) → PARRY(16f) → AUTO+H(35f) → AUTO+M(84f) → PARRY(96f) → AUTO+H(114f) → AUTO+M(162f) → AUTO+M(174f) → AUTO+M(199f) → AUTO+M(221f) → 2H+SP(286f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Ken', 'AUTO+H起始', '全資源連段', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['AUTO', 'H'], windowType: 'link', notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.50 },
@@ -1313,7 +1313,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Luke 2HP 起始閃光拳 → OD 閃光拳 SA1 (5 擊 · 229f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2HP(0f) → 214LP蓄力25f(14f) → 214MP+LP(86f) → 623MP(164f) → 236236LP(229f)（含完整搖桿軌跡重播）。',
+    description: '2HP(0f) → 214LP蓄力25f(14f) → 214MP+LP(86f) → 623MP(164f) → 236236LP(229f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Luke', '2HP起始', '閃光拳'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'HP'], windowType: 'link', notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.50 },
@@ -1362,7 +1362,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Luke 2HP 起始閃光拳 → 空中追擊 SA3 (6 擊 · 185f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2HP(0f) → 214LP蓄力23f(17f) → 9前跳(50f) → j.MP(94f) → 214MP蓄力15f(125f) → 236236LK(185f)（含完整搖桿軌跡重播）。',
+    description: '2HP(0f) → 214LP蓄力23f(17f) → 9前跳(50f) → j.MP(94f) → 214MP蓄力15f(125f) → 236236LK(185f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Luke', '2HP起始', '空中追擊', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'HP'], windowType: 'link', notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.50 },
@@ -1409,7 +1409,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Luke 2MK 起始綠衝雙閃光拳 SA3 (8 擊 · 270f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：2MK(0f) → PARRY(12f) → 2MP(29f) → 2HP(68f) → 214MP蓄力26f(82f) → 214LP蓄力22f(156f) → 214HP(229f) → 236236LK(270f)（含完整搖桿軌跡重播）。',
+      '2MK(0f) → PARRY(12f) → 2MP(29f) → 2HP(68f) → 214MP蓄力26f(82f) → 214LP蓄力22f(156f) → 214HP(229f) → 236236LK(270f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Luke', '2MK起始', '雙閃光拳', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'MK'], windowType: 'link', notation: '2MK', moveName: '2MK 下中腳 (0f)', x: 0.54, y: 0.50 },
@@ -1466,7 +1466,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Luke 5HP 起始全資源雙綠衝閃光拳 SA3 (11 擊 · 379f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：5HP(0f) → PARRY(11f) → 4HP(31f) → 2HP(90f) → PARRY(100f) → 4HP(119f) → 2HP(180f) → 214MP蓄力24f(195f) → 214LP蓄力23f(268f) → 214HP(342f) → 236236LK(379f)（含完整搖桿軌跡重播）。',
+      '5HP(0f) → PARRY(11f) → 4HP(31f) → 2HP(90f) → PARRY(100f) → 4HP(119f) → 2HP(180f) → 214MP蓄力24f(195f) → 214LP蓄力23f(268f) → 214HP(342f) → 236236LK(379f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Luke', '5HP起始', '全資源連段', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['HP'], windowType: 'link', notation: '5HP', moveName: '5HP (0f)', x: 0.54, y: 0.50 },
@@ -1538,7 +1538,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Luke AUTO+M 起始壓制生綠衝連段 (6 擊 · 131f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：AUTO+M(0f) → 2L(32f) → 214L(43f) → 66(100f) → 66+PARRY(114f) → AUTO+M(131f)（含完整搖桿軌跡重播）。',
+    description: 'AUTO+M(0f) → 2L(32f) → 214L(43f) → 66(100f) → 66+PARRY(114f) → AUTO+M(131f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Luke', 'AUTO+M起始', '壓制'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['AUTO', 'M'], windowType: 'link', notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.50 },
@@ -1580,7 +1580,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Luke 2H 起始閃光拳 → OD 閃光拳昇龍 (5 擊 · 231f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2H(0f) → 214L蓄力26f(14f) → 214M+L(87f) → 623M(166f) → 623L(231f)（含完整搖桿軌跡重播）。',
+    description: '2H(0f) → 214L蓄力26f(14f) → 214M+L(87f) → 623M(166f) → 623L(231f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Luke', '2H起始', '閃光拳'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'H'], windowType: 'link', notation: '2H', moveName: '2H (0f)', x: 0.54, y: 0.50 },
@@ -1623,7 +1623,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Luke 2H 起始閃光拳 → 空中追擊 SA3 (6 擊 · 183f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2H(0f) → 214L蓄力24f(16f) → 9前跳(69f) → j.M(93f) → 214M蓄力16f(127f) → 2SP+H(183f)（含完整搖桿軌跡重播）。',
+    description: '2H(0f) → 214L蓄力24f(16f) → 9前跳(69f) → j.M(93f) → 214M蓄力16f(127f) → 2SP+H(183f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Luke', '2H起始', '空中追擊', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'H'], windowType: 'link', notation: '2H', moveName: '2H (0f)', x: 0.54, y: 0.50 },
@@ -1665,7 +1665,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: '現代 Luke 2M 起始綠衝雙閃光拳 SA3 (8 擊 · 260f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：2M(0f) → PARRY(13f) → AUTO+M(30f) → 2H(67f) → 214M蓄力26f(81f) → 214L蓄力25f(154f) → 214H(227f) → 2H+SP(260f)（含完整搖桿軌跡重播）。',
+      '2M(0f) → PARRY(13f) → AUTO+M(30f) → 2H(67f) → 214M蓄力26f(81f) → 214L蓄力25f(154f) → 214H(227f) → 2H+SP(260f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Luke', '2M起始', '雙閃光拳', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'M'], windowType: 'link', notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.50 },
@@ -1719,7 +1719,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: '現代 Luke AUTO+H 起始全資源雙綠衝閃光拳 SA3 (11 擊 · 369f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：AUTO+H(0f) → PARRY(16f) → 4H(33f) → 2H(90f) → PARRY(103f) → 4H(116f) → 2H(179f) → 214M蓄力26f(194f) → 214L蓄力25f(266f) → 214H(339f) → 2H+SP(369f)（含完整搖桿軌跡重播）。',
+      'AUTO+H(0f) → PARRY(16f) → 4H(33f) → 2H(90f) → PARRY(103f) → 4H(116f) → 2H(179f) → 214M蓄力26f(194f) → 214L蓄力25f(266f) → 214H(339f) → 2H+SP(369f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Luke', 'AUTO+H起始', '全資源連段', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['AUTO', 'H'], windowType: 'link', notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.50 },
@@ -1787,7 +1787,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Chun-Li 5MP 起始基礎百裂腳連段 (4 擊 · 63f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：5MP(0f) → 5LP(29f) → 5LK(50f) → 236MK(63f)（含完整搖桿軌跡重播）。',
+    description: '5MP(0f) → 5LP(29f) → 5LK(50f) → 236MK(63f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Chun-Li', '5MP起始', '基礎連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['MP'], windowType: 'link', notation: '5MP', moveName: '5MP (0f)', x: 0.54, y: 0.50 },
@@ -1814,7 +1814,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Chun-Li 4HP 起始行雲流水 → 旋風腿 (4 擊 · 48f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：4HP(0f) → 214LP行雲(18f) → LK(34f) → [2]8MK旋風腿(48f)（含完整搖桿軌跡重播）。',
+    description: '4HP(0f) → 214LP行雲(18f) → LK(34f) → [2]8MK旋風腿(48f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Chun-Li', '4HP起始', '行雲流水'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['LEFT', 'HP'], windowType: 'link', notation: '4HP', moveName: '4HP (0f)', x: 0.54, y: 0.50 },
@@ -1847,7 +1847,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Chun-Li 2HP 起始行雲流水空中追擊 SA2 (9 擊 · 188f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：2HP(0f) → 214HP(20f) → 1HK(49f) → 9前跳(58f) → j.2MK(76f) → j.2MK(121f) → j.HP(137f) → j.HP(153f) → 214214LK(188f)（含完整搖桿軌跡重播）。',
+      '2HP(0f) → 214HP(20f) → 1HK(49f) → 9前跳(58f) → j.2MK(76f) → j.2MK(121f) → j.HP(137f) → j.HP(153f) → 214214LK(188f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Chun-Li', '2HP起始', '空中連段', 'SA2'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'HP'], windowType: 'link', notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.50 },
@@ -1903,7 +1903,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Chun-Li 4MP 起始綠衝集氣全資源 SA2 (11 擊 · 332f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：4MP(0f) → PARRY(11f) → 4HP(31f) → 214MP(52f) → 1MK(75f) → [4]6MP+HP(89f) → 5MP(136f) → 1MP(166f) → [2]8MK+LK(181f) → 236LK(281f) → 214214LK(332f)（含完整搖桿軌跡重播）。',
+      '4MP(0f) → PARRY(11f) → 4HP(31f) → 214MP(52f) → 1MK(75f) → [4]6MP+HP(89f) → 5MP(136f) → 1MP(166f) → [2]8MK+LK(181f) → 236LK(281f) → 214214LK(332f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Chun-Li', '4MP起始', '全資源連段', 'SA2'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['LEFT', 'MP'], windowType: 'link', notation: '4MP', moveName: '4MP (0f)', x: 0.54, y: 0.50 },
@@ -1981,7 +1981,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Chun-Li 2L 起始輕攻擊基礎連段 (4 擊 · 52f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2L(0f) → 5L(16f) → AUTO+L(39f) → AUTO+L(52f)（含完整搖桿軌跡重播）。',
+    description: '2L(0f) → 5L(16f) → AUTO+L(39f) → AUTO+L(52f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Chun-Li', '2L起始', '基礎連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'L'], windowType: 'link', notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.50 },
@@ -2007,7 +2007,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Chun-Li 5M 起始中攻擊基礎連段 (4 擊 · 83f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：5M(0f) → AUTO+M(25f) → AUTO+M(38f) → H+M(83f)（含完整搖桿軌跡重播）。',
+    description: '5M(0f) → AUTO+M(25f) → AUTO+M(38f) → H+M(83f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Chun-Li', '5M起始', '基礎連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['M'], windowType: 'link', notation: '5M', moveName: '5M (0f)', x: 0.54, y: 0.50 },
@@ -2033,8 +2033,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'Chun-Li',
     mode: 'modern',
     title: '現代 Chun-Li 5M 起始集氣 OD 旋風腿 → 百裂腳 (4 擊 · 142f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：5M(0f) → 1AUTO+M(29f) → [2]8M+H OD旋風腿(44f) → 236M百裂腳(142f)（含完整搖桿軌跡重播）。',
+    difficulty: 'Beginner',
+    description: '5M(0f) → 1AUTO+M(29f) → [2]8M+H OD旋風腿(44f) → 236M百裂腳(142f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Chun-Li', '5M起始', '集氣'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['M'], windowType: 'link', notation: '5M', moveName: '5M (0f 立刻拉1集氣)', x: 0.54, y: 0.50 },
@@ -2073,7 +2073,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Cammy 2LK 起始輕攻擊基礎連段 (5 擊 · 112f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(14f) → 5LK(40f) → 236MK(52f) → 66(112f)（含完整搖桿軌跡重播）。',
+    description: '2LK(0f) → 2LP(14f) → 5LK(40f) → 236MK(52f) → 66(112f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Cammy', '2LK起始', '基礎連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'LK'], windowType: 'link', notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.50 },
@@ -2107,7 +2107,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Cammy 2MK 起始綠衝空中追擊連段 (8 擊 · 138f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2MK(0f) → PARRY(13f) → 4HP(33f) → 4MP(80f) → 4HK(96f) → 9前跳(108f) → j.MP(123f) → 空中214MK(138f)（含完整搖桿軌跡重播）。',
+    description: '2MK(0f) → PARRY(13f) → 4HP(33f) → 4MP(80f) → 4HK(96f) → 9前跳(108f) → j.MP(123f) → 空中214MK(138f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Cammy', '2MK起始', '空中追擊'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'MK'], windowType: 'link', notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.50 },
@@ -2152,7 +2152,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Cammy 5HP 起始全資源雙綠衝蓄力昇龍 SA3 (9 擊 · 209f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：5HP(0f) → PARRY(10f) → 2HP(32f) → 5HP(78f) → PARRY(88f) → 2HP(108f) → 5HP(160f) → 623HK蓄力22f(177f) → 236236HP(209f)（含完整搖桿軌跡重播）。',
+      '5HP(0f) → PARRY(10f) → 2HP(32f) → 5HP(78f) → PARRY(88f) → 2HP(108f) → 5HP(160f) → 623HK蓄力22f(177f) → 236236HP(209f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Cammy', '5HP起始', '全資源連段', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['HP'], windowType: 'link', notation: '5HP', moveName: '5HP (0f)', x: 0.54, y: 0.50 },
@@ -2215,7 +2215,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Cammy AUTO+H 起始螺旋箭投技壓制 (4 擊 · 164f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：AUTO+H(0f) → AUTO+H(20f) → 2SP(64f) → L+M(164f)（含完整搖桿軌跡重播）。',
+    description: 'AUTO+H(0f) → AUTO+H(20f) → 2SP(64f) → L+M(164f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Cammy', 'AUTO+H起始', '壓制'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['AUTO', 'H'], windowType: 'link', notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.50 },
@@ -2243,7 +2243,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Cammy 2L 起始綠衝 SA1 連段 (8 擊 · 158f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2L(0f) → 5L(18f) → 5L(34f) → PARRY(47f) → 5L(61f) → AUTO+H(88f) → AUTO+H(111f) → 6SP+H(158f)（含完整搖桿軌跡重播）。',
+    description: '2L(0f) → 5L(18f) → 5L(34f) → PARRY(47f) → 5L(61f) → AUTO+H(88f) → AUTO+H(111f) → 6SP+H(158f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Cammy', '2L起始', 'SA1'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'L'], windowType: 'link', notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.50 },
@@ -2284,7 +2284,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Cammy 2M 起始綠衝空中追擊連段 (9 擊 · 193f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(12f) → 4AUTO+H(35f) → 4M(76f) → 4M(88f) → 9前跳(110f) → j.M(125f) → 214H(141f) → 66(193f)（含完整搖桿軌跡重播）。',
+    description: '2M(0f) → PARRY(12f) → 4AUTO+H(35f) → 4M(76f) → 4M(88f) → 9前跳(110f) → j.M(125f) → 214H(141f) → 66(193f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Cammy', '2M起始', '空中追擊'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'M'], windowType: 'link', notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.50 },
@@ -2337,7 +2337,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: '現代 Cammy 2L 起始綠衝生綠衝壓制連段 (12 擊 · 262f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：2L(0f) → 2L(16f) → 5L(39f) → PARRY(48f) → 5L(63f) → AUTO+H(90f) → AUTO+H(101f) → 236M(162f) → 66(227f) → 6PARRY(238f) → 66(247f) → 5M(262f)（含完整搖桿軌跡重播）。',
+      '2L(0f) → 2L(16f) → 5L(39f) → PARRY(48f) → 5L(63f) → AUTO+H(90f) → AUTO+H(101f) → 236M(162f) → 66(227f) → 6PARRY(238f) → 66(247f) → 5M(262f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Cammy', '2L起始', '壓制'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'L'], windowType: 'link', notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.50 },
@@ -2397,7 +2397,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: '現代 Cammy AUTO+H 起始全資源雙綠衝蓄力昇龍 SA3 (9 擊 · 207f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：AUTO+H(0f) → PARRY(14f) → 2H(33f) → AUTO+H(79f) → PARRY(93f) → 2H(112f) → AUTO+H(160f) → 623H蓄力22f(178f) → 3SP+H(207f)（含完整搖桿軌跡重播）。',
+      'AUTO+H(0f) → PARRY(14f) → 2H(33f) → AUTO+H(79f) → PARRY(93f) → 2H(112f) → AUTO+H(160f) → 623H蓄力22f(178f) → 3SP+H(207f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Cammy', 'AUTO+H起始', '全資源連段', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['AUTO', 'H'], windowType: 'link', notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.50 },
@@ -2452,7 +2452,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Juri 5MP 起始基礎投技壓制連段 (5 擊 · 132f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：5MP(0f) → 2MP(31f) → 214MK(43f) → 66(98f) → 6LP+LK(132f)（含完整搖桿軌跡重播）。',
+    description: '5MP(0f) → 2MP(31f) → 214MK(43f) → 66(98f) → 6LP+LK(132f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Juri', '5MP起始', '壓制'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['MP'], windowType: 'link', notation: '5MP', moveName: '5MP (0f)', x: 0.54, y: 0.50 },
@@ -2485,7 +2485,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Juri 5HP 起始 OD 歲破衝 → 重昇龍 (4 擊 · 96f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：5HP(0f) → 236HK+LK(19f) → 2MK(79f) → 623HP(96f)（含完整搖桿軌跡重播）。',
+    description: '5HP(0f) → 236HK+LK(19f) → 2MK(79f) → 623HP(96f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Juri', '5HP起始', 'OD連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['HP'], windowType: 'link', notation: '5HP', moveName: '5HP (0f)', x: 0.54, y: 0.50 },
@@ -2521,7 +2521,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Juri 2MK 起始綠衝重風破 → 重昇龍 (6 擊 · 148f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2MK(0f) → PARRY(12f) → 5MP(27f) → 2HP(68f) → 214HK(83f) → 623HP(148f)（含完整搖桿軌跡重播）。',
+    description: '2MK(0f) → PARRY(12f) → 5MP(27f) → 2HP(68f) → 214HK(83f) → 623HP(148f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Juri', '2MK起始', '綠衝連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'MK'], windowType: 'link', notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.50 },
@@ -2561,7 +2561,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Juri 5MP 起始全資源雙綠衝 SA3 (12 擊 · 306f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：5MP(0f) → 2MP(31f) → PARRY(41f) → 2HP(57f) → 5MP(115f) → 2MP(143f) → PARRY(157f) → 2HP(179f) → 5MP(230f) → 4HP(246f) → 4HP(271f) → 236236LK(306f)（含完整搖桿軌跡重播）。',
+      '5MP(0f) → 2MP(31f) → PARRY(41f) → 2HP(57f) → 5MP(115f) → 2MP(143f) → PARRY(157f) → 2HP(179f) → 5MP(230f) → 4HP(246f) → 4HP(271f) → 236236LK(306f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Juri', '5MP起始', '全資源連段', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['MP'], windowType: 'link', notation: '5MP', moveName: '5MP (0f)', x: 0.54, y: 0.50 },
@@ -2629,7 +2629,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Juri 5M 起始基礎投技壓制連段 (5 擊 · 132f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：5M(0f) → AUTO+M(32f) → 4SP(44f) → 66(97f) → 6L+M(132f)（含完整搖桿軌跡重播）。',
+    description: '5M(0f) → AUTO+M(32f) → 4SP(44f) → 66(97f) → 6L+M(132f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Juri', '5M起始', '壓制'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['M'], windowType: 'link', notation: '5M', moveName: '5M (0f)', x: 0.54, y: 0.50 },
@@ -2662,7 +2662,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Juri 5M 起始基礎 6SP 昇龍連段 (5 擊 · 109f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：5M(0f) → AUTO+M(31f) → AUTO+M(43f) → AUTO+M(94f) → 6SP(109f)（含完整搖桿軌跡重播）。',
+    description: '5M(0f) → AUTO+M(31f) → AUTO+M(43f) → AUTO+M(94f) → 6SP(109f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Juri', '5M起始', '基礎連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['M'], windowType: 'link', notation: '5M', moveName: '5M (0f)', x: 0.54, y: 0.50 },
@@ -2694,7 +2694,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: '現代 Juri 5M 起始 4H → 重昇龍連段 (5 擊 · 142f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：5M(0f) → AUTO+M(30f) → AUTO+M(42f) → 4H(96f) → 623H(142f)（含完整搖桿軌跡重播）。',
+    description: '5M(0f) → AUTO+M(30f) → AUTO+M(42f) → 4H(96f) → 623H(142f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Juri', '5M起始', '重昇龍'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['M'], windowType: 'link', notation: '5M', moveName: '5M (0f)', x: 0.54, y: 0.50 },
@@ -2730,7 +2730,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: '現代 Juri 6AUTO+H 起始全資源雙綠衝 SA3 (13 擊 · 347f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：6AUTO+H(0f) → AUTO+H(12f) → AUTO+H(80f) → PARRY(89f) → 2H(108f) → 5M(165f) → AUTO+M(197f) → PARRY(208f) → 2H(229f) → 5M(278f) → 4M(292f) → 4M(312f) → 2SP+H(347f)（含完整搖桿軌跡重播）。',
+      '6AUTO+H(0f) → AUTO+H(12f) → AUTO+H(80f) → PARRY(89f) → 2H(108f) → 5M(165f) → AUTO+M(197f) → PARRY(208f) → 2H(229f) → 5M(278f) → 4M(292f) → 4M(312f) → 2SP+H(347f)（含完整搖桿軌跡重播）。',
     tags: ['Modern', 'Juri', '6AUTO+H起始', '全資源連段', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['RIGHT', 'AUTO', 'H'], windowType: 'link', notation: '6AUTO+H', moveName: '6AUTO+H (0f)', x: 0.54, y: 0.50 },
@@ -2795,7 +2795,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Jamie 2LK 起始基礎流醉拳連段 (5 擊 · 81f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(12f) → 236LP(33f) → 6HP(54f) → 6HP(81f)（含完整搖桿軌跡重播）。',
+    description: '2LK(0f) → 2LP(12f) → 236LP(33f) → 6HP(54f) → 6HP(81f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Jamie', '2LK起始', '基礎連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'LK'], windowType: 'link', notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.50 },
@@ -2824,7 +2824,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Jamie 2MP 起始流醉拳投技壓制連段 (8 擊 · 200f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2MP(0f) → 2LP(32f) → 5LK(54f) → 236LP(68f) → 6LP(91f) → 6LP(114f) → 66(169f) → 6LK+LP(200f)（含完整搖桿軌跡重播）。',
+    description: '2MP(0f) → 2LP(32f) → 5LK(54f) → 236LP(68f) → 6LP(91f) → 6LP(114f) → 66(169f) → 6LK+LP(200f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Jamie', '2MP起始', '壓制'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'MP'], windowType: 'link', notation: '2MP', moveName: '2MP (0f)', x: 0.54, y: 0.50 },
@@ -2867,7 +2867,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Jamie 2LK 起始 TC 安全跳連段 (8 擊 · 216f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(13f) → 5LP(45f) → 5LK(56f) → 5MP(70f) → 623LK(96f) → 9前跳(163f) → j.HP(216f)（含完整搖桿軌跡重播）。',
+    description: '2LK(0f) → 2LP(13f) → 5LP(45f) → 5LK(56f) → 5MP(70f) → 623LK(96f) → 9前跳(163f) → j.HP(216f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Jamie', '2LK起始', '安全跳'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'LK'], windowType: 'link', notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.50 },
@@ -2914,7 +2914,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Jamie 生綠衝 5HP 起始 TC 安全跳連段 (11 擊 · 299f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：PARRY(0f) → 66(9f) → 5HP(17f) → 5LK(81f) → 2LP(104f) → 5LP(127f) → 5LK(139f) → 5MP(157f) → 623LK(181f) → 9前跳(250f) → j.HP(299f)（含完整搖桿軌跡重播）。',
+      'PARRY(0f) → 66(9f) → 5HP(17f) → 5LK(81f) → 2LP(104f) → 5LP(127f) → 5LK(139f) → 5MP(157f) → 623LK(181f) → 9前跳(250f) → j.HP(299f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Jamie', '生綠衝起始', '安全跳'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['PARRY'], windowType: 'dr-cancel', notation: 'PARRY', moveName: '按住 PARRY (0f)', x: 0.54, y: 0.50 },
@@ -2973,7 +2973,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Jamie 2MK 起始綠衝跳打收尾連段 (9 擊 · 243f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：2MK(0f) → PARRY(11f) → 2LK+MK(30f) → 9前跳(44f) → j.HK(62f) → 5HP(131f) → 3HK+MK(185f) → 3HK(217f) → 5HP(243f)（含完整搖桿軌跡重播）。',
+      '2MK(0f) → PARRY(11f) → 2LK+MK(30f) → 9前跳(44f) → j.HK(62f) → 5HP(131f) → 3HK+MK(185f) → 3HK(217f) → 5HP(243f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Jamie', '2MK起始', '綠衝連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'MK'], windowType: 'link', notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.50 },
@@ -3026,7 +3026,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Jamie 5MP 起始 OD 醉疾步生綠衝連段 (10 擊 · 265f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：5MP(0f) → 2MP(34f) → 214HP+MP(47f) → PARRY(97f) → 66(108f) → 2LP(123f) → 5HP(155f) → 3HK(206f) → 3HK(229f) → 5HP(265f)（含完整搖桿軌跡重播）。',
+      '5MP(0f) → 2MP(34f) → 214HP+MP(47f) → PARRY(97f) → 66(108f) → 2LP(123f) → 5HP(155f) → 3HK(206f) → 3HK(229f) → 5HP(265f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Jamie', '5MP起始', '生綠衝'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['MP'], windowType: 'link', notation: '5MP', moveName: '5MP (0f)', x: 0.54, y: 0.50 },
@@ -3083,7 +3083,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     title: 'Jamie 2MK 起始全資源雙綠衝 SA3 (9 擊 · 197f)',
     difficulty: 'Advanced',
     description:
-      '實機 60fps 錄製：2MK(0f) → PARRY(11f) → 5MP(27f) → 2HP(71f) → PARRY(84f) → 5MP(100f) → 2HP(146f) → 214HP(160f) → 236236HP(197f)（含完整搖桿軌跡重播）。',
+      '2MK(0f) → PARRY(11f) → 5MP(27f) → 2HP(71f) → PARRY(84f) → 5MP(100f) → 2HP(146f) → 214HP(160f) → 236236HP(197f)（含完整搖桿軌跡重播）。',
     tags: ['Classic', 'Jamie', '2MK起始', '全資源連段', 'SA3'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['DOWN', 'MK'], windowType: 'link', notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.50 },
@@ -3136,7 +3136,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Jamie SA3 起始追擊連段 (5 擊 · 656f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：236236HP SA3(0f) → 214HP+MP(530f) → 3HK(597f) → 3HK(618f) → 5HP(656f)（含 SA3 動畫等待與完整搖桿軌跡重播）。',
+    description: '236236HP SA3(0f) → 214HP+MP(530f) → 3HK(597f) → 3HK(618f) → 5HP(656f)（含 SA3 動畫等待與完整搖桿軌跡重播）。',
     tags: ['Classic', 'Jamie', 'SA3起始', '追擊連段'],
     notes: [
       { id: 'n1', frame: 0, buttons: ['RIGHT', 'HP'], motion: '236', windowType: 'link', notation: '236236HP', moveName: 'SA3 236236HP (0f)', x: 0.54, y: 0.50 },
@@ -3178,7 +3178,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Rashid 5MK 起始連段 (8 擊 · 267f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：MK(0f) → MP(37f) → HK(51f) → 236LP(120f) → 6MP(180f) → 214LP(195f) → 4LK(216f) → HK(267f)',
+    description: 'MK(0f) → MP(37f) → HK(51f) → 236LP(120f) → 6MP(180f) → 214LP(195f) → 4LK(216f) → HK(267f)',
     tags: ['5MK 起始', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MK'], notation: 'MK', moveName: 'MK (0f)', x: 0.54, y: 0.5 },
@@ -3222,7 +3222,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Rashid 236LK 蓄力起始 SA3 連段 (6 擊 · 303f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：236LK(0f) → 236HP+MP(86f) → 214MK(171f) → 1HP(264f) → 236MP(290f) → 236236HP(303f)',
+    description: '236LK(0f) → 236HP+MP(86f) → 214MK(171f) → 1HP(264f) → 236MP(290f) → 236236HP(303f)',
     tags: ['236LK 蓄力', 'OD 強化', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['RIGHT', 'LK'], motion: '236', notation: '236LK', moveName: '236LK [按住80f放開]', x: 0.54, y: 0.5, holdFrames: 80 },
@@ -3270,7 +3270,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Rashid 5MP 起始 214HP 連段 (5 擊 · 115f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：MP(0f) → HK(15f) → 214HP(37f) → 6MK(78f) → 236HP(115f)',
+    description: 'MP(0f) → HK(15f) → 214HP(37f) → 6MK(78f) → 236HP(115f)',
     tags: ['5MP 起始', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -3306,7 +3306,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Rashid 2LK 綠衝安全飛長連段 (12 擊 · 340f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2LK(0f) → LP(15f) → PARRY(29f) → LP(44f) → MK(72f) → MP(110f) → HK(126f) → 236LP(193f) → 6MP(252f) → 214LP(265f) → 214LK(283f) → HK(340f)',
+    description: '2LK(0f) → LP(15f) → PARRY(29f) → LP(44f) → MK(72f) → MP(110f) → HK(126f) → 236LP(193f) → 6MP(252f) → 214LP(265f) → 214LK(283f) → HK(340f)',
     tags: ['2LK 起始', 'Drive Rush', '長連段', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -3363,7 +3363,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Rashid 2MK 起始綠衝蓄力收尾 (6 擊 · 158f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2MK(0f) → PARRY(13f) → MP(28f) → HP(68f) → 214MK(85f) → 236LK(158f)',
+    description: '2MK(0f) → PARRY(13f) → MP(28f) → HP(68f) → 214MK(85f) → 236LK(158f)',
     tags: ['2MK 起始', 'Drive Rush', '236LK 蓄力', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MK'], notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.5 },
@@ -3402,8 +3402,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'Rashid',
     mode: 'classic',
     title: 'Rashid 2LK 起始基礎確反 (4 擊 · 90f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2LK(0f) → LP(19f) → 236LP(32f) → LK+LP(90f)',
+    difficulty: 'Beginner',
+    description: '2LK(0f) → LP(19f) → 236LP(32f) → LK+LP(90f)',
     tags: ['2LK 起始', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -3432,8 +3432,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'Rashid',
     mode: 'classic',
     title: 'Rashid 2MP 起始 214LK 連段 (4 擊 · 109f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2MP(0f) → LK(29f) → 214LK(42f) → 214MP(109f)',
+    difficulty: 'Beginner',
+    description: '2MP(0f) → LK(29f) → 214LK(42f) → 214MP(109f)',
     tags: ['2MP 起始', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MP'], notation: '2MP', moveName: '2MP (0f)', x: 0.54, y: 0.5 },
@@ -3465,7 +3465,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Rashid 2MP 起始 214LK 壓制連段 (5 擊 · 135f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2MP(0f) → LK(31f) → 214LK(44f) → 1MP(111f) → 1MP(135f)',
+    description: '2MP(0f) → LK(31f) → 214LK(44f) → 1MP(111f) → 1MP(135f)',
     tags: ['2MP 起始', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MP'], notation: '2MP', moveName: '2MP (0f)', x: 0.54, y: 0.5 },
@@ -3497,7 +3497,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Rashid 2MK 起始雙綠衝 SA3 (9 擊 · 220f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2MK(0f) → PARRY(14f) → MP(32f) → HP(67f) → PARRY(80f) → 2HP(101f) → HP(154f) → 214LK(174f) → 236236LP(220f)',
+    description: '2MK(0f) → PARRY(14f) → MP(32f) → HP(67f) → PARRY(80f) → 2HP(101f) → HP(154f) → 214LK(174f) → 236236LP(220f)',
     tags: ['2MK 起始', '雙綠衝', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MK'], notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.5 },
@@ -3554,7 +3554,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'C. Viper 5HP 雙震地 (11 擊 · 256f)',
     difficulty: 'Ultra Hard',
-    description: '實機 60fps 錄製：HP(0f) → 7(15f) → 2147LK+HP(21f) → 2MP(44f) → 623HP+MP(55f) → 9(97f) → 2369MP(100f) → 9(136f) → 2369MK(139f) → 236MK+LK(195f) → 214214LK(256f)',
+    description: 'HP(0f) → 7(15f) → 2147LK+HP(21f) → 2MP(44f) → 623HP+MP(55f) → 9(97f) → 2369MP(100f) → 9(136f) → 2369MK(139f) → 236MK+LK(195f) → 214214LK(256f)',
     tags: ['5HP 起始', '雙震地', 'TK 2147/2369', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: 'HP', moveName: 'HP (0f)', x: 0.54, y: 0.5 },
@@ -3636,7 +3636,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'C. Viper 2HP 中段後續壓持續 (11 擊 · 289f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2HP(0f) → 214HP+LK(17f) → 2MP(41f) → 236LK(54f) → 6MP+LP(86f) → 6MP(158f) → 3LP(212f) → 2LP(224f) → LK(253f) → 214HP(265f) → 6MP+HP(289f)',
+    description: '2HP(0f) → 214HP+LK(17f) → 2MP(41f) → 236LK(54f) → 6MP+LP(86f) → 6MP(158f) → 3LP(212f) → 2LP(224f) → LK(253f) → 214HP(265f) → 6MP+HP(289f)',
     tags: ['2HP 起始', '中段壓持續', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -3700,7 +3700,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'C. Viper 2HP 全資源綠衝連段 (17 擊 · 310f)',
     difficulty: 'Ultra Hard',
-    description: '實機 60fps 錄製：2HP(0f) → 214HP+LK(16f) → 2MP(40f) → PARRY(52f) → 2HP(73f) → 214LK+HP(87f) → 2HP(113f) → 4HP+LK(126f) → 2MP(154f) → PARRY(166f) → 2HP(187f) → 214HP+LK(204f) → 2HP(229f) → 214HP+LK(242f) → 2MP(269f) → 214MP(282f) → 214214LK(310f)',
+    description: '2HP(0f) → 214HP+LK(16f) → 2MP(40f) → PARRY(52f) → 2HP(73f) → 214LK+HP(87f) → 2HP(113f) → 4HP+LK(126f) → 2MP(154f) → PARRY(166f) → 2HP(187f) → 214HP+LK(204f) → 2HP(229f) → 214HP+LK(242f) → 2MP(269f) → 214MP(282f) → 214214LK(310f)',
     tags: ['2HP 起始', '全資源綠衝', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -3807,7 +3807,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'C. Viper 2HP 震地+重腳大跳取消 OD 火腿 (9 擊 · 193f)',
     difficulty: 'Ultra Hard',
-    description: '實機 60fps 錄製：2HP(0f) → 623LP(13f) → 22LP(21f) → 9(53f) → 2369MK(57f) → HK(112f) → 9(131f) → 2369LK+MK(135f) → 214214HP(193f)',
+    description: '2HP(0f) → 623LP(13f) → 22LP(21f) → 9(53f) → 2369MK(57f) → HK(112f) → 9(131f) → 2369LK+MK(135f) → 214214HP(193f)',
     tags: ['2HP 起始', '震地', '重腳大跳取消', 'OD 火腿', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -3868,7 +3868,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'C. Viper 2HP 練習震地大跳取消火腿 (5 擊 · 134f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2HP(0f) → 623LP(15f) → 2369MK(56f) → 214HP(109f) → 6HP+MP(134f)',
+    description: '2HP(0f) → 623LP(15f) → 2369MK(56f) → 214HP(109f) → 6HP+MP(134f)',
     tags: ['2HP 起始', '震地大跳取消火腿', '基本功練習', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -3914,7 +3914,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'C. Viper 2H 現代雙震地連段 (9 擊 · 198f)',
     difficulty: 'Ultra Hard',
-    description: '實機 60fps 錄製：2H(0f) → 623L+M(13f) → 22L+M(21f) → 9(56f) → 2369M(60f) → 9(91f) → 2369M(98f) → 236H+M(151f) → 2SP+H(198f)',
+    description: '2H(0f) → 623L+M(13f) → 22L+M(21f) → 9(56f) → 2369M(60f) → 9(91f) → 2369M(98f) → 236H+M(151f) → 2SP+H(198f)',
     tags: ['2H 起始', '現代雙震地', 'TK 2369', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'H'], notation: '2H', moveName: '2H (0f)', x: 0.54, y: 0.5 },
@@ -3986,7 +3986,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Zangief 66 前衝 720 SA3 (3 擊 · 25f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：66(0f) → 9(12f) → 720HP(25f)',
+    description: '66(0f) → 9(12f) → 720HP(25f)',
     tags: ['66 起始', '720 SA3', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['RIGHT'], motion: '66', notation: '66', moveName: '66 前衝 (0f)', x: 0.54, y: 0.5 },
@@ -4012,7 +4012,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Zangief 2MP 綠衝起手連段 (5 擊 · 86f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2MP(0f) → PARRY(12f) → 2MP(30f) → 3MP(72f) → 3HP+MP(86f)',
+    description: '2MP(0f) → PARRY(12f) → 2MP(30f) → 3MP(72f) → 3HP+MP(86f)',
     tags: ['2MP 起始', 'Drive Rush', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MP'], notation: '2MP', moveName: '2MP (0f)', x: 0.54, y: 0.5 },
@@ -4049,7 +4049,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Manon 4HP 起始 OD 236P 接 63214HP (8 擊 · 240f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4HP(0f) → 236HP+MP(16f) → 236HK(29f) → 4MK(85f) → 4MK(103f) → 214LK(137f) → 66(215f) → 63214HP(240f)',
+    description: '4HP(0f) → 236HP+MP(16f) → 236HK(29f) → 4MK(85f) → 4MK(103f) → 214LK(137f) → 66(215f) → 63214HP(240f)',
     tags: ['4HP 起始', 'OD 236P', '63214 指令投', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'HP'], notation: '4HP', moveName: '4HP (0f)', x: 0.54, y: 0.5 },
@@ -4102,7 +4102,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Manon 4HP 起始 OD 236P 浮空連段 (6 擊 · 156f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4HP(0f) → 236MP+HP(15f) → HK(27f) → 4HP(85f) → 236HK(101f) → 236LP(156f)',
+    description: '4HP(0f) → 236MP+HP(15f) → HK(27f) → 4HP(85f) → 236HK(101f) → 236LP(156f)',
     tags: ['4HP 起始', 'OD 236P', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'HP'], notation: '4HP', moveName: '4HP (0f)', x: 0.54, y: 0.5 },
@@ -4147,8 +4147,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'Manon',
     mode: 'classic',
     title: 'Manon 2LK 起始輕攻擊確反 (4 擊 · 53f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(17f) → LP(41f) → 214LK(53f)',
+    difficulty: 'Beginner',
+    description: '2LK(0f) → 2LP(17f) → LP(41f) → 214LK(53f)',
     tags: ['2LK 起始', '基礎確反', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -4176,7 +4176,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Manon 5MP 綠衝起手連段 (5 擊 · 84f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：MP(0f) → PARRY(9f) → 2MK(26f) → 4HP(70f) → 236MP(84f)',
+    description: 'MP(0f) → PARRY(9f) → 2MK(26f) → 4HP(70f) → 236MP(84f)',
     tags: ['5MP 起始', 'Drive Rush', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -4214,7 +4214,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Manon 5L 綠衝起手連段 (4 擊 · 73f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：L(0f) → PARRY(12f) → 2L(30f) → 4M(73f)',
+    description: 'L(0f) → PARRY(12f) → 2L(30f) → 4M(73f)',
     tags: ['5L 起始', 'Drive Rush', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['L'], notation: 'L', moveName: 'L (0f)', x: 0.54, y: 0.5 },
@@ -4241,7 +4241,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Manon AUTO+H 起始三綠衝 SA3 長連段 (16 擊 · 363f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → AUTO+H(14f) → AUTO+H(27f) → 4H(84f) → 236H(99f) → PARRY(142f) → 66(156f) → 4H(174f) → 236H(193f) → PARRY(245f) → 66(257f) → L(271f) → PARRY(286f) → 4H(306f) → 2SP(326f) → 2H+SP(363f)',
+    description: 'AUTO+H(0f) → AUTO+H(14f) → AUTO+H(27f) → 4H(84f) → 236H(99f) → PARRY(142f) → 66(156f) → 4H(174f) → 236H(193f) → PARRY(245f) → 66(257f) → L(271f) → PARRY(286f) → 4H(306f) → 2SP(326f) → 2H+SP(363f)',
     tags: ['AUTO+H 起始', '三綠衝', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -4324,8 +4324,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'Manon',
     mode: 'modern',
     title: 'Manon 2L 起始輕攻擊確反 (4 擊 · 50f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2L(0f) → L(18f) → L(32f) → 214L(50f)',
+    difficulty: 'Beginner',
+    description: '2L(0f) → L(18f) → L(32f) → 214L(50f)',
     tags: ['2L 起始', '基礎確反', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'L'], notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.5 },
@@ -4353,7 +4353,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Manon AUTO+H 起始雙 OD 連段 (5 擊 · 152f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：AUTO+H(0f) → 214H+M(18f) → AUTO+L(79f) → 236H+M(92f) → 214M(152f)',
+    description: 'AUTO+H(0f) → 214H+M(18f) → AUTO+L(79f) → 236H+M(92f) → 214M(152f)',
     tags: ['AUTO+H 起始', '雙 OD', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -4398,7 +4398,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'C. Viper 2H 震地大跳取消連段 (8 擊 · 264f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2H(0f) → 623L(19f) → 9(52f) → 2369M(56f) → 214H(109f) → 6M+H(133f) → 236M(207f) → M+L(264f)',
+    description: '2H(0f) → 623L(19f) → 9(52f) → 2369M(56f) → 214H(109f) → 6M+H(133f) → 236M(207f) → M+L(264f)',
     tags: ['2H 起始', '震地大跳取消', 'TK 2369', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'H'], notation: '2H', moveName: '2H (0f)', x: 0.54, y: 0.5 },
@@ -4456,7 +4456,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'C. Viper 5M 起始 TK 2147L 壓制連段 (11 擊 · 258f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：M(0f) → 7(15f) → 2147L(18f) → 6M+L(46f) → L(111f) → 6M(125f) → L(181f) → 2L(196f) → AUTO+L(221f) → 214H(234f) → 6H+M(258f)',
+    description: 'M(0f) → 7(15f) → 2147L(18f) → 6M+L(46f) → L(111f) → 6M(125f) → L(181f) → 2L(196f) → AUTO+L(221f) → 214H(234f) → 6H+M(258f)',
     tags: ['5M 起始', 'TK 2147', '壓制連段', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['M'], notation: 'M', moveName: 'M (0f)', x: 0.54, y: 0.5 },
@@ -4520,8 +4520,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'C. Viper',
     mode: 'modern',
     title: 'C. Viper 2M 起始 TK 2147M 基礎連段 (4 擊 · 39f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2M(0f) → 7(10f) → 2147M(16f) → 6M+L(39f)',
+    difficulty: 'Beginner',
+    description: '2M(0f) → 7(10f) → 2147M(16f) → 6M+L(39f)',
     tags: ['2M 起始', 'TK 2147', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -4554,7 +4554,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Jamie 2M 綠衝 214H 安全跳連段 (7 擊 · 185f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(13f) → M(29f) → 2H(70f) → 214H(87f) → 9(145f) → 4AUTO+H(185f)',
+    description: '2M(0f) → PARRY(13f) → M(29f) → 2H(70f) → 214H(87f) → 9(145f) → 4AUTO+H(185f)',
     tags: ['2M 起始', 'Drive Rush', '安全跳', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -4596,7 +4596,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Jamie 2M 綠衝 2M+H 浮空壓制 (9 擊 · 233f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(13f) → 2M+H(30f) → 9(43f) → 9H(64f) → H(133f) → 3H(182f) → 3H(205f) → 3H(233f)',
+    description: '2M(0f) → PARRY(13f) → 2M+H(30f) → 9(43f) → 9H(64f) → H(133f) → 3H(182f) → 3H(205f) → 3H(233f)',
     tags: ['2M 起始', 'Drive Rush', '浮空連段', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -4644,7 +4644,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Jamie [要求: 1酒] AUTO+L 起始 623L 安全跳 (8 擊 · 215f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+L(0f) → AUTO+L(13f) → L(44f) → L(57f) → L(71f) → 623L(98f) → 9(152f) → 4AUTO+H(215f)',
+    description: 'AUTO+L(0f) → AUTO+L(13f) → L(44f) → L(57f) → L(71f) → 623L(98f) → 9(152f) → 4AUTO+H(215f)',
     tags: ['要求: 1酒', 'AUTO+L 起始', '安全跳', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'L'], notation: 'AUTO+L', moveName: 'AUTO+L (0f)', x: 0.54, y: 0.5 },
@@ -4688,7 +4688,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Jamie [角落] 2H 起始 OD 214 綠衝連段 (10 擊 · 243f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2H(0f) → 214H+M(19f) → PARRY(66f) → 66(77f) → 2L(92f) → H(122f) → 3H(174f) → 3H(196f) → 3H(220f) → 3H(243f)',
+    description: '2H(0f) → 214H+M(19f) → PARRY(66f) → 66(77f) → 2L(92f) → H(122f) → 3H(174f) → 3H(196f) → 3H(220f) → 3H(243f)',
     tags: ['角落限定', '2H 起始', 'OD 214', 'Drive Rush', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'H'], notation: '2H', moveName: '2H (0f)', x: 0.54, y: 0.5 },
@@ -4741,7 +4741,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Jamie [角落] 4AUTO+M 起始 OD 214 連段 (5 擊 · 128f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：4AUTO+M(0f) → 214H+M(21f) → 3H(76f) → 3H(104f) → 3H(128f)',
+    description: '4AUTO+M(0f) → 214H+M(21f) → 3H(76f) → 3H(104f) → 3H(128f)',
     tags: ['角落限定', '4AUTO+M 起始', 'OD 214', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'AUTO', 'M'], notation: '4AUTO+M', moveName: '4AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -4782,7 +4782,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Kimberly 5MP 綠衝起手 44 後衝投 (8 擊 · 204f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：MP(0f) → HP(13f) → PARRY(30f) → 2HP(50f) → 236HP+LK(67f) → 236HK(98f) → 44(185f) → LP+LK(204f)',
+    description: 'MP(0f) → HP(13f) → PARRY(30f) → 2HP(50f) → 236HP+LK(67f) → 236HK(98f) → 44(185f) → LP+LK(204f)',
     tags: ['5MP 起始', 'Drive Rush', '44 後衝', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -4831,7 +4831,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Kimberly 5HP 起始 236HP 空連 66 壓制 (5 擊 · 198f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：HP(0f) → 236HP(19f) → 9(39f) → 623LP(98f) → 66(198f)',
+    description: 'HP(0f) → 236HP(19f) → 9(39f) → 623LP(98f) → 66(198f)',
     tags: ['5HP 起始', '236HP', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: 'HP', moveName: 'HP (0f)', x: 0.54, y: 0.5 },
@@ -4870,7 +4870,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Kimberly 5HP 起始 236HP OD 連段 SA3 (8 擊 · 286f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HP(0f) → 236HP(17f) → 8(27f) → 623HP+MP(89f) → LK(196f) → LK(207f) → 236LP(263f) → 236236HP(286f)',
+    description: 'HP(0f) → 236HP(17f) → 8(27f) → 623HP+MP(89f) → LK(196f) → LK(207f) → 236LP(263f) → 236236HP(286f)',
     tags: ['5HP 起始', 'OD 強化', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: 'HP', moveName: 'HP (0f)', x: 0.54, y: 0.5 },
@@ -4931,8 +4931,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'Kimberly',
     mode: 'classic',
     title: 'Kimberly 2MK 起始基礎連段 (4 擊 · 72f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2MK(0f) → LP(33f) → LK(56f) → 214HK(72f)',
+    difficulty: 'Beginner',
+    description: '2MK(0f) → LP(33f) → LK(56f) → 214HK(72f)',
     tags: ['2MK 起始', '基礎連段', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MK'], notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.5 },
@@ -4960,7 +4960,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Kimberly 5MP 目標連疾跑連段 (6 擊 · 158f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：MP(0f) → HP(14f) → 236LK(32f) → HK(98f) → 236LK(151f) → 236HK(158f)',
+    description: 'MP(0f) → HP(14f) → 236LK(32f) → HK(98f) → 236LK(151f) → 236HK(158f)',
     tags: ['5MP 起始', '236LK 疾跑', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -5001,7 +5001,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Kimberly 5M 目標連疾跑連段 (6 擊 · 159f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：M(0f) → M(13f) → 6SP(33f) → 2M(90f) → 6SP(150f) → 6H(159f)',
+    description: 'M(0f) → M(13f) → 6SP(33f) → 2M(90f) → 6SP(150f) → 6H(159f)',
     tags: ['5M 起始', '6SP 疾跑', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['M'], notation: 'M', moveName: 'M (0f)', x: 0.54, y: 0.5 },
@@ -5036,7 +5036,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Kimberly 5H 起始 236H OD 連段 SA3 (8 擊 · 277f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：H(0f) → 236H(17f) → 9(33f) → 623M+H(93f) → 6SP(198f) → 4L(210f) → 236L(264f) → 22SP+H(277f)',
+    description: 'H(0f) → 236H(17f) → 9(33f) → 623M+H(93f) → 6SP(198f) → 4L(210f) → 236L(264f) → 22SP+H(277f)',
     tags: ['5H 起始', 'OD 強化', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['H'], notation: 'H', moveName: 'H (0f)', x: 0.54, y: 0.5 },
@@ -5091,7 +5091,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Kimberly 5H 綠衝 236H OD 全套 SA3 (11 擊 · 365f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：H(0f) → PARRY(13f) → 2M(33f) → H(74f) → 236H(93f) → 9(110f) → 623H+M(170f) → 6AUTO+SP(276f) → 4M(287f) → 236L(349f) → 2SP+H(365f)',
+    description: 'H(0f) → PARRY(13f) → 2M(33f) → H(74f) → 236H(93f) → 9(110f) → 623H+M(170f) → 6AUTO+SP(276f) → 4M(287f) → 236L(349f) → 2SP+H(365f)',
     tags: ['5H 起始', 'Drive Rush', 'OD 強化', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['H'], notation: 'H', moveName: 'H (0f)', x: 0.54, y: 0.5 },
@@ -5164,7 +5164,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Marisa [角落] 4HP 蓄力起始 2HP 蓄力 SA3 (7 擊 · 279f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4HP(0f) → 4HP(53f) → 214HP(72f) → 6HP(111f) → 2HP(182f) → 236MP+LP(245f) → 214214MP(279f)',
+    description: '4HP(0f) → 4HP(53f) → 214HP(72f) → 6HP(111f) → 2HP(182f) → 236MP+LP(245f) → 214214MP(279f)',
     tags: ['角落連段', '4HP 蓄力', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'HP'], notation: '4HP', moveName: '4HP [按住29f放開]', x: 0.54, y: 0.5, holdFrames: 29 },
@@ -5217,7 +5217,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Marisa [角落] 4HP 蓄力雙綠衝 18 擊 SA3 (18 擊 · 506f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4HP(0f) → 4HP(53f) → 214HP(74f) → 6HP(104f) → 6PARRY(174f) → 66(184f) → 4HP(197f) → PARRY(215f) → 6HK(237f) → 6HK(259f) → PARRY(321f) → 66(332f) → 4HP(346f) → PARRY(364f) → 6HK(387f) → 6HK(410f) → 236MP(480f) → 236236LK(506f)',
+    description: '4HP(0f) → 4HP(53f) → 214HP(74f) → 6HP(104f) → 6PARRY(174f) → 66(184f) → 4HP(197f) → PARRY(215f) → 6HK(237f) → 6HK(259f) → PARRY(321f) → 66(332f) → 4HP(346f) → PARRY(364f) → 6HK(387f) → 6HK(410f) → 236MP(480f) → 236236LK(506f)',
     tags: ['角落連段', '4HP 蓄力', '雙綠衝', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'HP'], notation: '4HP', moveName: '4HP [按住30f放開]', x: 0.54, y: 0.5, holdFrames: 30 },
@@ -5311,7 +5311,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Marisa 5MP 目標連綠衝 SA3 (9 擊 · 268f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：MP(0f) → MP(14f) → PARRY(37f) → 2MK(56f) → 4HP(106f) → 214HP(123f) → 6HP(158f) → 236LK(234f) → 236236LK(268f)',
+    description: 'MP(0f) → MP(14f) → PARRY(37f) → 2MK(56f) → 4HP(106f) → 214HP(123f) → 6HP(158f) → 236LK(234f) → 236236LK(268f)',
     tags: ['5MP 起始', 'Drive Rush', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -5370,8 +5370,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'Marisa',
     mode: 'classic',
     title: 'Marisa 2LK 起始輕攻擊確反 (4 擊 · 57f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(13f) → 214LP(31f) → 6LP(57f)',
+    difficulty: 'Beginner',
+    description: '2LK(0f) → 2LP(13f) → 214LP(31f) → 6LP(57f)',
     tags: ['2LK 起始', '基礎確反', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -5399,7 +5399,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Marisa 4HP 蓄力綠衝 623HP 安全跳 (10 擊 · 326f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4HP(0f) → 4HP(52f) → 214HP(70f) → 6HP(103f) → PARRY(169f) → 66(179f) → 4HP(192f) → 623HP(226f) → 8(284f) → 4HP(326f)',
+    description: '4HP(0f) → 4HP(52f) → 214HP(70f) → 6HP(103f) → PARRY(169f) → 66(179f) → 4HP(192f) → 623HP(226f) → 8(284f) → 4HP(326f)',
     tags: ['4HP 蓄力', 'Drive Rush', '安全跳', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'HP'], notation: '4HP', moveName: '4HP [按住27f放開]', x: 0.54, y: 0.5, holdFrames: 27 },
@@ -5460,7 +5460,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Marisa 2MP 綠衝 623HP 安全跳 (12 擊 · 350f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2MP(0f) → PARRY(13f) → MK(34f) → 4HP(76f) → 214HP(93f) → 6HP(129f) → 6PARRY(193f) → 66(203f) → 4HP(216f) → 623HP(253f) → 8(305f) → 4HP(350f)',
+    description: '2MP(0f) → PARRY(13f) → MK(34f) → 4HP(76f) → 214HP(93f) → 6HP(129f) → 6PARRY(193f) → 66(203f) → 4HP(216f) → 623HP(253f) → 8(305f) → 4HP(350f)',
     tags: ['2MP 起始', 'Drive Rush', '安全跳', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MP'], notation: '2MP', moveName: '2MP (0f)', x: 0.54, y: 0.5 },
@@ -5533,7 +5533,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Marisa AUTO+M 起始雙綠衝 SA3 (12 擊 · 290f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+M(0f) → AUTO+M(13f) → PARRY(33f) → 4H(53f) → AUTO+M(108f) → AUTO+M(121f) → PARRY(147f) → 4H(166f) → AUTO+M(219f) → AUTO+M(232f) → 214M(258f) → 2SP+H(290f)',
+    description: 'AUTO+M(0f) → AUTO+M(13f) → PARRY(33f) → 4H(53f) → AUTO+M(108f) → AUTO+M(121f) → PARRY(147f) → 4H(166f) → AUTO+M(219f) → AUTO+M(232f) → 214M(258f) → 2SP+H(290f)',
     tags: ['AUTO+M 起始', '雙綠衝', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'M'], notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -5595,8 +5595,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'Marisa',
     mode: 'modern',
     title: 'Marisa AUTO+L 輕攻擊確反 SA3 (4 擊 · 57f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：AUTO+L(0f) → AUTO+L(15f) → AUTO+L(30f) → 2SP+H(57f)',
+    difficulty: 'Beginner',
+    description: 'AUTO+L(0f) → AUTO+L(15f) → AUTO+L(30f) → 2SP+H(57f)',
     tags: ['AUTO+L 起始', 'SA3', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'L'], notation: 'AUTO+L', moveName: 'AUTO+L (0f)', x: 0.54, y: 0.5 },
@@ -5623,7 +5623,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Marisa 2M 綠衝 214H 接 SA3 (8 擊 · 221f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(14f) → M(30f) → 4H(76f) → 214H(93f) → 6H(123f) → 1SP(207f) → 1H+SP(221f)',
+    description: '2M(0f) → PARRY(14f) → M(30f) → 4H(76f) → 214H(93f) → 6H(123f) → 1SP(207f) → 1H+SP(221f)',
     tags: ['2M 起始', 'Drive Rush', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -5671,7 +5671,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Marisa 4H 蓄力綠衝 SA3 (9 擊 · 251f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4H(0f) → 4H(51f) → 214H(72f) → 6H(103f) → 6PARRY(170f) → 66(179f) → 4H(193f) → 236H(218f) → 2H+SP(251f)',
+    description: '4H(0f) → 4H(51f) → 214H(72f) → 6H(103f) → 6PARRY(170f) → 66(179f) → 4H(193f) → 236H(218f) → 2H+SP(251f)',
     tags: ['4H 蓄力', 'Drive Rush', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'H'], notation: '4H', moveName: '4H [按住35f放開]', x: 0.54, y: 0.5, holdFrames: 35 },
@@ -5726,7 +5726,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Marisa 4H 蓄力綠衝安全跳 (10 擊 · 325f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4H(0f) → 4H(54f) → 214H(73f) → 6H(105f) → 6PARRY(172f) → 66(181f) → 4H(193f) → 236H(221f) → 8(273f) → 4H(325f)',
+    description: '4H(0f) → 4H(54f) → 214H(73f) → 6H(105f) → 6PARRY(172f) → 66(181f) → 4H(193f) → 236H(221f) → 8(273f) → 4H(325f)',
     tags: ['4H 蓄力', 'Drive Rush', '安全跳', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'H'], notation: '4H', moveName: '4H [按住29f放開]', x: 0.54, y: 0.5, holdFrames: 29 },
@@ -5789,7 +5789,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Zangief [角落] 2M 綠衝接 2L 消費幀 AUTO+H 壓制 (8 擊 · 241f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(12f) → 2M(32f) → 3M(72f) → 3H+M(87f) → 2L(180f) → AUTO+H(194f) → 3M(241f)',
+    description: '2M(0f) → PARRY(12f) → 2M(32f) → 3M(72f) → 3H+M(87f) → 2L(180f) → AUTO+H(194f) → 3M(241f)',
     tags: ['角落連段', '2M 起始', '消費幀壓制', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -5836,7 +5836,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Zangief 2M 綠衝起手連段 (5 擊 · 87f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(11f) → 2M(30f) → 3M(72f) → 3M+H(87f)',
+    description: '2M(0f) → PARRY(11f) → 2M(30f) → 3M(72f) → 3M+H(87f)',
     tags: ['2M 起始', 'Drive Rush', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -5867,7 +5867,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Zangief 66 前衝 720 SA3 (4 擊 · 33f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：66(0f) → 7(9f) → 9(30f) → SA3(720H / 2SP+H)(33f)',
+    description: '66(0f) → 7(9f) → 9(30f) → SA3(720H / 2SP+H)(33f)',
     tags: ['66 起始', '720 SA3', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['RIGHT'], motion: '66', notation: '66', moveName: '66 前衝 (0f)', x: 0.54, y: 0.5 },
@@ -5898,7 +5898,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Zangief 一鍵 SA3 (1 擊 · 0f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2SP+H(0f)',
+    description: '2SP+H(0f)',
     tags: ['一鍵 SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'SP', 'H'], notation: '2SP+H', moveName: '2SP+H (0f)', x: 0.54, y: 0.5 },
@@ -5914,7 +5914,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Zangief AUTO+H 全資源大招連段 (7 擊 · 160f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → 3M(44f) → PARRY(58f) → 22M(75f) → 3M(119f) → 3M+H+L(133f) → 3SP+H(160f)',
+    description: 'AUTO+H(0f) → 3M(44f) → PARRY(58f) → 22M(75f) → 3M(119f) → 3M+H+L(133f) → 3SP+H(160f)',
     tags: ['AUTO+H 起始', '全資源大招', 'Drive Rush', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -5963,7 +5963,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dhalsim 1HP 起始 OD 63214P 空連 66 投 (7 擊 · 172f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：1HP(0f) → 63214MP+HP(19f) → 9(77f) → 9MP(85f) → 3MK(101f) → 66(144f) → 6LK+LP(172f)',
+    description: '1HP(0f) → 63214MP+HP(19f) → 9(77f) → 9MP(85f) → 3MK(101f) → 66(144f) → 6LK+LP(172f)',
     tags: ['1HP 起始', 'OD 63214P', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LEFT', 'HP'], notation: '1HP', moveName: '1HP (0f)', x: 0.54, y: 0.5 },
@@ -6011,7 +6011,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dhalsim 5LP 綠衝 63214MK 連段 (9 擊 · 196f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：LP(0f) → 1LP(18f) → PARRY(29f) → 214LP(47f) → 4MP(73f) → 63214MK(93f) → 3MK(140f) → 1HP(173f) → 63214HP(196f)',
+    description: 'LP(0f) → 1LP(18f) → PARRY(29f) → 214LP(47f) → 4MP(73f) → 63214MK(93f) → 3MK(140f) → 1HP(173f) → 63214HP(196f)',
     tags: ['5LP 起始', 'Drive Rush', '63214', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LP'], notation: 'LP', moveName: 'LP (0f)', x: 0.54, y: 0.5 },
@@ -6070,7 +6070,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dhalsim 1HP 起始 OD 63214P 瞬移壓制 (5 擊 · 155f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：1HP(0f) → 4HP+MP(19f) → HK(83f) → 6MP+HP+LP(104f) → 1MK(155f)',
+    description: '1HP(0f) → 4HP+MP(19f) → HK(83f) → 6MP+HP+LP(104f) → 1MK(155f)',
     tags: ['1HP 起始', '瞬移壓制', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LEFT', 'HP'], notation: '1HP', moveName: '1HP (0f)', x: 0.54, y: 0.5 },
@@ -6114,7 +6114,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dhalsim 1HP 起始 OD 63214P 空連 SA3 (6 擊 · 160f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：1HP(0f) → 63214HP+MP(19f) → 9(79f) → 9MP(85f) → 2LP(101f) → 236236HP(160f)',
+    description: '1HP(0f) → 63214HP+MP(19f) → 9(79f) → 9MP(85f) → 2LP(101f) → 236236HP(160f)',
     tags: ['1HP 起始', 'OD 63214P', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LEFT', 'HP'], notation: '1HP', moveName: '1HP (0f)', x: 0.54, y: 0.5 },
@@ -6162,7 +6162,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dhalsim 4MK 起始雙綠衝 SA3 (9 擊 · 221f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4MK(0f) → PARRY(11f) → 1HP(30f) → 4MK(78f) → PARRY(89f) → 1HP(108f) → 4MK(162f) → 63214MP(179f) → 236236LK(221f)',
+    description: '4MK(0f) → PARRY(11f) → 1HP(30f) → 4MK(78f) → PARRY(89f) → 1HP(108f) → 4MK(162f) → 63214MP(179f) → 236236LK(221f)',
     tags: ['4MK 起始', '雙綠衝', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'MK'], notation: '4MK', moveName: '4MK (0f)', x: 0.54, y: 0.5 },
@@ -6226,7 +6226,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Dhalsim AUTO+M 起始雙綠衝 SA3 (9 擊 · 210f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+M(0f) → PARRY(12f) → 1H(32f) → AUTO+M(78f) → PARRY(88f) → 1H(105f) → AUTO+M(161f) → 63214M(179f) → 2SP+H(210f)',
+    description: 'AUTO+M(0f) → PARRY(12f) → 1H(32f) → AUTO+M(78f) → PARRY(88f) → 1H(105f) → AUTO+M(161f) → 63214M(179f) → 2SP+H(210f)',
     tags: ['AUTO+M 起始', '雙綠衝', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'M'], notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -6285,7 +6285,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Dhalsim AUTO+M 起始空連 66 投 (7 擊 · 167f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+M(0f) → AUTO+M(11f) → 9(71f) → 9M(81f) → 2M(96f) → 66(137f) → 6M+L(167f)',
+    description: 'AUTO+M(0f) → AUTO+M(11f) → 9(71f) → 9M(81f) → 2M(96f) → 66(137f) → 6M+L(167f)',
     tags: ['AUTO+M 起始', '空連壓制', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'M'], notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -6325,7 +6325,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Dhalsim 5L 綠衝 2SP 接 63214H (10 擊 · 215f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：L(0f) → 2L(17f) → 2L(30f) → PARRY(49f) → L(65f) → 4M(93f) → 2SP(109f) → 3M(160f) → 1H(194f) → 63214H(215f)',
+    description: 'L(0f) → 2L(17f) → 2L(30f) → PARRY(49f) → L(65f) → 4M(93f) → 2SP(109f) → 3M(160f) → 1H(194f) → 63214H(215f)',
     tags: ['5L 起始', 'Drive Rush', '63214', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['L'], notation: 'L', moveName: 'L (0f)', x: 0.54, y: 0.5 },
@@ -6383,7 +6383,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Dhalsim 5L 輕攻擊確反 OD 236 SA3 (5 擊 · 71f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：L(0f) → 2L(16f) → 2L(30f) → 236L+M(48f) → 2H+SP(71f)',
+    description: 'L(0f) → 2L(16f) → 2L(30f) → 236L+M(48f) → 2H+SP(71f)',
     tags: ['5L 起始', 'OD 強化', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['L'], notation: 'L', moveName: 'L (0f)', x: 0.54, y: 0.5 },
@@ -6422,7 +6422,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'E. Honda 5HP 起始 OD 236KK 接 4646K 大招 (4 擊 · 86f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：5HP(0f) → 236LK+MK(18f) → HP(33f) → 4646LK(86f)',
+    description: '5HP(0f) → 236LK+MK(18f) → HP(33f) → 4646LK(86f)',
     tags: ['5HP 起始', 'OD 236KK', '4646K SA2', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: '5HP', moveName: '5HP (0f)', x: 0.54, y: 0.5 },
@@ -6458,7 +6458,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'E. Honda 5HP 雙綠衝 214214LP SA3 (9 擊 · 233f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HP(0f) → LK(18f) → 2HP(30f) → PARRY(102f) → 66(113f) → HP(124f) → PARRY(144f) → 2HK(180f) → 214214LP(233f)',
+    description: 'HP(0f) → LK(18f) → 2HP(30f) → PARRY(102f) → 66(113f) → HP(124f) → PARRY(144f) → 2HK(180f) → 214214LP(233f)',
     tags: ['5HP 起始', '雙綠衝', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: 'HP', moveName: 'HP (0f)', x: 0.54, y: 0.5 },
@@ -6513,8 +6513,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'E. Honda',
     mode: 'classic',
     title: 'E. Honda 5MP 目標連蓄力頭槌 (4 擊 · 75f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：MP(0f) → 4LP(35f) → 4MP(51f) → [4]6HP(75f)',
+    difficulty: 'Beginner',
+    description: 'MP(0f) → 4LP(35f) → 4MP(51f) → [4]6HP(75f)',
     tags: ['5MP 起始', '[4]6 蓄力', '實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -6540,7 +6540,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'E. Honda 5MP 綠衝 [2]8HK 接 66 投 (9 擊 · 293f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：MP(0f) → PARRY(12f) → MP(30f) → HP(75f) → 236LK(95f) → 236HP(106f) → [2]8HK(194f) → 66(273f) → LK+LP(293f)',
+    description: 'MP(0f) → PARRY(12f) → MP(30f) → HP(75f) → 236LK(95f) → 236HP(106f) → [2]8HK(194f) → 66(273f) → LK+LP(293f)',
     tags: ['5MP 起始', 'Drive Rush', '[2]8 蓄力', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -6590,7 +6590,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'E. Honda 5HP 236LK 雙綠衝 236236HP SA3 (10 擊 · 260f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HP(0f) → 236LK(22f) → 2HP(34f) → PARRY(104f) → 66(116f) → HP(128f) → PARRY(146f) → 2HK(181f) → 236LP(229f) → 236236HP(260f)',
+    description: 'HP(0f) → 236LK(22f) → 2HP(34f) → PARRY(104f) → 66(116f) → HP(128f) → PARRY(146f) → 2HK(181f) → 236LP(229f) → 236236HP(260f)',
     tags: ['5HP 起始', '雙綠衝', 'SA3', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: 'HP', moveName: 'HP (0f)', x: 0.54, y: 0.5 },
@@ -6651,7 +6651,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'E. Honda 5HP 236HK 蓄力頭槌接 63214HK 大銀杏投 (6 擊 · 222f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HP(0f) → 236HK(18f) → 1HP(36f) → [4]6MK(115f) → 66(203f) → 63214HK(222f)',
+    description: 'HP(0f) → 236HK(18f) → 1HP(36f) → [4]6MK(115f) → 66(203f) → 63214HK(222f)',
     tags: ['5HP 起始', '[4]6 蓄力', '63214 指令投', '實機錄製'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: 'HP', moveName: 'HP (0f)', x: 0.54, y: 0.5 },
@@ -6701,7 +6701,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'E. Honda M 雙綠衝 2SP+H (11 擊 · 335f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：M(0f) → PARRY(14f) → M(29f) → H(78f) → PARRY(92f) → M(110f) → H(156f) → 236H(176f) → 2H(190f) → 214M(273f) → 2SP+H(335f)',
+    description: 'M(0f) → PARRY(14f) → M(29f) → H(78f) → PARRY(92f) → M(110f) → H(156f) → 236H(176f) → 2H(190f) → 214M(273f) → 2SP+H(335f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['M'], notation: 'M', moveName: 'M (0f)', x: 0.54, y: 0.5 },
@@ -6755,8 +6755,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'E. Honda',
     mode: 'modern',
     title: 'E. Honda M 4L 連打 4SP (4 擊 · 66f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：M(0f) → 4L(35f) → 4L(49f) → 4SP(66f)',
+    difficulty: 'Beginner',
+    description: 'M(0f) → 4L(35f) → 4L(49f) → 4SP(66f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['M'], notation: 'M', moveName: 'M (0f)', x: 0.54, y: 0.5 },
@@ -6781,7 +6781,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'E. Honda AUTO+M 綠衝 [2]8H 2SP (9 擊 · 292f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+M(0f) → PARRY(12f) → M(28f) → H(73f) → 236H(92f) → 236H(105f) → [2]8H(194f) → 66(271f) → 2SP(292f)',
+    description: 'AUTO+M(0f) → PARRY(12f) → M(28f) → H(73f) → 236H(92f) → 236H(105f) → [2]8H(194f) → 66(271f) → 2SP(292f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'M'], notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -6832,7 +6832,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'E. Honda AUTO+H 236H [2]8H 2SP (6 擊 · 216f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → 236H(19f) → 2H(32f) → [2]8H(115f) → 66(193f) → 2SP(216f)',
+    description: 'AUTO+H(0f) → 236H(19f) → 2H(32f) → [2]8H(115f) → 66(193f) → 2SP(216f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -6876,7 +6876,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Blanka 5HP 1MP+HP [2]8LK [4]6LP (6 擊 · 203f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HP(0f) → 1MP+HP(16f) → 1HP(31f) → [2]8LK(94f) → [4]6LP(167f) → 4MK(203f)',
+    description: 'HP(0f) → 1MP+HP(16f) → 1HP(31f) → [2]8LK(94f) → [4]6LP(167f) → 4MK(203f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: 'HP', moveName: 'HP (0f)', x: 0.54, y: 0.5 },
@@ -6918,7 +6918,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Blanka 4MK 214MP 綠衝 4MK (7 擊 · 131f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4MK(0f) → MK(36f) → 214MP(48f) → 66(98f) → 6PARRY(113f) → 66(121f) → 4MK(131f)',
+    description: '4MK(0f) → MK(36f) → 214MP(48f) → 66(98f) → 6PARRY(113f) → 66(121f) → 4MK(131f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'MK'], notation: '4MK', moveName: '4MK (0f)', x: 0.54, y: 0.5 },
@@ -6960,7 +6960,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Blanka 綠衝 6MK 4HK [2]8LK (6 擊 · 138f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：PARRY(0f) → 66(10f) → 6MK(17f) → 4HK(79f) → 1LP(126f) → [2]8LK(138f)',
+    description: 'PARRY(0f) → 66(10f) → 6MK(17f) → 4HK(79f) → 1LP(126f) → [2]8LK(138f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['PARRY'], notation: 'PARRY', moveName: 'PARRY [按住15f放開]', x: 0.54, y: 0.5, holdFrames: 15 },
@@ -6997,7 +6997,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Blanka 5HP 雙綠衝 SA3 (11 擊 · 292f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HP(0f) → PARRY(14f) → HK(28f) → HP(87f) → PARRY(98f) → HK(117f) → HP(173f) → 1MP+HP(190f) → 1HP(205f) → [4]6LP(271f) → 236236LK(292f)',
+    description: 'HP(0f) → PARRY(14f) → HK(28f) → HP(87f) → PARRY(98f) → HK(117f) → HP(173f) → 1MP+HP(190f) → 1HP(205f) → [4]6LP(271f) → 236236LK(292f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: 'HP', moveName: 'HP (0f)', x: 0.54, y: 0.5 },
@@ -7056,7 +7056,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Blanka AUTO+H OD電接SA2連段(重要) (8 擊 · 373f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → 214M+H(21f) → 4H+SP(61f) → [4]6H(190f) → 6H(251f) → 4H(277f) → 6H(311f) → M(373f)',
+    description: 'AUTO+H(0f) → 214M+H(21f) → 4H+SP(61f) → [4]6H(190f) → 6H(251f) → 4H(277f) → 6H(311f) → M(373f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -7113,7 +7113,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Blanka AUTO+H OD電接SA2 空連綠衝 (19 擊 · 833f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → 214H+M(17f) → 4H+SP(59f) → PARRY(187f) → 66(197f) → AUTO+H(211f) → AUTO+H(232f) → AUTO+H(248f) → 9(301f) → 9M(315f) → 6H(335f) → 66(342f) → 9(350f) → 9H(356f) → 9H(380f) → 2H(403f) → 22H(444f) → PARRY(639f) → PARRY(833f)',
+    description: 'AUTO+H(0f) → 214H+M(17f) → 4H+SP(59f) → PARRY(187f) → 66(197f) → AUTO+H(211f) → AUTO+H(232f) → AUTO+H(248f) → 9(301f) → 9M(315f) → 6H(335f) → 66(342f) → 9(350f) → 9H(356f) → 9H(380f) → 2H(403f) → 22H(444f) → PARRY(639f) → PARRY(833f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -7207,7 +7207,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Blanka 2M 綠衝 AUTO+H 3H 綠衝 4AUTO+L (11 擊 · 262f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(13f) → 4M(31f) → AUTO+H(71f) → AUTO+H(85f) → AUTO+H(98f) → 3H(168f) → 66(222f) → 6PARRY(236f) → 66(242f) → 4AUTO+L(262f)',
+    description: '2M(0f) → PARRY(13f) → 4M(31f) → AUTO+H(71f) → AUTO+H(85f) → AUTO+H(98f) → 3H(168f) → 66(222f) → 6PARRY(236f) → 66(242f) → 4AUTO+L(262f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -7267,7 +7267,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Blanka AUTO+H 雙綠衝連段 (11 擊 · 283f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → PARRY(15f) → H(28f) → AUTO+H(84f) → PARRY(99f) → H(115f) → AUTO+H(173f) → AUTO+H(191f) → AUTO+H(207f) → AUTO+H(266f) → AUTO+H(283f)',
+    description: 'AUTO+H(0f) → PARRY(15f) → H(28f) → AUTO+H(84f) → PARRY(99f) → H(115f) → AUTO+H(173f) → AUTO+H(191f) → AUTO+H(207f) → AUTO+H(266f) → AUTO+H(283f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -7316,7 +7316,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Blanka 2L 214L 綠衝 4M (6 擊 · 111f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2L(0f) → 2L(12f) → 214L(28f) → 66(78f) → 66+PARRY(91f) → 4M(111f)',
+    description: '2L(0f) → 2L(12f) → 214L(28f) → 66(78f) → 66+PARRY(91f) → 4M(111f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'L'], notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.5 },
@@ -7355,7 +7355,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dee Jay 2LK 236MK 綠衝壓制 (8 擊 · 133f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(13f) → 2LP(27f) → 236MK(49f) → 66(102f) → 6PARRY(113f) → 66(122f) → LP(133f)',
+    description: '2LK(0f) → 2LP(13f) → 2LP(27f) → 236MK(49f) → 66(102f) → 6PARRY(113f) → 66(122f) → LP(133f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -7398,7 +7398,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dee Jay [角落] 2LK 236MK 消費 (6 擊 · 111f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(13f) → LP(37f) → 236MK(49f) → 6LP(101f) → 6MK(111f)',
+    description: '2LK(0f) → 2LP(13f) → LP(37f) → 236MK(49f) → 6LP(101f) → 6MK(111f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -7432,7 +7432,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dee Jay 2MP 綠衝 [2]8MK [2]8HK (9 擊 · 291f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2MP(0f) → PARRY(12f) → MP(26f) → 2HP(69f) → 2MP(109f) → [2]8MK(121f) → [2]8HK(196f) → 9(270f) → 2LK(291f)',
+    description: '2MP(0f) → PARRY(12f) → MP(26f) → 2HP(69f) → 2MP(109f) → [2]8MK(121f) → [2]8HK(196f) → 9(270f) → 2LK(291f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MP'], notation: '2MP', moveName: '2MP (0f)', x: 0.54, y: 0.5 },
@@ -7485,7 +7485,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dee Jay 5MP SA2連段 (11 擊 · 349f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：MP(0f) → HP(13f) → HK(35f) → HP(68f) → LP(200f) → MP(219f) → HP(239f) → LK(263f) → MK(287f) → HK(315f) → HK(349f)',
+    description: 'MP(0f) → HP(13f) → HK(35f) → HP(68f) → LP(200f) → MP(219f) → HP(239f) → LK(263f) → MK(287f) → HK(315f) → HK(349f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -7538,7 +7538,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dee Jay 5MP SA2連段 (11 擊 · 344f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：MP(0f) → HP(15f) → HK(33f) → HP(66f) → LP(198f) → MP(217f) → HP(238f) → LK(261f) → MK(284f) → HK(314f) → HK(344f)',
+    description: 'MP(0f) → HP(15f) → HK(33f) → HP(66f) → LP(198f) → MP(217f) → HP(238f) → LK(261f) → MK(284f) → HK(314f) → HK(344f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -7591,7 +7591,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dee Jay 2HP 雙綠衝 SA3 (11 擊 · 275f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2HP(0f) → 2MP(40f) → PARRY(52f) → 2HP(69f) → HP(117f) → PARRY(131f) → 2HP(148f) → MP(199f) → HP(215f) → HK(234f) → 236236LK(275f)',
+    description: '2HP(0f) → 2MP(40f) → PARRY(52f) → 2HP(69f) → HP(117f) → PARRY(131f) → 2HP(148f) → MP(199f) → HP(215f) → HK(234f) → 236236LK(275f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -7648,7 +7648,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dee Jay 1HP [2]8HK 前跳壓制 (4 擊 · 158f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：1HP(0f) → [2]8HK(42f) → 9(114f) → 4HK(158f)',
+    description: '1HP(0f) → [2]8HK(42f) → 9(114f) → 4HK(158f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LEFT', 'HP'], notation: '1HP', moveName: '1HP (0f)', x: 0.54, y: 0.5 },
@@ -7681,7 +7681,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dee Jay 4HK OD214KK 4MK 236HK (4 擊 · 120f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：4HK(0f) → 214MK+HK(31f) → 4MK(67f) → 236HK(120f)',
+    description: '4HK(0f) → 214MK+HK(31f) → 4MK(67f) → 236HK(120f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'HK'], notation: '4HK', moveName: '4HK (0f)', x: 0.54, y: 0.5 },
@@ -7715,7 +7715,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dee Jay 4HK OD214KK 綠衝 214HP (7 擊 · 160f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4HK(0f) → 214MK+HK(33f) → 4HK(80f) → PARRY(116f) → 66(129f) → HP(140f) → 214HP(160f)',
+    description: '4HK(0f) → 214MK+HK(33f) → 4HK(80f) → PARRY(116f) → 66(129f) → HP(140f) → 214HP(160f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'HK'], notation: '4HK', moveName: '4HK (0f)', x: 0.54, y: 0.5 },
@@ -7760,7 +7760,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Dee Jay [角落] 4HK 全資源大招 (10 擊 · 356f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4HK(0f) → 214HK+MK(29f) → 4HK(68f) → [4]6HP+MP(123f) → 214LK(168f) → 214HK(181f) → [4]6HP+MP(239f) → 214LK(287f) → 214HK(300f) → 214214HP(356f)',
+    description: '4HK(0f) → 214HK+MK(29f) → 4HK(68f) → [4]6HP+MP(123f) → 214LK(168f) → 214HK(181f) → [4]6HP+MP(239f) → 214LK(287f) → 214HK(300f) → 214214HP(356f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'HK'], notation: '4HK', moveName: '4HK (0f)', x: 0.54, y: 0.5 },
@@ -7831,7 +7831,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Dee Jay 4AUTO+M 雙綠衝 SA1 (10 擊 · 246f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4AUTO+M(0f) → PARRY(12f) → 2H(29f) → 4H(77f) → PARRY(106f) → 2H(118f) → M(174f) → 4H(190f) → 4H(209f) → SA1(236236L / 5or6SP+H)(246f)',
+    description: '4AUTO+M(0f) → PARRY(12f) → 2H(29f) → 4H(77f) → PARRY(106f) → 2H(118f) → M(174f) → 4H(190f) → 4H(209f) → SA1(236236L / 5or6SP+H)(246f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'AUTO', 'M'], notation: '4AUTO+M', moveName: '4AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -7890,7 +7890,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Dee Jay 2H [2]8H 雙前衝投 (5 擊 · 160f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2H(0f) → [2]8H(39f) → 66(116f) → 66(134f) → M+L(160f)',
+    description: '2H(0f) → [2]8H(39f) → 66(116f) → 66(134f) → M+L(160f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'H'], notation: '2H', moveName: '2H (0f)', x: 0.54, y: 0.5 },
@@ -7927,7 +7927,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Dee Jay 2L [2]8H 雙前衝壓制 (7 擊 · 173f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2L(0f) → 2L(17f) → 2L(29f) → [2]8H(50f) → 66(138f) → 66(156f) → 2L(173f)',
+    description: '2L(0f) → 2L(17f) → 2L(29f) → [2]8H(50f) → 66(138f) → 66(156f) → 2L(173f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'L'], notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.5 },
@@ -7967,8 +7967,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'Dee Jay',
     mode: 'modern',
     title: 'Dee Jay 2L 連打 6SP (4 擊 · 51f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2L(0f) → 2L(17f) → 2L(31f) → 6SP(51f)',
+    difficulty: 'Beginner',
+    description: '2L(0f) → 2L(17f) → 2L(31f) → 6SP(51f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'L'], notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.5 },
@@ -7994,7 +7994,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Dee Jay 2H 2AUTO+M [2]8H 雙前衝投 (6 擊 · 179f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2H(0f) → 2AUTO+M(39f) → [2]8H(53f) → 66(141f) → 66(158f) → M+L(179f)',
+    description: '2H(0f) → 2AUTO+M(39f) → [2]8H(53f) → 66(141f) → 66(158f) → M+L(179f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'H'], notation: '2H', moveName: '2H (0f)', x: 0.54, y: 0.5 },
@@ -8034,7 +8034,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Dee Jay AUTO+H 換邊連段 [2]8H 雙後衝投 (7 擊 · 214f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → AUTO+H(27f) → 3SP(61f) → [2]8H(89f) → 44(171f) → 44(191f) → M+L(214f)',
+    description: 'AUTO+H(0f) → AUTO+H(27f) → 3SP(61f) → [2]8H(89f) → 44(171f) → 44(191f) → M+L(214f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -8079,7 +8079,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Dee Jay [角落] 1H [2]8M [2]8H 前跳壓制 (6 擊 · 223f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：1H(0f) → 1AUTO+M(40f) → [2]8M(55f) → [2]8H(130f) → 9(183f) → 2L(223f)',
+    description: '1H(0f) → 1AUTO+M(40f) → [2]8M(55f) → [2]8H(130f) → 9(183f) → 2L(223f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LEFT', 'H'], notation: '1H', moveName: '1H (0f)', x: 0.54, y: 0.5 },
@@ -8124,7 +8124,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Dee Jay [角落] 4AUTO+H 大傷害接大招 (10 擊 · 355f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：4AUTO+H(0f) → 4AUTO+H(27f) → 4H(69f) → [4]6H+M(124f) → 4SP(167f) → 4H(179f) → [4]6H+M(238f) → 4SP(284f) → 4H(297f) → 2SP+H(355f)',
+    description: '4AUTO+H(0f) → 4AUTO+H(27f) → 4H(69f) → [4]6H+M(124f) → 4SP(167f) → 4H(179f) → [4]6H+M(238f) → 4SP(284f) → 4H(297f) → 2SP+H(355f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'AUTO', 'H'], notation: '4AUTO+H', moveName: '4AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -8181,7 +8181,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Dee Jay [角落] AUTO+H 236M [2]8H (5 擊 · 180f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：AUTO+H(0f) → AUTO+H(27f) → H(70f) → 236M(129f) → [2]8H(180f)',
+    description: 'AUTO+H(0f) → AUTO+H(27f) → H(70f) → 236M(129f) → [2]8H(180f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -8216,7 +8216,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Lily [角落] 2HP OD214PP 236MP (3 擊 · 95f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2HP(0f) → 214HP+MP(31f) → 236MP(95f)',
+    description: '2HP(0f) → 214HP+MP(31f) → 236MP(95f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -8245,7 +8245,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Lily 2HP 雙綠衝全資源接SA3 (9 擊 · 232f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2HP(0f) → PARRY(24f) → 4HP(39f) → 2MK(101f) → PARRY(116f) → LP(133f) → 2HP(160f) → 214MP(192f) → 214214HP(232f)',
+    description: '2HP(0f) → PARRY(24f) → 4HP(39f) → 2MK(101f) → PARRY(116f) → LP(133f) → 2HP(160f) → 214MP(192f) → 214214HP(232f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -8300,7 +8300,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Lily 2HP 214LP 集風蓄力 (2 擊 · 29f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2HP(0f) → 214LP(29f)',
+    description: '2HP(0f) → 214LP(29f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP [按住10f放開]', x: 0.54, y: 0.5, holdFrames: 10 },
@@ -8321,7 +8321,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Lily 2HP 214LP (2 擊 · 28f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2HP(0f) → 214LP(28f)',
+    description: '2HP(0f) → 214LP(28f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -8340,8 +8340,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'Lily',
     mode: 'classic',
     title: 'Lily 2LK 2LP OD236KK (4 擊 · 54f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(19f) → 2LP(35f) → 236LK+MK(54f)',
+    difficulty: 'Beginner',
+    description: '2LK(0f) → 2LP(19f) → 2LP(35f) → 236LK+MK(54f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -8368,7 +8368,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Lily 2HP 214MP (2 擊 · 29f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2HP(0f) → 214MP(29f)',
+    description: '2HP(0f) → 214MP(29f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP [按住11f放開]', x: 0.54, y: 0.5, holdFrames: 11 },
@@ -8388,7 +8388,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Lily [角落] 214LP 2HP 236HK SA1 (4 擊 · 162f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：214LP(0f) → 2HP(49f) → 236HK(79f) → 236236LP(162f)',
+    description: '214LP(0f) → 2HP(49f) → 236HK(79f) → 236236LP(162f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'LP'], motion: '214', notation: '214LP', moveName: '214LP [按住23f放開]', x: 0.54, y: 0.5, holdFrames: 23 },
@@ -8424,7 +8424,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Lily AUTO+H 全資源接大招 (9 擊 · 219f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → PARRY(26f) → 4H(42f) → AUTO+M(98f) → PARRY(109f) → 2L(133f) → AUTO+H(164f) → AUTO+H(192f) → AUTO+H(219f)',
+    description: 'AUTO+H(0f) → PARRY(26f) → 4H(42f) → AUTO+M(98f) → PARRY(109f) → 2L(133f) → AUTO+H(164f) → AUTO+H(192f) → AUTO+H(219f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -8471,7 +8471,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Lily AUTO+H 214L 綠衝下輕腳 OD指令投 (6 擊 · 142f)',
     difficulty: 'Advanced',
-    description: '對方防禦住綠衝下輕腳即可接 OD 指令投｜實機 60fps 錄製：AUTO+H(0f) → 214L(29f) → PARRY(80f) → 66(92f) → AUTO+L(110f) → AUTO+SP(142f)',
+    description: '對方防禦住綠衝下輕腳即可接 OD 指令投｜AUTO+H(0f) → 214L(29f) → PARRY(80f) → 66(92f) → AUTO+L(110f) → AUTO+SP(142f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -8509,7 +8509,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Lily AUTO+H 214L 綠衝下輕腳 命中接AUTO輕 (7 擊 · 151f)',
     difficulty: 'Advanced',
-    description: '綠衝下輕腳命中確認繼續接 AUTO 輕連段｜實機 60fps 錄製：AUTO+H(0f) → 214L(36f) → PARRY(84f) → 66(95f) → AUTO+L(108f) → AUTO+L(138f) → AUTO+L(151f)',
+    description: '綠衝下輕腳命中確認繼續接 AUTO 輕連段｜AUTO+H(0f) → 214L(36f) → PARRY(84f) → 66(95f) → AUTO+L(108f) → AUTO+L(138f) → AUTO+L(151f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -8550,7 +8550,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'JP 2MP 綠衝 2HP 236HP 236MK 22HP 214HP (7 擊 · 240f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2MP(0f) → PARRY(11f) → 2HP(32f) → 236HP(50f) → 236MK(127f) → 22HP(185f) → 214HP(240f)',
+    description: '2MP(0f) → PARRY(11f) → 2HP(32f) → 236HP(50f) → 236MK(127f) → 22HP(185f) → 214HP(240f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MP'], notation: '2MP', moveName: '2MP (0f)', x: 0.54, y: 0.5 },
@@ -8597,7 +8597,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'JP 5HK SA2連段 (14 擊 · 602f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HK(0f) → HP(18f) → MP(53f) → 2MK(186f) → 2HP(231f) → 214HP(247f) → 66(297f) → HP(324f) → 236MK(340f) → 66(399f) → 623HP(422f) → 236MK(497f) → 22HP(546f) → 214HP(602f)',
+    description: 'HK(0f) → HP(18f) → MP(53f) → 2MK(186f) → 2HP(231f) → 214HP(247f) → 66(297f) → HP(324f) → 236MK(340f) → 66(399f) → 623HP(422f) → 236MK(497f) → 22HP(546f) → 214HP(602f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HK'], notation: 'HK', moveName: 'HK (0f)', x: 0.54, y: 0.5 },
@@ -8684,7 +8684,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'JP 5HK 綠衝接大招 (8 擊 · 256f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HK(0f) → HP(23f) → PARRY(45f) → 2HP(68f) → 236HP(89f) → 236MK(163f) → 22HP(222f) → 236236LK(256f)',
+    description: 'HK(0f) → HP(23f) → PARRY(45f) → 2HP(68f) → 236HP(89f) → 236MK(163f) → 22HP(222f) → 236236LK(256f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HK'], notation: 'HK', moveName: 'HK [按住11f放開]', x: 0.54, y: 0.5, holdFrames: 11 },
@@ -8737,7 +8737,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'JP 5HK SA2連段 (14 擊 · 632f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HK(0f) → HP(18f) → 214214MP(56f) → 2MK(187f) → HK(231f) → HP(248f) → 214HP(282f) → HK(333f) → HP(356f) → 22LP(390f) → 236HP(453f) → 236MK(523f) → 22HP(580f) → 214HP(632f)',
+    description: 'HK(0f) → HP(18f) → 214214MP(56f) → 2MK(187f) → HK(231f) → HP(248f) → 214HP(282f) → HK(333f) → HP(356f) → 22LP(390f) → 236HP(453f) → 236MK(523f) → 22HP(580f) → 214HP(632f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HK'], notation: 'HK', moveName: 'HK (0f)', x: 0.54, y: 0.5 },
@@ -8820,7 +8820,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'JP 5HK 綠衝連段 (8 擊 · 276f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HK(0f) → HP(22f) → PARRY(50f) → 2HP(73f) → 236HP(91f) → 236MK(161f) → 22HP(221f) → 214HP(276f)',
+    description: 'HK(0f) → HP(22f) → PARRY(50f) → 2HP(73f) → 236HP(91f) → 236MK(161f) → 22HP(221f) → 214HP(276f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HK'], notation: 'HK', moveName: 'HK (0f)', x: 0.54, y: 0.5 },
@@ -8869,7 +8869,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'JP 5HK OD236PP 22HP 214HP (5 擊 · 178f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：HK(0f) → HP(18f) → 236HP+MP(50f) → 22HP(116f) → 214HP(178f)',
+    description: 'HK(0f) → HP(18f) → 236HP+MP(50f) → 22HP(116f) → 214HP(178f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HK'], notation: 'HK', moveName: 'HK (0f)', x: 0.54, y: 0.5 },
@@ -8906,8 +8906,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'JP',
     mode: 'classic',
     title: 'JP 2LK 基礎輕攻擊起始 236LP (4 擊 · 52f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(18f) → 2LP(34f) → 236LP(52f)',
+    difficulty: 'Beginner',
+    description: '2LK(0f) → 2LP(18f) → 2LP(34f) → 236LP(52f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -8933,7 +8933,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'JP 2LK 輕攻擊綠衝接SA2 (18 擊 · 675f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(19f) → 2LP(34f) → PARRY(50f) → 2LP(67f) → 4MP(95f) → 4MP(107f) → 214214MP(147f) → 2MK(277f) → 2HP(318f) → 214HP(336f) → 66(386f) → HP(412f) → MK(430f) → 236HP(497f) → MK(564f) → 22HP(621f) → 214HP(675f)',
+    description: '2LK(0f) → 2LP(19f) → 2LP(34f) → PARRY(50f) → 2LP(67f) → 4MP(95f) → 4MP(107f) → 214214MP(147f) → 2MK(277f) → 2HP(318f) → 214HP(336f) → 66(386f) → HP(412f) → MK(430f) → 236HP(497f) → MK(564f) → 22HP(621f) → 214HP(675f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -9035,7 +9035,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'JP [角落] 214HP+MP 極限連 (17 擊 · 600f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：214HP+MP(0f) → MK(37f) → LK(54f) → 2MK(108f) → 214HP+MP(138f) → 6HK(180f) → 236MP(219f) → 214HP+MP(281f) → HP(317f) → 22HP(331f) → 22HP(338f) → 214HP+MP(423f) → 214HP(459f) → 22HP(517f) → 236LP(572f) → 236236LK(593f) → LK(600f)',
+    description: '214HP+MP(0f) → MK(37f) → LK(54f) → 2MK(108f) → 214HP+MP(138f) → 6HK(180f) → 236MP(219f) → 214HP+MP(281f) → HP(317f) → 22HP(331f) → 22HP(338f) → 214HP+MP(423f) → 214HP(459f) → 22HP(517f) → 236LP(572f) → 236236LK(593f) → LK(600f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'HP', 'MP'], motion: '214', notation: '214HP+MP', moveName: '214HP+MP (0f)', x: 0.54, y: 0.5 },
@@ -9151,7 +9151,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'JP AUTO+M 綠衝 3SP 236M 22H 214H (7 擊 · 238f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+M(0f) → PARRY(13f) → 2H(34f) → 3SP(51f) → 236M(124f) → 22H(183f) → 214H(238f)',
+    description: 'AUTO+M(0f) → PARRY(13f) → 2H(34f) → 3SP(51f) → 236M(124f) → 22H(183f) → 214H(238f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'M'], notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -9196,7 +9196,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'JP 5H 綠衝 3SP 236M 22H 214H (8 擊 · 275f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：H(0f) → H(25f) → PARRY(49f) → 2H(69f) → 3SP(89f) → 236M(162f) → 22H(220f) → 214H(275f)',
+    description: 'H(0f) → H(25f) → PARRY(49f) → 2H(69f) → 3SP(89f) → 236M(162f) → 22H(220f) → 214H(275f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['H'], notation: 'H', moveName: 'H (0f)', x: 0.54, y: 0.5 },
@@ -9245,7 +9245,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'JP [角落] 5H 綠衝 5動力槽接大招 (12 擊 · 411f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：H(0f) → H(20f) → PARRY(51f) → 6H(67f) → 236L(105f) → 6H(164f) → 2SP(194f) → AUTO+H(256f) → 236H+M(277f) → 22H(330f) → 1SP(386f) → 2SP+H(411f)',
+    description: 'H(0f) → H(20f) → PARRY(51f) → 6H(67f) → 236L(105f) → 6H(164f) → 2SP(194f) → AUTO+H(256f) → 236H+M(277f) → 22H(330f) → 1SP(386f) → 2SP+H(411f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['H'], notation: 'H', moveName: 'H (0f)', x: 0.54, y: 0.5 },
@@ -9315,7 +9315,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'JP AUTO+L 輕攻擊綠衝SA2 (18 擊 · 705f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+L(0f) → AUTO+L(11f) → PARRY(28f) → 2L(48f) → 4M(76f) → 4M(89f) → SA2(214214M / 4SP+H)(130f) → 2M(261f) → H(299f) → H(319f) → 214H(351f) → H(406f) → H(426f) → 22L(463f) → 3SP(527f) → 236M(592f) → 22H(648f) → 214H(705f)',
+    description: 'AUTO+L(0f) → AUTO+L(11f) → PARRY(28f) → 2L(48f) → 4M(76f) → 4M(89f) → SA2(214214M / 4SP+H)(130f) → 2M(261f) → H(299f) → H(319f) → 214H(351f) → H(406f) → H(426f) → 22L(463f) → 3SP(527f) → 236M(592f) → 22H(648f) → 214H(705f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'L'], notation: 'AUTO+L', moveName: 'AUTO+L (0f)', x: 0.54, y: 0.5 },
@@ -9413,7 +9413,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'A.K.I. 2LK 雙綠衝 SA3 (17 擊 · 387f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(14f) → 2LP(27f) → PARRY(45f) → 2LP(61f) → MK(91f) → MP(128f) → PARRY(139f) → MK(156f) → HK(200f) → 1HP+MP(213f) → 1HK(227f) → 1LP(287f) → LP(308f) → LP(319f) → 214HP(337f) → 236236HP(387f)',
+    description: '2LK(0f) → 2LP(14f) → 2LP(27f) → PARRY(45f) → 2LP(61f) → MK(91f) → MP(128f) → PARRY(139f) → MK(156f) → HK(200f) → 1HP+MP(213f) → 1HK(227f) → 1LP(287f) → LP(308f) → LP(319f) → 214HP(337f) → 236236HP(387f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -9496,7 +9496,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'A.K.I. 2LK 236HP 安全跳壓制 (6 擊 · 144f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(15f) → 2LP(28f) → 236HP(48f) → 9(109f) → 4HK(144f)',
+    description: '2LK(0f) → 2LP(15f) → 2LP(28f) → 236HP(48f) → 9(109f) → 4HK(144f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -9532,7 +9532,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'A.K.I. 5HK 1HP+MP 236HP 安全跳 (9 擊 · 237f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HK(0f) → 1HP+MP(16f) → 1HK(31f) → 1LP(88f) → LP(110f) → LP(121f) → 236HP(141f) → 8(186f) → 4HK(237f)',
+    description: 'HK(0f) → 1HP+MP(16f) → 1HK(31f) → 1LP(88f) → LP(110f) → LP(121f) → 236HP(141f) → 8(186f) → 4HK(237f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HK'], notation: 'HK', moveName: 'HK (0f)', x: 0.54, y: 0.5 },
@@ -9583,7 +9583,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'A.K.I. [角落] 214MP 偷中段連段 (15 擊 · 479f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：214MP(0f) → HK(45f) → 1HP+MP(62f) → 1HK(75f) → 2LP(133f) → 236HP(146f) → 214HP(208f) → PARRY(256f) → 66(272f) → HK(286f) → MK(309f) → 3MP(352f) → 2LP(409f) → 236HP(420f) → 214HP(479f)',
+    description: '214MP(0f) → HK(45f) → 1HP+MP(62f) → 1HK(75f) → 2LP(133f) → 236HP(146f) → 214HP(208f) → PARRY(256f) → 66(272f) → HK(286f) → MK(309f) → 3MP(352f) → 2LP(409f) → 236HP(420f) → 214HP(479f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'MP'], motion: '214', notation: '214MP', moveName: '214MP (0f)', x: 0.54, y: 0.5 },
@@ -9668,7 +9668,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'A.K.I. 2LK 236HP 236MK (5 擊 · 109f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(14f) → 2LP(27f) → 236HP(47f) → 236MK(109f)',
+    description: '2LK(0f) → 2LP(14f) → 2LP(27f) → 236HP(47f) → 236MK(109f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -9700,8 +9700,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'A.K.I.',
     mode: 'classic',
     title: 'A.K.I. 2MK 2LP 236HP 236MK (4 擊 · 105f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2MK(0f) → 2LP(33f) → 236HP(45f) → 236MK(105f)',
+    difficulty: 'Beginner',
+    description: '2MK(0f) → 2LP(33f) → 236HP(45f) → 236MK(105f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MK'], notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.5 },
@@ -9731,7 +9731,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'A.K.I. 214MP 雙OD236PP 雙綠衝 (15 擊 · 511f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：214MP(0f) → HK(44f) → 236HP+MP(58f) → LK(180f) → 236MP(193f) → HK(250f) → 236HP+MP(267f) → 236MP(333f) → PARRY(383f) → 66(394f) → MP(408f) → PARRY(427f) → MK(450f) → 236LP(487f) → HP(511f)',
+    description: '214MP(0f) → HK(44f) → 236HP+MP(58f) → LK(180f) → 236MP(193f) → HK(250f) → 236HP+MP(267f) → 236MP(333f) → PARRY(383f) → 66(394f) → MP(408f) → PARRY(427f) → MK(450f) → 236LP(487f) → HP(511f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'MP'], motion: '214', notation: '214MP', moveName: '214MP (0f)', x: 0.54, y: 0.5 },
@@ -9823,7 +9823,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'A.K.I. 5MP 綠衝 236HP 236MK 236LP (14 擊 · 346f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：MP(0f) → PARRY(11f) → 1MK(29f) → HK(71f) → 1HP+MP(85f) → 1HK(99f) → 1LP(161f) → LP(179f) → LP(189f) → 236HP(207f) → 236MK(274f) → 1LK(315f) → 1LP(327f) → 236LP(346f)',
+    description: 'MP(0f) → PARRY(11f) → 1MK(29f) → HK(71f) → 1HP+MP(85f) → 1HK(99f) → 1LP(161f) → LP(179f) → LP(189f) → 236HP(207f) → 236MK(274f) → 1LK(315f) → 1LP(327f) → 236LP(346f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -9900,7 +9900,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'A.K.I. [確定反擊] AUTO+H 3SP 236H (6 擊 · 181f)',
     difficulty: 'Advanced',
-    description: '第一下懲罰反擊（確定反擊）限定｜實機 60fps 錄製：AUTO+H(0f) → 3SP(27f) → 2L(128f) → L(149f) → L(161f) → 236H(181f)',
+    description: '第一下懲罰反擊（確定反擊）限定｜AUTO+H(0f) → 3SP(27f) → 2L(128f) → L(149f) → L(161f) → 236H(181f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -9940,7 +9940,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'A.K.I. AUTO+H 雙綠衝 2SP+H (18 擊 · 433f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → 1H+M(17f) → 1H(30f) → 1L(87f) → PARRY(99f) → 214L(112f) → M(142f) → AUTO+M(178f) → PARRY(189f) → M(209f) → AUTO+H(251f) → 1H+M(267f) → 1H(280f) → 1L(340f) → L(359f) → L(369f) → 214H(388f) → 2SP+H(433f)',
+    description: 'AUTO+H(0f) → 1H+M(17f) → 1H(30f) → 1L(87f) → PARRY(99f) → 214L(112f) → M(142f) → AUTO+M(178f) → PARRY(189f) → M(209f) → AUTO+H(251f) → 1H+M(267f) → 1H(280f) → 1L(340f) → L(359f) → L(369f) → 214H(388f) → 2SP+H(433f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -10033,7 +10033,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'A.K.I. 2M 2L 236H 安全跳壓制 (5 擊 · 141f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2M(0f) → 2L(34f) → 236H(45f) → 9(100f) → 4AUTO+H(141f)',
+    description: '2M(0f) → 2L(34f) → 236H(45f) → 9(100f) → 4AUTO+H(141f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -10069,7 +10069,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'A.K.I. AUTO+H OD236 雙綠衝 2H+SP (14 擊 · 413f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → AUTO+H(11f) → AUTO+H(85f) → 236M(99f) → AUTO+H(157f) → 236H+M(176f) → 236M(244f) → PARRY(291f) → 66(303f) → AUTO+M(320f) → PARRY(336f) → M(355f) → 236L(395f) → 2H+SP(413f)',
+    description: 'AUTO+H(0f) → AUTO+H(11f) → AUTO+H(85f) → 236M(99f) → AUTO+H(157f) → 236H+M(176f) → 236M(244f) → PARRY(291f) → 66(303f) → AUTO+M(320f) → PARRY(336f) → M(355f) → 236L(395f) → 2H+SP(413f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -10152,7 +10152,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'A.K.I. 214M 三綠衝 2H+SP (18 擊 · 611f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：214M(0f) → 2M+H(42f) → H(56f) → AUTO+H(134f) → 236H+M(153f) → 214H(267f) → PARRY(318f) → 66(328f) → AUTO+H(349f) → 2H+M(368f) → H(385f) → 6PARRY(455f) → 66(464f) → AUTO+H(482f) → PARRY(500f) → AUTO+H(523f) → 2SP(543f) → 2H+SP(611f)',
+    description: '214M(0f) → 2M+H(42f) → H(56f) → AUTO+H(134f) → 236H+M(153f) → 214H(267f) → PARRY(318f) → 66(328f) → AUTO+H(349f) → 2H+M(368f) → H(385f) → 6PARRY(455f) → 66(464f) → AUTO+H(482f) → PARRY(500f) → AUTO+H(523f) → 2SP(543f) → 2H+SP(611f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'M'], motion: '214', notation: '214M', moveName: '214M (0f)', x: 0.54, y: 0.5 },
@@ -10253,7 +10253,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'A.K.I. AUTO+M 雙綠衝 2SP+H (15 擊 · 361f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+M(0f) → PARRY(12f) → 2M(28f) → M(68f) → AUTO+M(106f) → PARRY(119f) → M(136f) → AUTO+H(178f) → 1H+M(194f) → 1H(207f) → 1L(268f) → L(290f) → L(300f) → 214H(318f) → 2SP+H(361f)',
+    description: 'AUTO+M(0f) → PARRY(12f) → 2M(28f) → M(68f) → AUTO+M(106f) → PARRY(119f) → M(136f) → AUTO+H(178f) → 1H+M(194f) → 1H(207f) → 1L(268f) → L(290f) → L(300f) → 214H(318f) → 2SP+H(361f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'M'], notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -10329,7 +10329,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'A.K.I. AUTO+H 236M 前衝 236L 214L (10 擊 · 307f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → AUTO+H(12f) → AUTO+H(86f) → 236M(101f) → 66(158f) → 2L(178f) → 2M+H(190f) → 2H(201f) → 236L(257f) → 214L(307f)',
+    description: 'AUTO+H(0f) → AUTO+H(12f) → AUTO+H(86f) → 236M(101f) → 66(158f) → 2L(178f) → 2M+H(190f) → 2H(201f) → 236L(257f) → 214L(307f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -10389,7 +10389,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'A.K.I. AUTO+M 綠衝 236H SP 投 (12 擊 · 315f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+M(0f) → PARRY(14f) → 2M(32f) → AUTO+H(70f) → 1H+M(87f) → 1H(101f) → 1L(161f) → L(180f) → L(191f) → 236H(209f) → SP(274f) → M+L(315f)',
+    description: 'AUTO+M(0f) → PARRY(14f) → 2M(32f) → AUTO+H(70f) → 1H+M(87f) → 1H(101f) → 1L(161f) → L(180f) → L(191f) → 236H(209f) → SP(274f) → M+L(315f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'M'], notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -10453,7 +10453,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'A.K.I. AUTO+L 雙綠衝 2H+SP (16 擊 · 342f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+L(0f) → AUTO+L(13f) → PARRY(28f) → 2L(45f) → M(72f) → AUTO+M(109f) → PARRY(121f) → M(137f) → AUTO+H(181f) → 1H+M(199f) → 1H(212f) → 1L(269f) → L(290f) → L(301f) → 236H(319f) → 2H+SP(342f)',
+    description: 'AUTO+L(0f) → AUTO+L(13f) → PARRY(28f) → 2L(45f) → M(72f) → AUTO+M(109f) → PARRY(121f) → M(137f) → AUTO+H(181f) → 1H+M(199f) → 1H(212f) → 1L(269f) → L(290f) → L(301f) → 236H(319f) → 2H+SP(342f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'L'], notation: 'AUTO+L', moveName: 'AUTO+L (0f)', x: 0.54, y: 0.5 },
@@ -10532,7 +10532,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'A.K.I. 214M 雙綠衝 3M 4SP+H (18 擊 · 594f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：214M(0f) → AUTO+M(44f) → 236H(59f) → 214H(122f) → PARRY(173f) → 66(185f) → AUTO+H(201f) → SP(221f) → 3M(266f) → 2L(324f) → 236H(335f) → 214H(395f) → PARRY(445f) → 66(457f) → AUTO+H(476f) → 1H+M(496f) → H(513f) → 4SP+H(594f)',
+    description: '214M(0f) → AUTO+M(44f) → 236H(59f) → 214H(122f) → PARRY(173f) → 66(185f) → AUTO+H(201f) → SP(221f) → 3M(266f) → 2L(324f) → 236H(335f) → 214H(395f) → PARRY(445f) → 66(457f) → AUTO+H(476f) → 1H+M(496f) → H(513f) → 4SP+H(594f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['LEFT', 'M'], motion: '214', notation: '214M', moveName: '214M (0f)', x: 0.54, y: 0.5 },
@@ -10635,7 +10635,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Rashid 5HP 換邊安全飛連段 (5 擊 · 171f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：HP(0f) → 214HK+MK(17f) → 236LP(101f) → 6HK(122f) → 6HK(171f)',
+    description: 'HP(0f) → 214HK+MK(17f) → 236LP(101f) → 6HK(122f) → 6HK(171f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: 'HP', moveName: 'HP (0f)', x: 0.54, y: 0.5 },
@@ -10671,7 +10671,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Rashid 2LK 236MP 綠衝 6HP (7 擊 · 155f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2LK(0f) → LP(19f) → LP(32f) → 236MP(49f) → PARRY(128f) → 66(140f) → 6HP(155f)',
+    description: '2LK(0f) → LP(19f) → LP(32f) → 236MP(49f) → PARRY(128f) → 66(140f) → 6HP(155f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -10712,7 +10712,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Rashid 2LK 基礎輕攻擊連段 236LP (4 擊 · 51f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(14f) → LP(39f) → 236LP(51f)',
+    description: '2LK(0f) → 2LP(14f) → LP(39f) → 236LP(51f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -10740,7 +10740,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Rashid 5M 安全飛連段 (8 擊 · 266f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：M(0f) → AUTO+M(36f) → AUTO+M(48f) → 236L(121f) → 6M(178f) → 214L(191f) → 214H(209f) → 4H(266f)',
+    description: 'M(0f) → AUTO+M(36f) → AUTO+M(48f) → 236L(121f) → 6M(178f) → 214L(191f) → 214H(209f) → 4H(266f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['M'], notation: 'M', moveName: 'M (0f)', x: 0.54, y: 0.5 },
@@ -10785,7 +10785,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Rashid AUTO+M 214H 6H 236H (5 擊 · 118f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：AUTO+M(0f) → AUTO+M(13f) → 214H(43f) → 6H(80f) → 236H(118f)',
+    description: 'AUTO+M(0f) → AUTO+M(13f) → 214H(43f) → 6H(80f) → 236H(118f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'M'], notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -10822,7 +10822,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Rashid 2M 雙綠衝 2SP+H (9 擊 · 203f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(14f) → AUTO+M(30f) → AUTO+H(69f) → PARRY(81f) → 2H(104f) → AUTO+H(155f) → 1SP(172f) → 2SP+H(203f)',
+    description: '2M(0f) → PARRY(14f) → AUTO+M(30f) → AUTO+H(69f) → PARRY(81f) → 2H(104f) → AUTO+H(155f) → 1SP(172f) → 2SP+H(203f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -10872,7 +10872,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Rashid 2M 綠衝 2SP 蓄力旋風 (6 擊 · 162f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(13f) → AUTO+M(32f) → AUTO+H(68f) → 2SP(88f) → SP(162f)',
+    description: '2M(0f) → PARRY(13f) → AUTO+M(32f) → AUTO+H(68f) → 2SP(88f) → SP(162f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -10909,7 +10909,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Rashid 2L 基礎輕攻擊連段 236L (4 擊 · 51f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2L(0f) → L(17f) → L(29f) → 236L(51f)',
+    description: '2L(0f) → L(17f) → L(29f) → 236L(51f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'L'], notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.5 },
@@ -10937,7 +10937,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Rashid 2L 236M 綠衝 6H (7 擊 · 155f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2L(0f) → L(17f) → L(35f) → 236M(50f) → PARRY(130f) → 66(141f) → 6H(155f)',
+    description: '2L(0f) → L(17f) → L(35f) → 236M(50f) → PARRY(130f) → 66(141f) → 6H(155f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'L'], notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.5 },
@@ -10978,7 +10978,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Rashid 2M 綠衝 2SP 前衝投 (7 擊 · 213f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(11f) → AUTO+M(30f) → AUTO+H(68f) → 2SP(84f) → 66(162f) → L+M(213f)',
+    description: '2M(0f) → PARRY(11f) → AUTO+M(30f) → AUTO+H(68f) → 2SP(84f) → 66(162f) → L+M(213f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -11019,7 +11019,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Ed AUTO+M 214H 安全跳壓制 (5 擊 · 151f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：AUTO+M(0f) → AUTO+M(12f) → 214H(42f) → 9(108f) → 4AUTO+H(151f)',
+    description: 'AUTO+M(0f) → AUTO+M(12f) → 214H(42f) → 9(108f) → 4AUTO+H(151f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'M'], notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -11055,7 +11055,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Ed AUTO+H OD236 SP 綠衝 214H (10 擊 · 255f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → 236H+M(19f) → SP(86f) → 6L(106f) → PARRY(148f) → 66(159f) → AUTO+H(174f) → H+M(197f) → 6H(214f) → 214H(255f)',
+    description: 'AUTO+H(0f) → 236H+M(19f) → SP(86f) → 6L(106f) → PARRY(148f) → 66(159f) → AUTO+H(174f) → H+M(197f) → 6H(214f) → 214H(255f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -11117,7 +11117,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Ed 2L 214M 6H+M AUTO+M (6 擊 · 143f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2L(0f) → L(17f) → L(29f) → 214M(48f) → 6H+M(112f) → AUTO+M(143f)',
+    description: '2L(0f) → L(17f) → L(29f) → 214M(48f) → 6H+M(112f) → AUTO+M(143f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'L'], notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.5 },
@@ -11157,7 +11157,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Ed AUTO+H OD236 214H 雙前衝壓制 (9 擊 · 285f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → 236M+H(17f) → 236H(87f) → 6M+H(110f) → 6H(130f) → 214H(170f) → 66(245f) → 66(263f) → AUTO+L(285f)',
+    description: 'AUTO+H(0f) → 236M+H(17f) → 236H(87f) → 6M+H(110f) → 6H(130f) → 214H(170f) → 66(245f) → 66(263f) → AUTO+L(285f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -11218,7 +11218,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Ed 5L 基礎輕攻擊連打投 (4 擊 · 60f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：L(0f) → L(14f) → L(27f) → M+L(60f)',
+    description: 'L(0f) → L(14f) → L(27f) → M+L(60f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['L'], notation: 'L', moveName: 'L (0f)', x: 0.54, y: 0.5 },
@@ -11243,7 +11243,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Akuma 2LK 236HP 綠衝 6HP (8 擊 · 162f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(17f) → 2LP(31f) → LK(58f) → 236HP(73f) → 6PARRY(133f) → 66(143f) → 6HP(162f)',
+    description: '2LK(0f) → 2LP(17f) → 2LP(31f) → LK(58f) → 236HP(73f) → 6PARRY(133f) → 66(143f) → 6HP(162f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -11287,7 +11287,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Akuma 2LK 基礎輕攻擊 623HP 前衝 (5 擊 · 152f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(15f) → LK(39f) → 623HP(55f) → 66(152f)',
+    description: '2LK(0f) → 2LP(15f) → LK(39f) → 623HP(55f) → 66(152f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -11323,7 +11323,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Akuma 2LK 基礎輕攻擊 214LP 派生 (5 擊 · 80f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(15f) → LK(42f) → 214LP(55f) → 6LP(80f)',
+    description: '2LK(0f) → 2LP(15f) → LK(42f) → 214LP(55f) → 6LP(80f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -11356,7 +11356,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Akuma 2MP 雙綠衝 SA3 (11 擊 · 252f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2MP(0f) → PARRY(12f) → 6HP(29f) → 2HP(82f) → PARRY(94f) → 6HP(111f) → 2HP(169f) → 214HP(185f) → 66(202f) → 6HP(219f) → 236236LK(252f)',
+    description: '2MP(0f) → PARRY(12f) → 6HP(29f) → 2HP(82f) → PARRY(94f) → 6HP(111f) → 2HP(169f) → 214HP(185f) → 66(202f) → 6HP(219f) → 236236LK(252f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MP'], notation: '2MP', moveName: '2MP (0f)', x: 0.54, y: 0.5 },
@@ -11421,7 +11421,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Akuma 2MP 綠衝 214HK 綠衝壓制 (9 擊 · 254f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2MP(0f) → PARRY(12f) → 6HP(29f) → 2HP(82f) → 214HK(97f) → 66(214f) → 6PARRY(226f) → 66(235f) → 2MP(254f)',
+    description: '2MP(0f) → PARRY(12f) → 6HP(29f) → 2HP(82f) → 214HK(97f) → 66(214f) → 6PARRY(226f) → 66(235f) → 2MP(254f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MP'], notation: '2MP', moveName: '2MP (0f)', x: 0.54, y: 0.5 },
@@ -11472,7 +11472,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Akuma 2MK 綠衝 214LK 623HP 前衝 (7 擊 · 227f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2MK(0f) → PARRY(13f) → 2MP(31f) → 2HP(67f) → 214LK(82f) → 623HP(137f) → 66(227f)',
+    description: '2MK(0f) → PARRY(13f) → 2MP(31f) → 2HP(67f) → 214LK(82f) → 623HP(137f) → 66(227f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MK'], notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.5 },
@@ -11518,7 +11518,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Akuma [角落] 2HP OD214PP 蓄力火球 623LP (7 擊 · 284f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2HP(0f) → 214HP+MP(17f) → 6HP(45f) → 4HK(112f) → LP(133f) → 214MK(202f) → 623LP(284f)',
+    description: '2HP(0f) → 214HP+MP(17f) → 6HP(45f) → 4HK(112f) → LP(133f) → 214MK(202f) → 623LP(284f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -11572,7 +11572,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Akuma [角落] 2HP OD214PP 623LP SA3 (7 擊 · 200f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2HP(0f) → 214HP+MP(15f) → 6HP(42f) → 2HP(112f) → 236LP(129f) → 623LP(186f) → 236236LK(200f)',
+    description: '2HP(0f) → 214HP+MP(15f) → 6HP(42f) → 2HP(112f) → 236LP(129f) → 623LP(186f) → 236236LK(200f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -11627,7 +11627,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Akuma [角落] 2HP OD214PP 中段壓持續 (10 擊 · 406f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2HP(0f) → 214HP+MP(16f) → 6HP(39f) → 4HK(115f) → MP+LP(134f) → 214MK(194f) → 623LP(275f) → 2LP(336f) → 6MP(349f) → 2LP(406f)',
+    description: '2HP(0f) → 214HP+MP(16f) → 6HP(39f) → 4HK(115f) → MP+LP(134f) → 214MK(194f) → 623LP(275f) → 2LP(336f) → 6MP(349f) → 2LP(406f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -11697,7 +11697,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Akuma [角落] 2HP OD214PP 5MK消費普通摔壓起身 (8 擊 · 322f)',
     difficulty: 'Advanced',
-    description: '角落壓制後 5MK 消費接普通摔壓起身｜實機 60fps 錄製：2HP(0f) → 214HP+MP(16f) → 6HP(43f) → 2HP(116f) → 236LP(130f) → 214HK(185f) → MK(298f) → LP+LK(322f)',
+    description: '角落壓制後 5MK 消費接普通摔壓起身｜2HP(0f) → 214HP+MP(16f) → 6HP(43f) → 2HP(116f) → 236LP(130f) → 214HK(185f) → MK(298f) → LP+LK(322f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -11749,7 +11749,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Akuma [角落] 2MP 5MK消費 一瞬千擊 (需CA狀態) (7 擊 · 135f)',
     difficulty: 'Advanced',
-    description: '角落 5MK 消費接一瞬千擊（需要 CA 狀態）｜實機 60fps 錄製：2MP(0f) → 214MP(14f) → 6MP(39f) → MK(106f) → LP(118f) → LK+LP+HP(128f) → 6HP+LK(135f)',
+    description: '角落 5MK 消費接一瞬千擊（需要 CA 狀態）｜2MP(0f) → 214MP(14f) → 6MP(39f) → MK(106f) → LP(118f) → LK+LP+HP(128f) → 6HP+LK(135f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MP'], notation: '2MP', moveName: '2MP (0f)', x: 0.54, y: 0.5 },
@@ -11793,7 +11793,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Akuma [角落] 2HP OD214PP SA2 5MK消費摔壓起身 (9 擊 · 657f)',
     difficulty: 'Advanced',
-    description: '角落 SA2 連段後續 5MK 消費接普通摔壓起身｜實機 60fps 錄製：2HP(0f) → 214MP+HP(14f) → 6HP(39f) → 214214MP(83f) → 4HK(409f) → 214MK(424f) → 214HK(513f) → MK(629f) → LP+LK(657f)',
+    description: '角落 SA2 連段後續 5MK 消費接普通摔壓起身｜2HP(0f) → 214MP+HP(14f) → 6HP(39f) → 214214MP(83f) → 4HK(409f) → 214MK(424f) → 214HK(513f) → MK(629f) → LP+LK(657f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'HP'], notation: '2HP', moveName: '2HP (0f)', x: 0.54, y: 0.5 },
@@ -11858,7 +11858,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Akuma 5H 全資源+大招 (10 擊 · 255f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：H(0f) → PARRY(14f) → 6H(35f) → 2H(90f) → PARRY(100f) → 6H(123f) → 2H(177f) → 3SP(191f) → 3H(225f) → 2SP+H(255f)',
+    description: 'H(0f) → PARRY(14f) → 6H(35f) → 2H(90f) → PARRY(100f) → 6H(123f) → 2H(177f) → 3SP(191f) → 3H(225f) → 2SP+H(255f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['H'], notation: 'H', moveName: 'H (0f)', x: 0.54, y: 0.5 },
@@ -11912,7 +11912,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Akuma 2L 1SP 236L 2SP+H (6 擊 · 98f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2L(0f) → 2L(13f) → AUTO+L(39f) → 1SP(52f) → 236L(78f) → 2SP+H(98f)',
+    description: '2L(0f) → 2L(13f) → AUTO+L(39f) → 1SP(52f) → 236L(78f) → 2SP+H(98f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'L'], notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.5 },
@@ -11953,7 +11953,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Akuma 2L 基礎輕攻擊 1SP 投 (4 擊 · 80f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2L(0f) → 2L(11f) → 1SP(29f) → M+L(80f)',
+    description: '2L(0f) → 2L(11f) → 1SP(29f) → M+L(80f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'L'], notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.5 },
@@ -11981,7 +11981,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Akuma 2L 基礎輕攻擊 1SP 236L (5 擊 · 82f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2L(0f) → 2L(13f) → AUTO+L(39f) → 1SP(51f) → 236L(82f)',
+    description: '2L(0f) → 2L(13f) → AUTO+L(39f) → 1SP(51f) → 236L(82f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'L'], notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.5 },
@@ -12016,7 +12016,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Akuma 2L 基礎輕攻擊連段 (4 擊 · 52f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2L(0f) → 2L(13f) → AUTO+L(39f) → AUTO+L(52f)',
+    description: '2L(0f) → 2L(13f) → AUTO+L(39f) → AUTO+L(52f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'L'], notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.5 },
@@ -12042,7 +12042,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Akuma AUTO+H 綠衝 3SP 雙前衝投 (10 擊 · 309f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → AUTO+H(59f) → PARRY(71f) → 6H(92f) → 2H(148f) → 3SP(162f) → 6H(201f) → 66(265f) → 66(284f) → 6M+L(309f)',
+    description: 'AUTO+H(0f) → AUTO+H(59f) → PARRY(71f) → 6H(92f) → 2H(148f) → 3SP(162f) → 6H(201f) → 66(265f) → 66(284f) → 6M+L(309f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -12095,7 +12095,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Akuma 2M 綠衝 5H AUTO+M 214H (6 擊 · 115f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(14f) → H(27f) → AUTO+M(79f) → AUTO+M(91f) → 214H(115f)',
+    description: '2M(0f) → PARRY(14f) → H(27f) → AUTO+M(79f) → AUTO+M(91f) → 214H(115f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -12131,7 +12131,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Akuma 2M 綠衝 AUTO+M 214H 前衝 (6 擊 · 202f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(13f) → AUTO+M(32f) → 2H(68f) → 214H(84f) → 66(202f)',
+    description: '2M(0f) → PARRY(13f) → AUTO+M(32f) → 2H(68f) → 214H(84f) → 66(202f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -12170,7 +12170,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Akuma [角落] 2H 1AUTO+SP 236L 236H (6 擊 · 185f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2H(0f) → 1AUTO+SP(15f) → 236H(40f) → 2H(110f) → 236L(130f) → 236H(185f)',
+    description: '2H(0f) → 1AUTO+SP(15f) → 236H(40f) → 2H(110f) → 236L(130f) → 236H(185f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'H'], notation: '2H', moveName: '2H (0f)', x: 0.54, y: 0.5 },
@@ -12214,7 +12214,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Akuma [角落] 2H 1AUTO+SP SA2連段 (7 擊 · 511f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2H(0f) → 1AUTO+SP(14f) → 6H(39f) → SA2(214214M / 4SP+H)(83f) → 4H(408f) → 214M(426f) → 214H(511f)',
+    description: '2H(0f) → 1AUTO+SP(14f) → 6H(39f) → SA2(214214M / 4SP+H)(83f) → 4H(408f) → 214M(426f) → 214H(511f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'H'], notation: '2H', moveName: '2H (0f)', x: 0.54, y: 0.5 },
@@ -12271,7 +12271,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Akuma 2M 綠衝 AUTO+M 3SP 6H (6 擊 · 116f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(11f) → AUTO+M(29f) → 2H(68f) → 3SP(84f) → 6H(116f)',
+    description: '2M(0f) → PARRY(11f) → AUTO+M(29f) → 2H(68f) → 3SP(84f) → 6H(116f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -12308,7 +12308,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'M. Bison 2MK 236MK 1LK 1LP 236LK (5 擊 · 114f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2MK(0f) → 236MK(17f) → 1LK(82f) → 1LP(96f) → 236LK(114f)',
+    description: '2MK(0f) → 236MK(17f) → 1LK(82f) → 1LP(96f) → 236LK(114f)',
     tags: ['實機錄製', '60fps原味', '2MK起手'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MK'], notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.5 },
@@ -12343,7 +12343,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'M. Bison 5MP 雙綠衝 [4]6HP SA3 (10 擊 · 253f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：MP(0f) → 2MP(34f) → PARRY(47f) → MP(64f) → 2HP(105f) → PARRY(119f) → HK(138f) → 4HK(196f) → [4]6HP(216f) → 236236HP(253f)',
+    description: 'MP(0f) → 2MP(34f) → PARRY(47f) → MP(64f) → 2HP(105f) → PARRY(119f) → HK(138f) → 4HK(196f) → [4]6HP(216f) → 236236HP(253f)',
     tags: ['實機錄製', '60fps原味', '雙綠衝', 'SA3'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -12399,7 +12399,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'M. Bison 2MK 綠衝 5MP 2HP 214HP (5 擊 · 88f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2MK(0f) → PARRY(11f) → MP(28f) → 2HP(71f) → 214HP(88f)',
+    description: '2MK(0f) → PARRY(11f) → MP(28f) → 2HP(71f) → 214HP(88f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush', '2MK起手'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MK'], notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.5 },
@@ -12430,7 +12430,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'M. Bison 2MK 綠衝 214HP 生綠衝炸彈長連段 (13 擊 · 578f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2MK(0f) → PARRY(12f) → MP(29f) → 2HP(72f) → 214HP(89f) → PARRY(178f) → 66(190f) → 6HP(202f) → 1MP(267f) → [4]6HP+MP(282f) → 66(501f) → 6HP(521f) → 214LP(578f)',
+    description: '2MK(0f) → PARRY(12f) → MP(29f) → 2HP(72f) → 214HP(89f) → PARRY(178f) → 66(190f) → 6HP(202f) → 1MP(267f) → [4]6HP+MP(282f) → 66(501f) → 6HP(521f) → 214LP(578f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush', '長連段'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MK'], notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.5 },
@@ -12505,7 +12505,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'M. Bison 1LK 雙綠衝 [4]6HP SA3 (13 擊 · 261f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：1LK(0f) → 1LP(15f) → 1LP(28f) → PARRY(47f) → 214LP(65f) → 4MP(94f) → 1MP(130f) → PARRY(140f) → 44(148f) → 4MP(161f) → 1HP(202f) → [4]6HP(221f) → 236236HP(261f)',
+    description: '1LK(0f) → 1LP(15f) → 1LP(28f) → PARRY(47f) → 214LP(65f) → 4MP(94f) → 1MP(130f) → PARRY(140f) → 44(148f) → 4MP(161f) → 1HP(202f) → [4]6HP(221f) → 236236HP(261f)',
     tags: ['實機錄製', '60fps原味', '雙綠衝', 'SA3'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LEFT', 'LK'], notation: '1LK', moveName: '1LK (0f)', x: 0.54, y: 0.5 },
@@ -12575,7 +12575,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'M. Bison 1LK 1LP 5LK 214LP (4 擊 · 55f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：1LK(0f) → 1LP(14f) → LK(42f) → 214LP(55f)',
+    description: '1LK(0f) → 1LP(14f) → LK(42f) → 214LP(55f)',
     tags: ['實機錄製', '60fps原味', '輕攻擊確認'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LEFT', 'LK'], notation: '1LK', moveName: '1LK (0f)', x: 0.54, y: 0.5 },
@@ -12604,7 +12604,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'M. Bison 1LK 1LP 1LP 236LK 5HK (5 擊 · 130f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：1LK(0f) → 1LP(15f) → 1LP(30f) → 236LK(51f) → HK(130f)',
+    description: '1LK(0f) → 1LP(15f) → 1LP(30f) → 236LK(51f) → HK(130f)',
     tags: ['實機錄製', '60fps原味', '輕攻擊確認'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LEFT', 'LK'], notation: '1LK', moveName: '1LK (0f)', x: 0.54, y: 0.5 },
@@ -12637,7 +12637,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'M. Bison 1LK 1LP 1LP [4]6LK 摔 (5 擊 · 114f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：1LK(0f) → 1LP(19f) → 1LP(32f) → [4]6LK(54f) → LK+LP(114f)',
+    description: '1LK(0f) → 1LP(19f) → 1LP(32f) → [4]6LK(54f) → LK+LP(114f)',
     tags: ['實機錄製', '60fps原味', '壓起身'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LEFT', 'LK'], notation: '1LK', moveName: '1LK (0f)', x: 0.54, y: 0.5 },
@@ -12669,7 +12669,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'M. Bison 1LK 1LP 4LP [4]6LP 前衝摔 (6 擊 · 139f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：1LK(0f) → 1LP(15f) → 4LP(42f) → [4]6LP(54f) → 66(116f) → 6LK+LP(139f)',
+    description: '1LK(0f) → 1LP(15f) → 4LP(42f) → [4]6LP(54f) → 66(116f) → 6LK+LP(139f)',
     tags: ['實機錄製', '60fps原味', '壓起身'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LEFT', 'LK'], notation: '1LK', moveName: '1LK (0f)', x: 0.54, y: 0.5 },
@@ -12706,7 +12706,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'M. Bison AUTO+H 236M 摔 (4 擊 · 116f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：AUTO+H(0f) → AUTO+H(21f) → 236M(53f) → M+L(116f)',
+    description: 'AUTO+H(0f) → AUTO+H(21f) → 236M(53f) → M+L(116f)',
     tags: ['實機錄製', '60fps原味', '壓起身'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -12736,7 +12736,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'M. Bison AUTO+H×3 214H 生綠衝 6H (7 擊 · 270f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → AUTO+H(27f) → AUTO+H(53f) → 214H(161f) → PARRY(247f) → 66(258f) → 6H(270f)',
+    description: 'AUTO+H(0f) → AUTO+H(27f) → AUTO+H(53f) → 214H(161f) → PARRY(247f) → 66(258f) → 6H(270f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -12775,7 +12775,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'M. Bison AUTO+M OD236 214H 生綠衝 6H (6 擊 · 225f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+M(0f) → 236H+M(15f) → 214H(122f) → PARRY(208f) → 66(217f) → 6H(225f)',
+    description: 'AUTO+M(0f) → 236H+M(15f) → 214H(122f) → PARRY(208f) → 66(217f) → 6H(225f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'M'], notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -12817,7 +12817,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'M. Bison 1AUTO+L 1L 1L [4]6L (4 擊 · 50f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：1AUTO+L(0f) → 1L(18f) → 1L(32f) → [4]6L(50f)',
+    description: '1AUTO+L(0f) → 1L(18f) → 1L(32f) → [4]6L(50f)',
     tags: ['實機錄製', '60fps原味', '輕攻擊確認'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LEFT', 'AUTO', 'L'], notation: '1AUTO+L', moveName: '1AUTO+L (0f)', x: 0.54, y: 0.5 },
@@ -12845,7 +12845,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'M. Bison 2M 綠衝 214H 生綠衝 OD[4]6 (10 擊 · 282f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(12f) → AUTO+H(31f) → 2H(72f) → 214H(86f) → PARRY(180f) → 66(191f) → 6H(198f) → 1AUTO+M(267f) → [4]6H+M(282f)',
+    description: '2M(0f) → PARRY(12f) → AUTO+H(31f) → 2H(72f) → 214H(86f) → PARRY(180f) → 66(191f) → 6H(198f) → 1AUTO+M(267f) → [4]6H+M(282f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush', '2M起手'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -12906,7 +12906,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Terry [角落] 2MK 綠衝 236HK 循環連段 (10 擊 · 357f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2MK(0f) → PARRY(11f) → 2MP(30f) → HP(69f) → 236HK(82f) → 236HP(118f) → 236MK(178f) → 236LP(239f) → 236HP(303f) → HP(357f)',
+    description: '2MK(0f) → PARRY(11f) → 2MP(30f) → HP(69f) → 236HK(82f) → 236HP(118f) → 236MK(178f) → 236LP(239f) → 236HP(303f) → HP(357f)',
     tags: ['實機錄製', '60fps原味', '角落限定', 'Drive Rush'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MK'], notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.5 },
@@ -12971,7 +12971,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Terry [角落] 5MP 綠衝 SA2三段連段 (16 擊 · 447f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：MP(0f) → PARRY(11f) → 2HP(30f) → 236HK(47f) → 236HP(83f) → PARRY(133f) → 66(144f) → 2MP(159f) → 623MK(175f) → 6PARRY(233f) → 66(243f) → LP(255f) → 236MK(273f) → 214214MP(334f) → MP+HP(408f) → HP+MP(447f)',
+    description: 'MP(0f) → PARRY(11f) → 2HP(30f) → 236HK(47f) → 236HP(83f) → PARRY(133f) → 66(144f) → 2MP(159f) → 623MK(175f) → 6PARRY(233f) → 66(243f) → LP(255f) → 236MK(273f) → 214214MP(334f) → MP+HP(408f) → HP+MP(447f)',
     tags: ['實機錄製', '60fps原味', '角落限定', 'SA2', '長連段'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -13062,7 +13062,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Terry [角落] 5HP 綠衝 236HK 循環連段 (8 擊 · 283f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HP(0f) → PARRY(26f) → 2HP(43f) → 236HK(69f) → 236HP(107f) → 236MK(157f) → 236LP(217f) → 236HP(283f)',
+    description: 'HP(0f) → PARRY(26f) → 2HP(43f) → 236HK(69f) → 236HP(107f) → 236MK(157f) → 236LP(217f) → 236HP(283f)',
     tags: ['實機錄製', '60fps原味', '角落限定', 'Drive Rush'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: 'HP', moveName: 'HP (0f)', x: 0.54, y: 0.5 },
@@ -13117,7 +13117,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Terry 2LK 雙綠衝 236HK SA3 (12 擊 · 332f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(16f) → 2LP(29f) → PARRY(48f) → 2LP(64f) → 2HP(95f) → PARRY(109f) → HP(125f) → 236HK(161f) → 214HK(212f) → 214LP(288f) → 236236HP(332f)',
+    description: '2LK(0f) → 2LP(16f) → 2LP(29f) → PARRY(48f) → 2LP(64f) → 2HP(95f) → PARRY(109f) → HP(125f) → 236HK(161f) → 214HK(212f) → 214LP(288f) → 236236HP(332f)',
     tags: ['實機錄製', '60fps原味', '雙綠衝', 'SA3'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -13187,7 +13187,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Terry 2MK 2HK 214LK 前衝摔 (5 擊 · 113f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2MK(0f) → 2HK(13f) → 214LK(34f) → 66(96f) → 6LK+LP(113f)',
+    description: '2MK(0f) → 2HK(13f) → 214LK(34f) → 66(96f) → 6LK+LP(113f)',
     tags: ['實機錄製', '60fps原味', '壓起身'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MK'], notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.5 },
@@ -13219,7 +13219,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Terry 2MK 綠衝 236HK 214HK 生綠衝 6HP (10 擊 · 319f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2MK(0f) → PARRY(14f) → 2MP(33f) → HP(67f) → 236HK(85f) → 214HK(139f) → 236HP(216f) → PARRY(292f) → 66(305f) → 6HP(319f)',
+    description: '2MK(0f) → PARRY(14f) → 2MP(33f) → HP(67f) → 236HK(85f) → 214HK(139f) → 236HP(216f) → PARRY(292f) → 66(305f) → 6HP(319f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush', '2MK起手'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'MK'], notation: '2MK', moveName: '2MK (0f)', x: 0.54, y: 0.5 },
@@ -13277,7 +13277,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Terry 5MP 綠衝 236HK 214HK 236HP (7 擊 · 217f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：MP(0f) → PARRY(12f) → 2MP(33f) → HP(66f) → 236HK(84f) → 214HK(139f) → 236HP(217f)',
+    description: 'MP(0f) → PARRY(12f) → 2MP(33f) → HP(66f) → 236HK(84f) → 214HK(139f) → 236HP(217f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MP'], notation: 'MP', moveName: 'MP (0f)', x: 0.54, y: 0.5 },
@@ -13323,7 +13323,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Terry 5MK 236LK 雙綠衝超長循環 SA3 (21 擊 · 519f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：MK(0f) → LK(38f) → 236LK(52f) → LP(105f) → LP(117f) → PARRY(130f) → LP(147f) → 2MP(177f) → LK(211f) → 236LK(223f) → LP(278f) → LP(291f) → PARRY(304f) → LP(321f) → 2MP(348f) → LK(382f) → 236LK(395f) → LP(452f) → LP(463f) → 214LP(479f) → 236236HP(519f)',
+    description: 'MK(0f) → LK(38f) → 236LK(52f) → LP(105f) → LP(117f) → PARRY(130f) → LP(147f) → 2MP(177f) → LK(211f) → 236LK(223f) → LP(278f) → LP(291f) → PARRY(304f) → LP(321f) → 2MP(348f) → LK(382f) → 236LK(395f) → LP(452f) → LP(463f) → 214LP(479f) → 236236HP(519f)',
     tags: ['實機錄製', '60fps原味', '雙綠衝', '長連段', 'SA3'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['MK'], notation: 'MK', moveName: 'MK (0f)', x: 0.54, y: 0.5 },
@@ -13425,7 +13425,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Terry 2LK 2LP 214MP 生綠衝 6HP (7 擊 · 121f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(19f) → 2LP(34f) → 214MP(50f) → PARRY(102f) → 66(113f) → 6HP(121f)',
+    description: '2LK(0f) → 2LP(19f) → 2LP(34f) → 214MP(50f) → PARRY(102f) → 66(113f) → 6HP(121f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -13462,7 +13462,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Terry 2LK 2LP 2LP 214LP (4 擊 · 50f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2LK(0f) → 2LP(14f) → 2LP(31f) → 214LP(50f)',
+    description: '2LK(0f) → 2LP(14f) → 2LP(31f) → 214LP(50f)',
     tags: ['實機錄製', '60fps原味', '輕攻擊確認'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LK'], notation: '2LK', moveName: '2LK (0f)', x: 0.54, y: 0.5 },
@@ -13488,7 +13488,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Terry 5HP 236HK 236LP 生綠衝 5MP 5HK (8 擊 · 208f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：HP(0f) → 236HK(16f) → 236LP(67f) → PARRY(98f) → 66(110f) → MP(125f) → HK(147f) → HK(208f)',
+    description: 'HP(0f) → 236HK(16f) → 236LP(67f) → PARRY(98f) → 66(110f) → MP(125f) → HK(147f) → HK(208f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: 'HP', moveName: 'HP (0f)', x: 0.54, y: 0.5 },
@@ -13534,7 +13534,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'classic',
     title: 'Terry 5HP 5HK 214HK 236HP (4 擊 · 143f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：HP(0f) → HK(16f) → 214HK(69f) → 236HP(143f)',
+    description: 'HP(0f) → HK(16f) → 214HK(69f) → 236HP(143f)',
     tags: ['實機錄製', '60fps原味'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['HP'], notation: 'HP', moveName: 'HP (0f)', x: 0.54, y: 0.5 },
@@ -13570,7 +13570,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Terry AUTO+L×3 前衝摔 (5 擊 · 120f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：AUTO+L(0f) → AUTO+L(13f) → AUTO+L(28f) → 66(93f) → 6L+M(120f)',
+    description: 'AUTO+L(0f) → AUTO+L(13f) → AUTO+L(28f) → 66(93f) → 6L+M(120f)',
     tags: ['實機錄製', '60fps原味', '壓起身'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'L'], notation: 'AUTO+L', moveName: 'AUTO+L (0f)', x: 0.54, y: 0.5 },
@@ -13600,7 +13600,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Terry AUTO+M 綠衝 AUTO+H連段 (7 擊 · 206f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+M(0f) → PARRY(15f) → AUTO+M(34f) → AUTO+H(68f) → AUTO+H(80f) → AUTO+H(117f) → AUTO+H(206f)',
+    description: 'AUTO+M(0f) → PARRY(15f) → AUTO+M(34f) → AUTO+H(68f) → AUTO+H(80f) → AUTO+H(117f) → AUTO+H(206f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'M'], notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -13635,7 +13635,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Terry 2M 綠衝 AUTO+H連段 (7 擊 · 211f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → PARRY(12f) → AUTO+M(30f) → AUTO+H(68f) → AUTO+H(84f) → AUTO+H(119f) → AUTO+H(211f)',
+    description: '2M(0f) → PARRY(12f) → AUTO+M(30f) → AUTO+H(68f) → AUTO+H(84f) → AUTO+H(119f) → AUTO+H(211f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush', '2M起手'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -13669,8 +13669,8 @@ export const BUILTIN_COMBOS: ComboData[] = [
     characterName: 'Terry',
     mode: 'modern',
     title: 'Terry 2M 2M 4AUTO+SP 236H (4 擊 · 99f)',
-    difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2M(0f) → 2M(12f) → 4AUTO+SP(35f) → 236H(99f)',
+    difficulty: 'Beginner',
+    description: '2M(0f) → 2M(12f) → 4AUTO+SP(35f) → 236H(99f)',
     tags: ['實機錄製', '60fps原味', '2M起手'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -13702,7 +13702,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Terry AUTO+M 綠衝 214L 前衝摔 (9 擊 · 297f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+M(0f) → PARRY(15f) → AUTO+M(33f) → AUTO+H(68f) → AUTO+H(79f) → AUTO+H(132f) → 214L(207f) → 66(272f) → 6M+L(297f)',
+    description: 'AUTO+M(0f) → PARRY(15f) → AUTO+M(33f) → AUTO+H(68f) → AUTO+H(79f) → AUTO+H(132f) → 214L(207f) → 66(272f) → 6M+L(297f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush', '壓起身'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'M'], notation: 'AUTO+M', moveName: 'AUTO+M (0f)', x: 0.54, y: 0.5 },
@@ -13750,7 +13750,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Terry [角落] AUTO+H 236H 2SP 623L 236H (6 擊 · 231f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+H(0f) → AUTO+H(11f) → 236H(51f) → 2SP(110f) → 623L(169f) → 236H(231f)',
+    description: 'AUTO+H(0f) → AUTO+H(11f) → 236H(51f) → 2SP(110f) → 623L(169f) → 236H(231f)',
     tags: ['實機錄製', '60fps原味', '角落限定'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'H'], notation: 'AUTO+H', moveName: 'AUTO+H (0f)', x: 0.54, y: 0.5 },
@@ -13792,7 +13792,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Terry [角落] 5M 綠衝 SA2三段連段 (16 擊 · 450f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：M(0f) → PARRY(12f) → 2H(31f) → 3SP(49f) → 236H(90f) → PARRY(137f) → 66(148f) → AUTO+M(161f) → 2SP(179f) → PARRY(237f) → 66(246f) → L(255f) → 2SP(271f) → SA2(214214M / 4SP+H)(330f) → M+H(418f) → M+H(450f)',
+    description: 'M(0f) → PARRY(12f) → 2H(31f) → 3SP(49f) → 236H(90f) → PARRY(137f) → 66(148f) → AUTO+M(161f) → 2SP(179f) → PARRY(237f) → 66(246f) → L(255f) → 2SP(271f) → SA2(214214M / 4SP+H)(330f) → M+H(418f) → M+H(450f)',
     tags: ['實機錄製', '60fps原味', '角落限定', 'SA2', '長連段'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['M'], notation: 'M', moveName: 'M (0f)', x: 0.54, y: 0.5 },
@@ -13882,7 +13882,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Jamie AUTO+L 236L 前衝生綠衝 2L 摔 (10 擊 · 201f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：AUTO+L(0f) → AUTO+L(13f) → 236L(34f) → 6L(60f) → 6L(85f) → 66(137f) → 6PARRY(152f) → 66(161f) → 2L(175f) → L+M(201f)',
+    description: 'AUTO+L(0f) → AUTO+L(13f) → 236L(34f) → 6L(60f) → 6L(85f) → 66(137f) → 6PARRY(152f) → 66(161f) → 2L(175f) → L+M(201f)',
     tags: ['實機錄製', '60fps原味', 'Drive Rush', '壓起身'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['AUTO', 'L'], notation: 'AUTO+L', moveName: 'AUTO+L (0f)', x: 0.54, y: 0.5 },
@@ -13939,7 +13939,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Ryu 1L×3 1SP 安全跳 (6 擊 · 142f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：1L(0f) → 1L(16f) → 1L(32f) → 1SP(50f) → 9(101f) → 4AUTO+H(142f)',
+    description: '1L(0f) → 1L(16f) → 1L(32f) → 1SP(50f) → 9(101f) → 4AUTO+H(142f)',
     tags: ['實機錄製', '60fps原味', '安全跳'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'LEFT', 'L'], notation: '1L', moveName: '1L (0f)', x: 0.54, y: 0.5 },
@@ -13975,7 +13975,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Ryu 2L 2L 5L 6SP (4 擊 · 51f)',
     difficulty: 'Beginner',
-    description: '實機 60fps 錄製：2L(0f) → 2L(17f) → L(34f) → 6SP(51f)',
+    description: '2L(0f) → 2L(17f) → L(34f) → 6SP(51f)',
     tags: ['實機錄製', '60fps原味', '輕攻擊確認'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'L'], notation: '2L', moveName: '2L (0f)', x: 0.54, y: 0.5 },
@@ -14001,7 +14001,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Ryu [場中] 2M 2AUTO+SP 4H 6SP SA3 (5 擊 · 137f)',
     difficulty: 'Intermediate',
-    description: '實機 60fps 錄製：2M(0f) → 2AUTO+SP(12f) → 4H(93f) → 6SP(115f) → 2H+SP(137f)',
+    description: '2M(0f) → 2AUTO+SP(12f) → 4H(93f) → 6SP(115f) → 2H+SP(137f)',
     tags: ['實機錄製', '60fps原味', '場中限定', 'SA3'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },
@@ -14037,7 +14037,7 @@ export const BUILTIN_COMBOS: ComboData[] = [
     mode: 'modern',
     title: 'Ryu [場中] 2M 2AUTO+SP 6H 214L 雙前衝 (6 擊 · 197f)',
     difficulty: 'Advanced',
-    description: '實機 60fps 錄製：2M(0f) → 2AUTO+SP(14f) → 6H(89f) → 214L(114f) → 66(178f) → 66(197f)',
+    description: '2M(0f) → 2AUTO+SP(14f) → 6H(89f) → 214L(114f) → 66(178f) → 66(197f)',
     tags: ['實機錄製', '60fps原味', '場中限定', '壓起身'],
     notes: [
       { id: 'rec-1', frame: 0, buttons: ['DOWN', 'M'], notation: '2M', moveName: '2M (0f)', x: 0.54, y: 0.5 },

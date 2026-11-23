@@ -31,6 +31,7 @@ import { useInputEngine } from '../hooks/useInputEngine';
 import pkg from '../../package.json';
 
 const STORAGE_KEY_SEEN_TUTORIAL = 'fmc_seen_tutorial_v1';
+const STORAGE_KEY_PINNED_CHARS = 'fmc_pinned_chars_v1';
 const CURRENT_VERSION_TAG = `v${pkg.version}`;
 const RELEASES_LATEST_URL = 'https://github.com/maxhorng/Rhythm-Combo-Trainer/releases/latest';
 
@@ -90,6 +91,15 @@ export const MenuView: React.FC<MenuViewProps> = ({
   const t = I18N[lang];
   const [selectedCharId, setSelectedCharId] = useState<string>(selectedCombo.characterId);
   const [charSearch, setCharSearch] = useState('');
+  const [pinnedChars, setPinnedChars] = useState<Set<string>>(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_PINNED_CHARS);
+      if (raw) return new Set(JSON.parse(raw) as string[]);
+    } catch {
+      // ignore
+    }
+    return new Set();
+  });
   const [difficultyFilter, setDifficultyFilter] = useState<'ALL' | ComboData['difficulty']>('ALL');
   const [showKeybinds, setShowKeybinds] = useState(false);
   const [showImport, setShowImport] = useState(false);
@@ -152,16 +162,40 @@ export const MenuView: React.FC<MenuViewProps> = ({
     bindings,
   });
 
+  const togglePinChar = (e: React.MouseEvent, charId: string) => {
+    e.stopPropagation();
+    setPinnedChars((prev) => {
+      const next = new Set(prev);
+      if (next.has(charId)) {
+        next.delete(charId);
+      } else {
+        next.add(charId);
+      }
+      try {
+        localStorage.setItem(STORAGE_KEY_PINNED_CHARS, JSON.stringify(Array.from(next)));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
   const filteredCharacters = useMemo(() => {
     const q = charSearch.trim().toLowerCase();
-    if (!q) return CHARACTERS;
-    return CHARACTERS.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) ||
-        c.id.toLowerCase().includes(q) ||
-        c.title.toLowerCase().includes(q)
-    );
-  }, [charSearch]);
+    const list = !q
+      ? CHARACTERS
+      : CHARACTERS.filter(
+          (c) =>
+            c.name.toLowerCase().includes(q) ||
+            c.id.toLowerCase().includes(q) ||
+            c.title.toLowerCase().includes(q)
+        );
+    return [...list].sort((a, b) => {
+      const pa = pinnedChars.has(a.id) ? 0 : 1;
+      const pb = pinnedChars.has(b.id) ? 0 : 1;
+      return pa - pb;
+    });
+  }, [charSearch, pinnedChars]);
 
   const filteredCombos = useMemo(
     () =>
@@ -493,6 +527,40 @@ export const MenuView: React.FC<MenuViewProps> = ({
                       {comboCount}
                     </span>
                   )}
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    title={
+                      pinnedChars.has(char.id)
+                        ? lang === 'en'
+                          ? 'Unpin character'
+                          : '取消釘選角色'
+                        : lang === 'en'
+                        ? 'Pin favorite character'
+                        : '釘選最愛角色'
+                    }
+                    onClick={(e) => togglePinChar(e, char.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        togglePinChar(e as unknown as React.MouseEvent, char.id);
+                      }
+                    }}
+                    style={{
+                      position: 'absolute',
+                      bottom: 3,
+                      right: 5,
+                      fontSize: 13,
+                      lineHeight: 1,
+                      padding: '2px',
+                      cursor: 'pointer',
+                      color: pinnedChars.has(char.id) ? '#facc15' : 'rgba(148, 163, 184, 0.45)',
+                      textShadow: pinnedChars.has(char.id) ? '0 0 8px rgba(250, 204, 21, 0.65)' : undefined,
+                      transition: 'color 0.12s ease',
+                    }}
+                  >
+                    {pinnedChars.has(char.id) ? '★' : '☆'}
+                  </span>
                 </button>
               );
             })}
@@ -674,7 +742,6 @@ export const MenuView: React.FC<MenuViewProps> = ({
                     </span>
                   </div>
                 </div>
-                <p className="combo-desc">{combo.description}</p>
                 <div className="combo-steps">
                   {combo.notes.map((n, idx) => (
                     <React.Fragment key={n.id}>
@@ -702,7 +769,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 <Zap size={15} />
                 <div>
                   <div className="t-title">第一擊觸發啟動（推薦）</div>
-                  <div className="t-sub">按下第一招瞬間開始後續 Osu 節拍</div>
+                  <div className="t-sub">按下第一招瞬間開始後續節拍</div>
                 </div>
               </button>
               <button

@@ -103,7 +103,7 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
       mode,
       title: `${charMeta.name} 實錄連段 (${notes.length} 擊 · ${notes[notes.length - 1].frame}f)`,
       difficulty: notes.length >= 6 ? 'Advanced' : 'Intermediate',
-      description: `實機 60fps 錄製：${notes.map((n) => `${n.notation}(${n.frame}f)`).join(' → ')}`,
+      description: `${notes.map((n) => `${n.notation}(${n.frame}f)`).join(' → ')}`,
       tags: ['實機錄製', '60fps原味'],
       notes,
       inputHistory: history,
