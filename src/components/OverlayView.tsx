@@ -3,12 +3,14 @@ import { ArrowLeft, MousePointerClick, RotateCcw } from 'lucide-react';
 import {
   ActionButtonId,
   ComboData,
+  ComboNote,
   ControlMode,
   DirectionButtonId,
   HitResult,
   JudgmentRank,
   KeyBindingMap,
   MotionType,
+  PlayerSide,
   StartTriggerMode,
 } from '../types/combo';
 import { BUTTON_META } from '../data/bindings';
@@ -22,6 +24,7 @@ interface OverlayViewProps {
   bindings: KeyBindingMap;
   lang: AppLang;
   triggerMode: StartTriggerMode;
+  playerSide: PlayerSide;
   showRecordedInputs: boolean;
   lowPerfMode: boolean;
   isClickThrough: boolean;
@@ -69,6 +72,20 @@ const RANK_COLORS: Record<JudgmentRank, string> = {
   MISS: '#f43f5e',
 };
 
+function mirrorBtn(btn: ActionButtonId, isRight: boolean): ActionButtonId {
+  if (!isRight) return btn;
+  if (btn === 'LEFT') return 'RIGHT';
+  if (btn === 'RIGHT') return 'LEFT';
+  return btn;
+}
+
+function mirrorSet(set: Set<ActionButtonId>, isRight: boolean): Set<ActionButtonId> {
+  if (!isRight) return set;
+  const next = new Set<ActionButtonId>();
+  set.forEach((b) => next.add(mirrorBtn(b, true)));
+  return next;
+}
+
 /**
  * Draws an osu!-style motion slider (236 QCF, 214 QCB, 623 DP) on the LEFT half of the screen.
  */
@@ -81,7 +98,8 @@ function drawMotionSlider(
   progress: number, // 0..1 (1 = hit time)
   color: string,
   seqNum: number,
-  lowPerfMode: boolean
+  lowPerfMode: boolean,
+  mirrored = false
 ) {
   ctx.save();
 
@@ -89,7 +107,7 @@ function drawMotionSlider(
   const slideT = Math.max(0, Math.min(1, (progress - 0.45) / 0.55));
 
   if (motion === '236' || motion === '214') {
-    const isRight = motion === '236';
+    const isRight = mirrored ? motion === '214' : motion === '236';
     // Arc centered at (centerX, centerY - radius * 0.2):
     // 236: starts at Bottom (PI/2) -> curves counter-clockwise to Right (0)
     // 214: starts at Bottom (PI/2) -> curves clockwise to Left (PI)
@@ -185,10 +203,11 @@ function drawMotionSlider(
     ctx.font = '800 12px system-ui, sans-serif';
     ctx.fillText(isRight ? '236 往右四分之一圈' : '214 往左四分之一圈', arcCx, arcCy + radius + 46);
   } else if (motion === '623') {
-    // Z-shaped DP slider: Right (6) -> Down (2) -> Down-Right (3)
-    const p1 = { x: centerX + radius * 0.6, y: centerY - radius * 0.4 };
-    const p2 = { x: centerX - radius * 0.2, y: centerY + radius * 0.45 };
-    const p3 = { x: centerX + radius * 0.65, y: centerY + radius * 0.45 };
+    // Z-shaped DP slider: Right (6) -> Down (2) -> Down-Right (3) (mirrored on 2P side)
+    const sign = mirrored ? -1 : 1;
+    const p1 = { x: centerX + sign * radius * 0.6, y: centerY - radius * 0.4 };
+    const p2 = { x: centerX - sign * radius * 0.2, y: centerY + radius * 0.45 };
+    const p3 = { x: centerX + sign * radius * 0.65, y: centerY + radius * 0.45 };
 
     // Track border
     ctx.beginPath();
@@ -215,9 +234,9 @@ function drawMotionSlider(
     ctx.font = '900 18px system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('→', p1.x, p1.y);
+    ctx.fillText(mirrored ? '←' : '→', p1.x, p1.y);
     ctx.fillText('↓', p2.x, p2.y);
-    ctx.fillText('↘', p3.x, p3.y);
+    ctx.fillText(mirrored ? '↙' : '↘', p3.x, p3.y);
 
     // Slider ball interpolation across 2 segments
     let bx = p1.x;
@@ -329,9 +348,11 @@ function drawMotionSlider(
     ctx.font = '800 12px system-ui, sans-serif';
     ctx.fillText('22 連按兩次下', centerX, botY + 46);
   } else if (motion === '66') {
-    // Forward Dash (66): Left → followed by Right →
-    const leftX = centerX - 48;
-    const rightX = centerX + 48;
+    // Forward Dash (66): Left → followed by Right → (mirrored to ← ← on 2P side)
+    const startX = mirrored ? centerX + 48 : centerX - 48;
+    const endX = mirrored ? centerX - 48 : centerX + 48;
+    const leftX = startX;
+    const rightX = endX;
 
     ctx.beginPath();
     ctx.moveTo(leftX, centerY);
@@ -375,7 +396,7 @@ function drawMotionSlider(
       ctx.font = '900 22px system-ui, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('→', cx, centerY);
+      ctx.fillText(mirrored ? '←' : '→', cx, centerY);
     });
 
     const bx = leftX + (rightX - leftX) * slideT;
@@ -611,17 +632,206 @@ function drawMotionSlider(
   ctx.restore();
 }
 
+function computeNumpadDir(active: Set<ActionButtonId>): string {
+  const up = active.has('UP');
+  const down = active.has('DOWN');
+  const left = active.has('LEFT');
+  const right = active.has('RIGHT');
+  const v = up && !down ? 1 : down && !up ? -1 : 0;
+  const h = right && !left ? 1 : left && !right ? -1 : 0;
+  if (v === -1 && h === -1) return '1';
+  if (v === -1 && h === 0) return '2';
+  if (v === -1 && h === 1) return '3';
+  if (v === 0 && h === -1) return '4';
+  if (v === 0 && h === 1) return '6';
+  if (v === 1 && h === -1) return '7';
+  if (v === 1 && h === 0) return '8';
+  if (v === 1 && h === 1) return '9';
+  return '5';
+}
+
+function diagnoseExecution(
+  note: ComboNote,
+  activeSet: Set<ActionButtonId>,
+  dirHistory: { dir: string; t: number }[],
+  now: number,
+  chargeMs: { back: number; down: number },
+  lang: AppLang
+): string | undefined {
+  const isEn = lang === 'en';
+  const windowMs =
+    note.motion === '360' || note.motion === '720' || note.motion === '4646' ? 680 : 420;
+  const recent = dirHistory.filter((d) => now - d.t <= windowMs);
+  const rawSeq = recent.map((d) => d.dir).join('');
+  const nonNeutral = recent.filter((d) => d.dir !== '5').map((d) => d.dir);
+  let cleanSeq = '';
+  for (const d of nonNeutral) {
+    if (!cleanSeq.endsWith(d)) cleanSeq += d;
+  }
+
+  // 0. Drive Rush (PARRY) direction check: in SF6, holding Down or Back prevents DR cancel!
+  const isDriveRushNote =
+    note.buttons.includes('PARRY') ||
+    note.windowType === 'dr-cancel' ||
+    /^(DR|DRC|綠衝)/i.test(note.notation);
+  if (isDriveRushNote) {
+    const holdingDown = activeSet.has('DOWN');
+    const holdingBack = activeSet.has('LEFT');
+    if (holdingDown && holdingBack) {
+      return isEn
+        ? 'Held Down-Back (1) during DR (release to dash)'
+        : '綠衝時仍按住 ↙ (1)（需放開下/後才能衝出）';
+    }
+    if (holdingDown) {
+      return isEn
+        ? 'Held Down (2) during DR (release Down to dash)'
+        : '綠衝時仍按住 ↓ (2)（需放開下方向才能衝出）';
+    }
+    if (holdingBack) {
+      return isEn
+        ? 'Held Back (4) during DR (cannot hold Back)'
+        : '綠衝時仍按住 ← (4)（不可按後方向）';
+    }
+  }
+
+  // 1. Motion command diagnostics
+  if (note.motion) {
+    const m = note.motion;
+    if (m === '236') {
+      const ok = /2.*3.*6/.test(cleanSeq) || /2.*6/.test(cleanSeq);
+      if (!ok) {
+        if (/2.*3/.test(cleanSeq)) {
+          return isEn ? 'Pressed attack at 23 (missing 6)' : '轉到 23 就按鍵（缺少 6，按太快）';
+        }
+        if (cleanSeq.includes('2')) {
+          return isEn ? 'Only input 2 (missing 3→6)' : '只按到 2（未轉到 6）';
+        }
+        if (cleanSeq.includes('6')) {
+          return isEn ? 'Missing 2 (pressed 6 only)' : '缺少下方向 2（只按了 6）';
+        }
+        return isEn ? 'No 236 motion detected' : '未偵測到 236 指令';
+      }
+    } else if (m === '214') {
+      const ok = /2.*1.*4/.test(cleanSeq) || /2.*4/.test(cleanSeq);
+      if (!ok) {
+        if (/2.*1/.test(cleanSeq)) {
+          return isEn ? 'Pressed attack at 21 (missing 4)' : '轉到 21 就按鍵（缺少 4，按太快）';
+        }
+        if (cleanSeq.includes('2')) {
+          return isEn ? 'Only input 2 (missing 1→4)' : '只按到 2（未轉到 4）';
+        }
+        if (cleanSeq.includes('4')) {
+          return isEn ? 'Missing 2 (pressed 4 only)' : '缺少下方向 2（只按了 4）';
+        }
+        return isEn ? 'No 214 motion detected' : '未偵測到 214 指令';
+      }
+    } else if (m === '623') {
+      const ok =
+        /6.*2.*3/.test(cleanSeq) ||
+        /6.*3/.test(cleanSeq) ||
+        /3.*2.*3/.test(cleanSeq) ||
+        /6.*2.*6/.test(cleanSeq) ||
+        /3.*5.*3/.test(rawSeq);
+      if (!ok) {
+        if (/6.*2/.test(cleanSeq)) {
+          return isEn ? '623 missing final 3 (↘)' : '623 缺少最後的 3（↘）';
+        }
+        if (/2.*3/.test(cleanSeq)) {
+          return isEn ? 'Input 23 (missing leading 6)' : '只轉到 23（缺少起手 6）';
+        }
+        return isEn ? 'Incomplete 623 DP motion' : '623 昇龍指令不完整';
+      }
+    } else if (m === '6214') {
+      const ok = /6.*2.*4/.test(cleanSeq) || /6.*1.*4/.test(cleanSeq) || /3.*2.*4/.test(cleanSeq);
+      if (!ok) {
+        if (/6.*2/.test(cleanSeq) || /3.*2/.test(cleanSeq)) {
+          return isEn ? '63214 incomplete (missing 4)' : '63214 未轉到底（缺少 4）';
+        }
+        return isEn ? 'Incomplete 63214 half-circle' : '63214 半圈指令不完整';
+      }
+    } else if (m === '22') {
+      const ok = /2.*5.*2/.test(rawSeq) || (rawSeq.match(/2/g)?.length ?? 0) >= 2;
+      if (!ok) {
+        return isEn ? 'Only one 2 (need 22)' : '只按了一次 2（需連按 22）';
+      }
+    } else if (m === '66') {
+      const ok = /6.*5.*6/.test(rawSeq) || (rawSeq.match(/6/g)?.length ?? 0) >= 2;
+      if (!ok) {
+        return isEn ? 'Incomplete 66 dash' : '前衝 66 未完成（需連按 6）';
+      }
+    } else if (m === '44') {
+      const ok = /4.*5.*4/.test(rawSeq) || (rawSeq.match(/4/g)?.length ?? 0) >= 2;
+      if (!ok) {
+        return isEn ? 'Incomplete 44 backdash' : '後退 44 未完成（需連按 4）';
+      }
+    } else if (m === '46') {
+      if (!cleanSeq.includes('6') && !cleanSeq.includes('3') && !cleanSeq.includes('9')) {
+        return isEn ? '[4]6 missing forward 6' : '[4]6 缺少往前推 6';
+      }
+      if (chargeMs.back < 580) {
+        const frames = Math.round(chargeMs.back / FRAME_MS);
+        return isEn ? `[4]6 short charge (~${frames}f)` : `[4]6 蓄力時間不足（約 ${frames}f）`;
+      }
+    } else if (m === '28') {
+      if (!cleanSeq.includes('8') && !cleanSeq.includes('7') && !cleanSeq.includes('9')) {
+        return isEn ? '[2]8 missing up 8' : '[2]8 缺少往上推 8';
+      }
+      if (chargeMs.down < 580) {
+        const frames = Math.round(chargeMs.down / FRAME_MS);
+        return isEn ? `[2]8 short charge (~${frames}f)` : `[2]8 蓄力時間不足（約 ${frames}f）`;
+      }
+    } else if (m === '4646') {
+      if (chargeMs.back < 580) {
+        return isEn ? '[4]646 short charge' : '[4]646 蓄力時間不足';
+      }
+      if (!/4.*6.*4.*6/.test(cleanSeq)) {
+        return isEn ? 'Incomplete [4]646 motion' : '[4]646 左右來回未完成';
+      }
+    } else if (m === '360' || m === '720') {
+      const cardinals = ['4', '2', '6', '8'].filter((c) => cleanSeq.includes(c));
+      if (cardinals.length < 3) {
+        return isEn ? `Incomplete ${m} spin` : `${m} 旋轉指令不完整`;
+      }
+    }
+  } else {
+    // 2. Directional normal check (e.g. 2MK, 4HP, 6MP)
+    const reqDirs = note.buttons.filter((b) => DIRECTION_IDS.has(b));
+    if (reqDirs.length > 0) {
+      const missingDir = reqDirs.find((d) => !activeSet.has(d));
+      if (missingDir) {
+        const dirLabelMap: Record<string, string> = {
+          DOWN: '↓ (2)',
+          LEFT: '← (4)',
+          RIGHT: '→ (6)',
+          UP: '↑ (8)',
+        };
+        const dLabel = dirLabelMap[missingDir] ?? missingDir;
+        return isEn ? `Missing direction ${dLabel}` : `未按住方向 ${dLabel}`;
+      }
+    }
+  }
+
+  // 3. Modern AUTO modifier check
+  if (note.buttons.includes('AUTO') && !activeSet.has('AUTO')) {
+    return isEn ? 'Missing AUTO hold' : '未按住 AUTO 鍵';
+  }
+
+  return undefined;
+}
+
 export const OverlayView: React.FC<OverlayViewProps> = ({
   mode,
   combo,
   bindings,
   lang,
   triggerMode,
+  playerSide,
   showRecordedInputs,
   lowPerfMode,
   isClickThrough,
   onExitOverlay,
 }) => {
+  const isRightSide = playerSide === 'right';
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const phaseRef = useRef<'waiting-first' | 'countdown' | 'playing' | 'finished'>(
@@ -650,9 +860,84 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   });
 
   const [runLog, setRunLog] = useState<
-    { noteId: string; step: number; notation: string; rank: HitResult['rank']; deltaFrames: number }[]
+    {
+      noteId: string;
+      step: number;
+      notation: string;
+      rank: HitResult['rank'];
+      deltaFrames: number;
+      diagHint?: string;
+    }[]
   >([]);
   const [showReview, setShowReview] = useState(false);
+
+  const dirHistoryRef = useRef<{ dir: string; t: number }[]>([]);
+  const chargeRef = useRef<{
+    backStart: number | null;
+    lastBackMs: number;
+    lastBackEnd: number;
+    downStart: number | null;
+    lastDownMs: number;
+    lastDownEnd: number;
+  }>({
+    backStart: null,
+    lastBackMs: 0,
+    lastBackEnd: 0,
+    downStart: null,
+    lastDownMs: 0,
+    lastDownEnd: 0,
+  });
+
+  const updateDirectionTracking = useCallback((activeSet: Set<ActionButtonId>) => {
+    const now = performance.now();
+    const dir = computeNumpadDir(activeSet);
+    const hist = dirHistoryRef.current;
+    if (hist.length === 0 || hist[hist.length - 1].dir !== dir) {
+      hist.push({ dir, t: now });
+      if (hist.length > 48) {
+        dirHistoryRef.current = hist.slice(-36);
+      }
+    }
+
+    const ch = chargeRef.current;
+    const holdingBack = activeSet.has('LEFT');
+    const holdingDown = activeSet.has('DOWN');
+
+    if (holdingBack) {
+      if (ch.backStart === null) ch.backStart = now;
+    } else if (ch.backStart !== null) {
+      const dur = now - ch.backStart;
+      // Preserve valid >= 580ms charge within 450ms window (for 4646 double tap)
+      if (dur >= 580 || now - ch.lastBackEnd > 450) {
+        ch.lastBackMs = dur;
+        ch.lastBackEnd = now;
+      }
+      ch.backStart = null;
+    }
+
+    if (holdingDown) {
+      if (ch.downStart === null) ch.downStart = now;
+    } else if (ch.downStart !== null) {
+      const dur = now - ch.downStart;
+      if (dur >= 580 || now - ch.lastDownEnd > 450) {
+        ch.lastDownMs = dur;
+        ch.lastDownEnd = now;
+      }
+      ch.downStart = null;
+    }
+  }, []);
+
+  const getCurrentChargeMs = useCallback((now: number) => {
+    const ch = chargeRef.current;
+    const activeBack = ch.backStart !== null ? now - ch.backStart : 0;
+    const recentBack = now - ch.lastBackEnd <= 450 ? ch.lastBackMs : 0;
+    const activeDown = ch.downStart !== null ? now - ch.downStart : 0;
+    const recentDown = now - ch.lastDownEnd <= 450 ? ch.lastDownMs : 0;
+    return {
+      back: Math.max(activeBack, recentBack),
+      down: Math.max(activeDown, recentDown),
+    };
+  }, []);
 
   const resetRun = useCallback(() => {
     phaseRef.current = triggerMode === 'trigger-first' ? 'waiting-first' : 'countdown';
@@ -661,6 +946,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     judgedNotesRef.current = new Set();
     hitEffectsRef.current = [];
     activeHoldRef.current = null;
+    dirHistoryRef.current = [];
     setRunLog([]);
   }, [triggerMode]);
 
@@ -675,7 +961,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     return () => unsub?.();
   }, [resetRun]);
 
-  const recordHit = useCallback((result: HitResult) => {
+  const recordHit = useCallback((result: HitResult, diagHint?: string) => {
     hitEffectsRef.current.push(result);
     const noteIdx = combo.notes.findIndex((n) => n.id === result.noteId);
     if (noteIdx !== -1) {
@@ -688,6 +974,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           notation,
           rank: result.rank,
           deltaFrames: result.deltaFrames,
+          diagHint,
         },
       ]);
     }
@@ -709,7 +996,12 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   }, [combo.notes]);
 
   const handleActionPress = useCallback(
-    (pressedBtn: ActionButtonId, activeSet: Set<ActionButtonId>) => {
+    (rawPressedBtn: ActionButtonId, rawActiveSet: Set<ActionButtonId>) => {
+      const pressedBtn = mirrorBtn(rawPressedBtn, isRightSide);
+      const activeSet = mirrorSet(rawActiveSet, isRightSide);
+      if (DIRECTION_IDS.has(pressedBtn)) {
+        updateDirectionTracking(activeSet);
+      }
       if (pressedBtn === 'RESET') {
         resetRun();
         return;
@@ -728,18 +1020,30 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       if (pressedBtn !== primaryBtn && !isModernSaShortcutPress) return;
 
       if (phaseRef.current === 'waiting-first' && idx === 0) {
+        const now = performance.now();
         phaseRef.current = 'playing';
-        startTimeRef.current = performance.now();
+        startTimeRef.current = now;
         judgedNotesRef.current.add(targetNote.id);
         nextNoteIndexRef.current = 1;
-        recordHit({
-          noteId: targetNote.id,
-          rank: 'PERFECT',
-          deltaFrames: 0,
-          timestamp: performance.now(),
-          x: targetNote.x,
-          y: targetNote.y,
-        });
+        const diagHint = diagnoseExecution(
+          targetNote,
+          activeSet,
+          dirHistoryRef.current,
+          now,
+          getCurrentChargeMs(now),
+          lang
+        );
+        recordHit(
+          {
+            noteId: targetNote.id,
+            rank: 'PERFECT',
+            deltaFrames: 0,
+            timestamp: now,
+            x: targetNote.x,
+            y: targetNote.y,
+          },
+          diagHint
+        );
         return;
       }
 
@@ -792,21 +1096,38 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
             y: targetNote.y,
           };
         }
-        recordHit({
-          noteId: targetNote.id,
-          rank,
-          deltaFrames: Math.round(deltaFrames * 10) / 10,
-          timestamp: performance.now(),
-          x: targetNote.x,
-          y: targetNote.y,
-        });
+        const hitNow = performance.now();
+        const diagHint = diagnoseExecution(
+          targetNote,
+          activeSet,
+          dirHistoryRef.current,
+          hitNow,
+          getCurrentChargeMs(hitNow),
+          lang
+        );
+        recordHit(
+          {
+            noteId: targetNote.id,
+            rank,
+            deltaFrames: Math.round(deltaFrames * 10) / 10,
+            timestamp: hitNow,
+            x: targetNote.x,
+            y: targetNote.y,
+          },
+          diagHint
+        );
       }
     },
-    [combo.notes, recordHit]
+    [combo.notes, getCurrentChargeMs, isRightSide, lang, mode, recordHit, resetRun, updateDirectionTracking]
   );
 
   const handleActionRelease = useCallback(
-    (releasedBtn: ActionButtonId) => {
+    (rawReleasedBtn: ActionButtonId, rawActiveSet: Set<ActionButtonId>) => {
+      const releasedBtn = mirrorBtn(rawReleasedBtn, isRightSide);
+      const activeSet = mirrorSet(rawActiveSet, isRightSide);
+      if (DIRECTION_IDS.has(releasedBtn)) {
+        updateDirectionTracking(activeSet);
+      }
       const hold = activeHoldRef.current;
       if (!hold || hold.primaryBtn !== releasedBtn) return;
       activeHoldRef.current = null;
@@ -831,7 +1152,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         y: hold.y - 0.08,
       });
     },
-    [recordHit]
+    [isRightSide, recordHit, updateDirectionTracking]
   );
 
   const { activeButtons, activeButtonsRef } = useInputEngine({
@@ -888,14 +1209,25 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           if (currentFrame - n.frame > win.maxMiss) {
             judgedNotesRef.current.add(n.id);
             nextNoteIndexRef.current += 1;
-            recordHit({
-              noteId: n.id,
-              rank: 'MISS',
-              deltaFrames: win.maxMiss,
-              timestamp: now,
-              x: n.x,
-              y: n.y,
-            });
+            const missDiag = diagnoseExecution(
+              n,
+              mirrorSet(activeButtonsRef.current, isRightSide),
+              dirHistoryRef.current,
+              now,
+              getCurrentChargeMs(now),
+              lang
+            );
+            recordHit(
+              {
+                noteId: n.id,
+                rank: 'MISS',
+                deltaFrames: win.maxMiss,
+                timestamp: now,
+                x: n.x,
+                y: n.y,
+              },
+              missDiag
+            );
           } else {
             break;
           }
@@ -1014,9 +1346,16 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           ctx.fillText(nextNote.notation, nx, ny + 16);
 
           // Direction / Motion / Early Charge Cue below every upcoming preview circle
-          const nextDirs = nextNote.buttons.filter((b) => DIRECTION_IDS.has(b));
+          const nextDirs = nextNote.buttons
+            .filter((b) => DIRECTION_IDS.has(b))
+            .map((b) => mirrorBtn(b, isRightSide));
           if (nextNote.motion === '46' || nextNote.motion === '28') {
-            const chargeCue = nextNote.motion === '46' ? '← 提前集氣 [4]6' : '↓ 提前集氣 [2]8';
+            const chargeCue =
+              nextNote.motion === '46'
+                ? isRightSide
+                  ? '→ 提前集氣 [4]6'
+                  : '← 提前集氣 [4]6'
+                : '↓ 提前集氣 [2]8';
             ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
             ctx.beginPath();
             ctx.roundRect(nx - 54, ny + nextRadius + 10, 108, 22, 11);
@@ -1028,14 +1367,23 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
             ctx.font = '800 11px system-ui, sans-serif';
             ctx.fillText(chargeCue, nx, ny + nextRadius + 21);
           } else if (nextNote.motion) {
-            const motionArrowMap: Record<string, string> = {
-              '236': '↓↘→ 236',
-              '214': '↓↙← 214',
-              '623': '→↓↘ 623',
-              '6214': '→↓← 6214',
-              '22': '↓↓ 22',
-              '66': '→→ 66',
-            };
+            const motionArrowMap: Record<string, string> = isRightSide
+              ? {
+                  '236': '↓↙← 236',
+                  '214': '↓↘→ 214',
+                  '623': '←↓↙ 623',
+                  '6214': '←↓→ 6214',
+                  '22': '↓↓ 22',
+                  '66': '←← 66',
+                }
+              : {
+                  '236': '↓↘→ 236',
+                  '214': '↓↙← 214',
+                  '623': '→↓↘ 623',
+                  '6214': '→↓← 6214',
+                  '22': '↓↓ 22',
+                  '66': '→→ 66',
+                };
             const mText = motionArrowMap[nextNote.motion] ?? nextNote.motion;
             ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
             ctx.beginPath();
@@ -1082,7 +1430,9 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       if (activeIdx < notes.length) {
         const note = notes[activeIdx];
         const attackButtons = note.buttons.filter((b) => !DIRECTION_IDS.has(b));
-        const dirButtons = note.buttons.filter((b) => DIRECTION_IDS.has(b)) as DirectionButtonId[];
+        const dirButtons = note.buttons
+          .filter((b) => DIRECTION_IDS.has(b))
+          .map((b) => mirrorBtn(b, isRightSide)) as DirectionButtonId[];
         const primaryBtn = attackButtons[attackButtons.length - 1] ?? note.buttons[note.buttons.length - 1];
         const color = BUTTON_META[primaryBtn]?.color ?? '#38bdf8';
 
@@ -1120,7 +1470,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
             progress,
             ringColor,
             activeIdx + 1,
-            lowPerfMode
+            lowPerfMode,
+            isRightSide
           );
           ctx.restore();
         } else if (dirButtons.length > 0) {
@@ -1473,7 +1824,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
     };
-  }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, recordHit, resetRun, activeButtonsRef]);
+  }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, recordHit, resetRun, activeButtonsRef, getCurrentChargeMs, isRightSide, lang]);
 
   const totalHits = stats.perfect + stats.good + stats.early + stats.late + stats.miss;
   const accuracy =
@@ -1482,10 +1833,12 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       : Math.round((stats.perfect * 100 + stats.good * 70 + (stats.early + stats.late) * 40) / totalHits);
 
   const hasIssueInRun = runLog.some(
-    (item) => item.rank === 'EARLY' || item.rank === 'LATE' || item.rank === 'MISS'
+    (item) =>
+      item.rank === 'EARLY' || item.rank === 'LATE' || item.rank === 'MISS' || Boolean(item.diagHint)
   );
   const firstIssue = runLog.find(
-    (item) => item.rank === 'EARLY' || item.rank === 'LATE' || item.rank === 'MISS'
+    (item) =>
+      item.rank === 'EARLY' || item.rank === 'LATE' || item.rank === 'MISS' || Boolean(item.diagHint)
   );
 
   return (
@@ -1496,6 +1849,14 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       <div className={`overlay-hud ${lowPerfMode ? 'low-perf' : ''}`}>
         <div className="hud-left">
           <span className="hud-mode-badge">{mode === 'classic' ? 'C' : 'M'}</span>
+          {isRightSide && (
+            <span
+              className="hud-mode-badge"
+              style={{ background: 'rgba(244, 63, 94, 0.28)', color: '#fda4af', borderColor: 'rgba(244, 63, 94, 0.6)' }}
+            >
+              2P
+            </span>
+          )}
           <span className="hud-combo-name">{combo.characterName} · {getComboTitle(combo, lang)}</span>
         </div>
 
@@ -1573,7 +1934,9 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
               當次連段檢討（共 {combo.notes.length} 擊）
               {firstIssue
                 ? ` · 首次失誤：第 ${firstIssue.step} 擊 ${firstIssue.notation}（${
-                    firstIssue.rank === 'EARLY'
+                    firstIssue.diagHint
+                      ? firstIssue.diagHint
+                      : firstIssue.rank === 'EARLY'
                       ? `太早 ${firstIssue.deltaFrames.toFixed(1)}f`
                       : firstIssue.rank === 'LATE'
                       ? `太晚 +${firstIssue.deltaFrames.toFixed(1)}f`
@@ -1598,7 +1961,11 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
             {combo.notes.map((note, idx) => {
               const res = runLog.find((r) => r.noteId === note.id);
               const isProblem =
-                res && (res.rank === 'EARLY' || res.rank === 'LATE' || res.rank === 'MISS');
+                res &&
+                (res.rank === 'EARLY' ||
+                  res.rank === 'LATE' ||
+                  res.rank === 'MISS' ||
+                  Boolean(res.diagHint));
               const primaryBtn = note.buttons[note.buttons.length - 1];
               const normalColor = BUTTON_META[primaryBtn]?.color ?? '#38bdf8';
 
@@ -1657,6 +2024,19 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
                   <div style={{ fontSize: 11, fontWeight: 700, color: statusColor }}>
                     {statusText}
                   </div>
+                  {res?.diagHint && (
+                    <div
+                      style={{
+                        fontSize: 10.5,
+                        fontWeight: 700,
+                        color: '#fbbf24',
+                        marginTop: 2,
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      ⚠ {res.diagHint}
+                    </div>
+                  )}
                 </div>
               );
             })}

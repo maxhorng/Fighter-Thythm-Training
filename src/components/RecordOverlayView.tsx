@@ -415,10 +415,10 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
         } else if (hasDownChargeRecent && (dirPrefix === '8' || dirPrefix === '7' || dirPrefix === '9')) {
           detectedMotion = '28';
         }
-        // 4. Standard Motion Specials: 623 (incl. SF6 323 / 33 DP shortcuts) / 236 (incl. TK 2369) / 214 (incl. TK 2147) / 22
+        // 4. Standard Motion Specials: 623 (incl. SF6 323 / 33 / 633(6363) DP shortcuts) / 236 (incl. TK 2369) / 214 (incl. TK 2147) / 22
         else if (
           (dirPrefix === '3' || dirPrefix === '6') &&
-          /(?:6[35]*2[35]*[36]|3[25]+3|32[5]*6)/.test(seq)
+          /(?:6[35]*2[35]*[36]|3[256]+3|32[5]*6|6[5]*3[56]*3)/.test(seq)
         ) {
           detectedMotion = '623';
         } else if (dirPrefix === '9' && /[23][235]*6[65]*9/.test(seq)) {
@@ -487,11 +487,34 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
     [mode]
   );
 
-  const handleActionRelease = useCallback((releasedBtn: ActionButtonId) => {
-    // Synchronously finalize charge timers on direction release so 1-frame [4]6 / [2]8 snaps
-    // (including on the very first hit at 0f!) are always detected accurately.
+  const handleActionRelease = useCallback((releasedBtn: ActionButtonId, activeSet: Set<ActionButtonId>) => {
+    // Synchronously finalize charge timers & push updated direction into dirHistoryRef on direction release
+    // (e.g., holding 6 and double-tapping 2 produces 6 -> 3 -> 6 -> 3 for 633 DP shortcut!).
     if (DIRECTION_IDS.has(releasedBtn)) {
       const now = performance.now();
+      const up = activeSet.has('UP');
+      const down = activeSet.has('DOWN');
+      const left = activeSet.has('LEFT');
+      const right = activeSet.has('RIGHT');
+      const v = up && !down ? 1 : down && !up ? -1 : 0;
+      const h = right && !left ? 1 : left && !right ? -1 : 0;
+      const d =
+        v === -1 && h === -1 ? '1' :
+        v === -1 && h === 0 ? '2' :
+        v === -1 && h === 1 ? '3' :
+        v === 0 && h === -1 ? '4' :
+        v === 0 && h === 1 ? '6' :
+        v === 1 && h === -1 ? '7' :
+        v === 1 && h === 0 ? '8' :
+        v === 1 && h === 1 ? '9' : '5';
+      const hist = dirHistoryRef.current;
+      if (hist.length === 0 || hist[hist.length - 1].dir !== d) {
+        hist.push({ dir: d, t: now });
+        if (hist.length > 40) {
+          dirHistoryRef.current = hist.slice(-30);
+        }
+      }
+
       const ch = chargeRef.current;
       if (releasedBtn === 'LEFT' && ch.backStart !== null) {
         const dur = now - ch.backStart;

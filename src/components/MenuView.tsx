@@ -18,6 +18,7 @@ import {
   ComboData,
   ControlMode,
   KeyBindingMap,
+  PlayerSide,
   StartTriggerMode,
 } from '../types/combo';
 import { CHARACTERS } from '../data/combos';
@@ -50,6 +51,8 @@ interface MenuViewProps {
   onChangeOverlayHotkeys: (next: OverlayHotkeys) => void;
   triggerMode: StartTriggerMode;
   onChangeTriggerMode: (m: StartTriggerMode) => void;
+  playerSide: PlayerSide;
+  onChangePlayerSide: (side: PlayerSide) => void;
   showRecordedInputs: boolean;
   onChangeShowRecordedInputs: (v: boolean) => void;
   lowPerfMode: boolean;
@@ -75,6 +78,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
   onChangeOverlayHotkeys,
   triggerMode,
   onChangeTriggerMode,
+  playerSide,
+  onChangePlayerSide,
   showRecordedInputs,
   onChangeShowRecordedInputs,
   lowPerfMode,
@@ -648,6 +653,39 @@ export const MenuView: React.FC<MenuViewProps> = ({
               />
               <span>{t.lowPerfMode}</span>
             </label>
+
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                marginBottom: 8,
+              }}
+            >
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', marginRight: 2 }}>
+                {lang === 'en' ? 'Side:' : '站位方向：'}
+              </span>
+              <button
+                type="button"
+                className={`trigger-btn ${playerSide === 'left' ? 'active' : ''}`}
+                style={{ flex: 1, padding: '6px 10px', justifyContent: 'center' }}
+                onClick={() => onChangePlayerSide('left')}
+              >
+                <span style={{ fontSize: 12.5, fontWeight: 800 }}>
+                  {lang === 'en' ? '◀ 1P Left (Default)' : '◀ 1P 左側（預設）'}
+                </span>
+              </button>
+              <button
+                type="button"
+                className={`trigger-btn ${playerSide === 'right' ? 'active' : ''}`}
+                style={{ flex: 1, padding: '6px 10px', justifyContent: 'center' }}
+                onClick={() => onChangePlayerSide('right')}
+              >
+                <span style={{ fontSize: 12.5, fontWeight: 800 }}>
+                  {lang === 'en' ? '2P Right (Mirrored) ▶' : '2P 右側（鏡像） ▶'}
+                </span>
+              </button>
+            </div>
 
             <button className="btn-start-overlay" onClick={onStartOverlay}>
               <Play size={20} fill="currentColor" />

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ComboData, ControlMode, KeyBindingMap, StartTriggerMode } from './types/combo';
+import { ComboData, ControlMode, KeyBindingMap, PlayerSide, StartTriggerMode } from './types/combo';
 import { BUILTIN_COMBOS } from './data/combos';
 import { DEFAULT_BINDINGS } from './data/bindings';
 import { AppLang, DEFAULT_OVERLAY_HOTKEYS, OverlayHotkeys } from './data/i18n';
@@ -72,6 +72,7 @@ export const App: React.FC = () => {
   const [lang, setLang] = useState<AppLang>(loadLang);
   const [overlayHotkeys, setOverlayHotkeys] = useState<OverlayHotkeys>(loadHotkeys);
   const [triggerMode, setTriggerMode] = useState<StartTriggerMode>('trigger-first');
+  const [playerSide, setPlayerSide] = useState<PlayerSide>('left');
   const [showRecordedInputs, setShowRecordedInputs] = useState(true);
   const [lowPerfMode, setLowPerfMode] = useState<boolean>(loadLowPerfMode);
   const [isOverlayMode, setIsOverlayMode] = useState(false);
@@ -254,6 +255,7 @@ export const App: React.FC = () => {
         bindings={bindings}
         lang={lang}
         triggerMode={triggerMode}
+        playerSide={playerSide}
         showRecordedInputs={showRecordedInputs}
         lowPerfMode={lowPerfMode}
         isClickThrough={isClickThrough}
@@ -280,6 +282,8 @@ export const App: React.FC = () => {
       onChangeOverlayHotkeys={handleChangeOverlayHotkeys}
       triggerMode={triggerMode}
       onChangeTriggerMode={setTriggerMode}
+      playerSide={playerSide}
+      onChangePlayerSide={setPlayerSide}
       showRecordedInputs={showRecordedInputs}
       onChangeShowRecordedInputs={setShowRecordedInputs}
       lowPerfMode={lowPerfMode}
