@@ -1,4 +1,5 @@
 import { app, BrowserWindow, globalShortcut, ipcMain, screen, shell } from 'electron';
+import fs from 'fs';
 import path from 'path';
 
 let mainWindow: BrowserWindow | null = null;
@@ -51,16 +52,60 @@ function startGlobalKeyHook() {
   }
 }
 
+const MIN_MENU_WIDTH = 1120;
+const MIN_MENU_HEIGHT = 760;
+let savedMenuSize = { width: MIN_MENU_WIDTH, height: MIN_MENU_HEIGHT };
+let saveSizeTimer: NodeJS.Timeout | null = null;
+
+function getWindowSizeConfigPath(): string {
+  return path.join(app.getPath('userData'), 'window-size.json');
+}
+
+function loadSavedMenuSize() {
+  try {
+    const raw = fs.readFileSync(getWindowSizeConfigPath(), 'utf-8');
+    const parsed = JSON.parse(raw);
+    if (
+      parsed &&
+      typeof parsed.width === 'number' &&
+      typeof parsed.height === 'number' &&
+      parsed.width >= MIN_MENU_WIDTH &&
+      parsed.height >= MIN_MENU_HEIGHT
+    ) {
+      savedMenuSize = {
+        width: Math.round(parsed.width),
+        height: Math.round(parsed.height),
+      };
+    }
+  } catch {
+    // First launch or missing file — use defaults
+  }
+}
+
+function persistSavedMenuSize() {
+  if (saveSizeTimer) clearTimeout(saveSizeTimer);
+  saveSizeTimer = setTimeout(() => {
+    try {
+      fs.writeFileSync(getWindowSizeConfigPath(), JSON.stringify(savedMenuSize), 'utf-8');
+    } catch {
+      // ignore write errors
+    }
+  }, 200);
+}
+
 function createWindow() {
+  loadSavedMenuSize();
   mainWindow = new BrowserWindow({
-    width: 1120,
-    height: 760,
+    width: savedMenuSize.width,
+    height: savedMenuSize.height,
+    minWidth: MIN_MENU_WIDTH,
+    minHeight: MIN_MENU_HEIGHT,
     icon: path.join(__dirname, '../build/icon.png'),
     transparent: true,
     frame: false,
     backgroundColor: '#00000000',
     hasShadow: false,
-    resizable: false,
+    resizable: true,
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -81,6 +126,15 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 
+  mainWindow.on('resize', () => {
+    if (!mainWindow || mainWindow.isDestroyed() || isOverlayMode) return;
+    const [w, h] = mainWindow.getSize();
+    if (w >= MIN_MENU_WIDTH && h >= MIN_MENU_HEIGHT) {
+      savedMenuSize = { width: w, height: h };
+      persistSavedMenuSize();
+    }
+  });
+
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
@@ -100,6 +154,7 @@ function applyOverlayMode(enabled: boolean) {
   if (enabled) {
     const primaryDisplay = screen.getPrimaryDisplay();
     const { x, y, width, height } = primaryDisplay.bounds;
+    mainWindow.setResizable(false);
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
     // Use height - 1 on Windows so DWM does not disable alpha transparency for exact fullscreen bounds
@@ -110,7 +165,8 @@ function applyOverlayMode(enabled: boolean) {
     isClickThrough = false;
     mainWindow.setIgnoreMouseEvents(false);
     mainWindow.setAlwaysOnTop(false);
-    mainWindow.setBounds({ x: 0, y: 0, width: 1120, height: 760 });
+    mainWindow.setResizable(true);
+    mainWindow.setBounds({ x: 0, y: 0, width: savedMenuSize.width, height: savedMenuSize.height });
     mainWindow.center();
   }
 
@@ -294,6 +350,15 @@ ipcMain.handle('set-click-through', (_event, enabled: boolean) => {
     isClickThrough,
   });
   return isClickThrough;
+});
+
+ipcMain.on('window-resize', (_event, { width, height }: { width: number; height: number }) => {
+  if (!mainWindow || mainWindow.isDestroyed() || isOverlayMode) return;
+  const nextW = Math.max(MIN_MENU_WIDTH, Math.round(width));
+  const nextH = Math.max(MIN_MENU_HEIGHT, Math.round(height));
+  mainWindow.setSize(nextW, nextH);
+  savedMenuSize = { width: nextW, height: nextH };
+  persistSavedMenuSize();
 });
 
 ipcMain.handle('window-minimize', () => {

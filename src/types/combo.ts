@@ -100,6 +100,7 @@ export interface ElectronAPI {
   setHotkeys?: (hotkeys: { clickThrough?: string; exitOverlay?: string; toggleReview?: string; restart?: string }) => Promise<void>;
   minimizeWindow: () => Promise<void>;
   closeWindow: () => Promise<void>;
+  resizeWindow?: (width: number, height: number) => void;
   onGlobalKeyDown: (cb: (code: string) => void) => () => void;
   onGlobalKeyUp: (cb: (code: string) => void) => () => void;
   onGlobalGamepadState?: (cb: (state: { connected: boolean; buttons: number[] }) => void) => () => void;

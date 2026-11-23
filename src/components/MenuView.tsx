@@ -846,6 +846,50 @@ export const MenuView: React.FC<MenuViewProps> = ({
           }}
         />
       )}
+      {/* Bottom-right visible resize grip triangle */}
+      <div
+        title={lang === 'en' ? 'Drag to resize window' : '拖曳調整視窗大小'}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          const startX = e.screenX;
+          const startY = e.screenY;
+          const startW = window.outerWidth;
+          const startH = window.outerHeight;
+          const onMove = (ev: MouseEvent) => {
+            window.electronAPI?.resizeWindow?.(
+              startW + (ev.screenX - startX),
+              startH + (ev.screenY - startY)
+            );
+          };
+          const onUp = () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+          };
+          window.addEventListener('mousemove', onMove);
+          window.addEventListener('mouseup', onUp);
+        }}
+        style={{
+          position: 'fixed',
+          right: 4,
+          bottom: 4,
+          width: 20,
+          height: 20,
+          cursor: 'nwse-resize',
+          zIndex: 50,
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-end',
+          padding: 2,
+          userSelect: 'none',
+          WebkitAppRegion: 'no-drag',
+        } as React.CSSProperties}
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M13 3L3 13" stroke="rgba(148, 163, 184, 0.7)" strokeWidth="1.8" strokeLinecap="round" />
+          <path d="M13 7.5L7.5 13" stroke="rgba(56, 189, 248, 0.85)" strokeWidth="1.8" strokeLinecap="round" />
+          <path d="M13 11.5L11.5 13" stroke="rgba(56, 189, 248, 0.95)" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      </div>
     </div>
   );
 };

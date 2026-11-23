@@ -14,6 +14,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('set-hotkeys', hotkeys),
   minimizeWindow: (): Promise<void> => ipcRenderer.invoke('window-minimize'),
   closeWindow: (): Promise<void> => ipcRenderer.invoke('window-close'),
+  resizeWindow: (width: number, height: number): void =>
+    ipcRenderer.send('window-resize', { width, height }),
   onGlobalKeyDown: (callback: (code: string) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, code: string) => callback(code);
     ipcRenderer.on('global-keydown', handler);
