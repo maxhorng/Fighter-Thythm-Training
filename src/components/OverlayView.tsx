@@ -29,6 +29,9 @@ interface OverlayViewProps {
   showRecordedInputs: boolean;
   lowPerfMode: boolean;
   sfxEnabled?: boolean;
+  /** When true, late presses on cancel/juggle notes shift the playback clock (adaptive tempo).
+   *  When false (default), playback strictly reproduces the recorded rhythm. */
+  dynamicResync?: boolean;
   isClickThrough: boolean;
   onExitOverlay: () => void;
 }
@@ -800,6 +803,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   showRecordedInputs,
   lowPerfMode,
   sfxEnabled = true,
+  dynamicResync = false,
   isClickThrough,
   onExitOverlay,
 }) => {
@@ -1057,7 +1061,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           /^(SA[123]|236236|214214|4646|2828)/.test(targetNote.notation);
         const effectiveType =
           targetNote.windowType ?? (targetNote.buttons.includes('PARRY') ? 'dr-cancel' : isAutoCancel ? 'cancel' : 'link');
-        if (deltaFrames > 0 && effectiveType !== 'link') {
+        // Only active when the user enables "Adaptive Tempo"; otherwise keep the recorded rhythm intact.
+        if (dynamicResync && deltaFrames > 0 && effectiveType !== 'link') {
           startTimeRef.current += deltaFrames * FRAME_MS;
         }
 
@@ -1097,7 +1102,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         );
       }
     },
-    [combo.notes, getCurrentChargeMs, isRightSide, lang, mode, recordHit, resetRun, updateDirectionTracking]
+    [combo.notes, dynamicResync, getCurrentChargeMs, isRightSide, lang, mode, recordHit, resetRun, updateDirectionTracking]
   );
 
   const handleActionRelease = useCallback(

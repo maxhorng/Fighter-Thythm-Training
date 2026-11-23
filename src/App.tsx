@@ -15,6 +15,15 @@ const STORAGE_KEY_LANG = 'fmc_lang_v1';
 const STORAGE_KEY_HOTKEYS = 'fmc_hotkeys_v1';
 const STORAGE_KEY_LOW_PERF = 'fmc_low_perf_v1';
 const STORAGE_KEY_SFX = 'fmc_sfx_enabled_v1';
+const STORAGE_KEY_DYNAMIC_RESYNC = 'fmc_dynamic_resync_v1';
+
+function loadDynamicResync(): boolean {
+  try {
+    return localStorage.getItem(STORAGE_KEY_DYNAMIC_RESYNC) === '1';
+  } catch {
+    return false;
+  }
+}
 
 function loadSfxEnabled(): boolean {
   try {
@@ -94,6 +103,7 @@ export const App: React.FC = () => {
     setSoundEnabled(v);
     return v;
   });
+  const [dynamicResync, setDynamicResync] = useState<boolean>(loadDynamicResync);
   const [isOverlayMode, setIsOverlayMode] = useState(false);
   const [isRecordingMode, setIsRecordingMode] = useState(false);
   const [recordingCharId, setRecordingCharId] = useState<string>('ryu');
@@ -185,6 +195,15 @@ export const App: React.FC = () => {
     setSoundEnabled(next);
     try {
       localStorage.setItem(STORAGE_KEY_SFX, next ? '1' : '0');
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleChangeDynamicResync = (next: boolean) => {
+    setDynamicResync(next);
+    try {
+      localStorage.setItem(STORAGE_KEY_DYNAMIC_RESYNC, next ? '1' : '0');
     } catch {
       // ignore
     }
@@ -301,6 +320,7 @@ export const App: React.FC = () => {
         showRecordedInputs={showRecordedInputs}
         lowPerfMode={lowPerfMode}
         sfxEnabled={sfxEnabled}
+        dynamicResync={dynamicResync}
         isClickThrough={isClickThrough}
         onExitOverlay={handleExitOverlay}
       />
@@ -346,6 +366,8 @@ export const App: React.FC = () => {
       onChangeLowPerfMode={handleChangeLowPerfMode}
       sfxEnabled={sfxEnabled}
       onChangeSfxEnabled={handleChangeSfxEnabled}
+      dynamicResync={dynamicResync}
+      onChangeDynamicResync={handleChangeDynamicResync}
       onStartOverlay={handleStartOverlay}
       onStartRecording={handleStartRecording}
     />

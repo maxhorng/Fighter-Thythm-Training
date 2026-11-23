@@ -63,6 +63,8 @@ interface MenuViewProps {
   onChangeLowPerfMode: (v: boolean) => void;
   sfxEnabled: boolean;
   onChangeSfxEnabled: (v: boolean) => void;
+  dynamicResync: boolean;
+  onChangeDynamicResync: (v: boolean) => void;
   onStartOverlay: () => void;
   onStartRecording: (charId: string) => void;
 }
@@ -94,6 +96,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
   onChangeLowPerfMode,
   sfxEnabled,
   onChangeSfxEnabled,
+  dynamicResync,
+  onChangeDynamicResync,
   onStartOverlay,
   onStartRecording,
 }) => {
@@ -1040,6 +1044,19 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 style={{ accentColor: '#4ade80', width: 15, height: 15 }}
               />
               <span>{t.sfxEnabled}</span>
+            </label>
+
+            <label
+              title={t.dynamicResyncHint}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: dynamicResync ? '#4ade80' : '#cbd5e1', cursor: 'pointer', marginBottom: 8, userSelect: 'none' }}
+            >
+              <input
+                type="checkbox"
+                checked={dynamicResync}
+                onChange={(e) => onChangeDynamicResync(e.target.checked)}
+                style={{ accentColor: '#4ade80', width: 15, height: 15 }}
+              />
+              <span>{t.dynamicResync}</span>
             </label>
 
             <div
