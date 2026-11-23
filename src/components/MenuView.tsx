@@ -34,7 +34,7 @@ import pkg from '../../package.json';
 const STORAGE_KEY_SEEN_TUTORIAL = 'fmc_seen_tutorial_v1';
 const STORAGE_KEY_PINNED_CHARS = 'fmc_pinned_chars_v1';
 const CURRENT_VERSION_TAG = `v${pkg.version}`;
-const RELEASES_LATEST_URL = 'https://github.com/maxhorng/Rhythm-Combo-Trainer/releases/latest';
+const RELEASES_LATEST_URL = 'https://github.com/maxhorng/Frame-Beat-Trainer/releases/latest';
 
 interface MenuViewProps {
   mode: ControlMode;
@@ -127,7 +127,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
 
   useEffect(() => {
     let cancelled = false;
-    fetch('https://api.github.com/repos/maxhorng/Rhythm-Combo-Trainer/releases/latest', {
+    fetch('https://api.github.com/repos/maxhorng/Frame-Beat-Trainer/releases/latest', {
       headers: { Accept: 'application/vnd.github+json' },
     })
       .then((res) => (res.ok ? res.json() : null))
@@ -328,10 +328,10 @@ export const MenuView: React.FC<MenuViewProps> = ({
           )}
           <img
             src="./icon.png"
-            alt="RhythmCombo Trainer"
+            alt="Frame Beat Trainer (FBT)"
             style={{ width: 22, height: 22, borderRadius: 6, objectFit: 'cover' }}
           />
-          <span className="brand-title">RHYTHMCOMBO TRAINER</span>
+          <span className="brand-title">FRAME BEAT TRAINER (FBT)</span>
           <span className="brand-badge">{t.betaBadge}</span>
           <span style={{ fontSize: 11.5, color: '#94a3b8', marginLeft: 4 }}>
             by maxhorng / 92anini

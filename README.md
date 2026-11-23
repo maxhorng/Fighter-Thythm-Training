@@ -1,12 +1,12 @@
-# RhythmCombo Trainer (Beta)
+# Frame Beat Trainer (FBT)
 
 **Street Fighter 6 · Transparent Rhythm Combo Trainer Overlay**  
 **快打旋風 6 · 透明覆蓋節奏連段訓練器**  
 **ストリートファイター6 · 透過オーバーレイ リズムコンボ練習ツール**
 
 > **Author / 作者 / 制作**: `maxhorng / 92anini`  
-> **Latest Version / 最新版本 / 最新版**: `v0.2.0-beta.6`  
-> **Download / 永久最新版下載 / ダウンロード**: **[Download Latest Windows Portable `.exe` (Releases Latest)](https://github.com/maxhorng/Rhythm-Combo-Trainer/releases/latest)**
+> **Latest Version / 最新版本 / 最新版**: `v0.2.0-beta.9`  
+> **Download / 永久最新版下載 / ダウンロード**: **[Download Latest Windows Portable `.exe` (Releases Latest)](https://github.com/maxhorng/Frame-Beat-Trainer/releases/latest)**
 
 Click a language below to expand / 點擊下方語言展開說明 / 下の言語をクリックして展開:
 
@@ -49,7 +49,7 @@ Click a language below to expand / 點擊下方語言展開說明 / 下の言語
 
 ### Quick Start (Windows Portable `.exe`)
 
-1. **Download**: Go to **[Releases Latest](https://github.com/maxhorng/Rhythm-Combo-Trainer/releases/latest)**, download **`RhythmCombo-Trainer-*-win-portable.exe`**, and double-click to run (no installation or Node.js required).
+1. **Download**: Go to **[Releases Latest](https://github.com/maxhorng/Frame-Beat-Trainer/releases/latest)**, download **`Frame-Beat-Trainer-*-win-portable.exe`**, and double-click to run (no installation or Node.js required).
    - *If Windows SmartScreen appears*: Click **More info -> Run anyway**. Source code is public on GitHub and every release includes a **SHA-256 checksum**. This is a pure visual rhythm aid — **no macros, no automated inputs, and no memory reading/writing**.
 2. **Game Setup**:
    - Set *Street Fighter 6* to **Borderless Windowed**.
@@ -98,7 +98,7 @@ Click a language below to expand / 點擊下方語言展開說明 / 下の言語
 
 ### 快速開始（Windows 免安裝 `.exe`）
 
-1. **下載執行檔**：前往 **[永久最新版下載連結](https://github.com/maxhorng/Rhythm-Combo-Trainer/releases/latest)**，下載 **`RhythmCombo-Trainer-*-win-portable.exe`** 並雙擊執行（免安裝、不需 Node.js）。
+1. **下載執行檔**：前往 **[永久最新版下載連結](https://github.com/maxhorng/Frame-Beat-Trainer/releases/latest)**，下載 **`Frame-Beat-Trainer-*-win-portable.exe`** 並雙擊執行（免安裝、不需 Node.js）。
    - *若 Windows 跳出 SmartScreen 視窗*：點選 **「其他資訊」->「仍要執行」** 即可。本專案原始碼公開於 GitHub 且每個 Release 皆附 **SHA-256 驗證碼**，純視覺節奏輔助，絕無巨集、自動出招或記憶體讀寫。
 2. **遊戲設定**：
    - 將《Street Fighter 6》設為 **「無邊框視窗 (Borderless Windowed)」**。
@@ -147,7 +147,7 @@ Click a language below to expand / 點擊下方語言展開說明 / 下の言語
 
 ### クイックスタート（Windows ポータブル `.exe`）
 
-1. **ダウンロード**：**[Releases Latest](https://github.com/maxhorng/Rhythm-Combo-Trainer/releases/latest)** から **`RhythmCombo-Trainer-*-win-portable.exe`** をダウンロードし、ダブルクリックで起動（インストール・Node.js 不要）。
+1. **ダウンロード**：**[Releases Latest](https://github.com/maxhorng/Frame-Beat-Trainer/releases/latest)** から **`Frame-Beat-Trainer-*-win-portable.exe`** をダウンロードし、ダブルクリックで起動（インストール・Node.js 不要）。
    - *Windows SmartScreen が表示された場合*：**詳細情報 -> 実行** を選択してください。ソースコードは GitHub で公開されており、全リリースに **SHA-256 チェックサム**を添付しています。純粋な視覚リズム練習ツールであり、マクロ・自動入力・メモリ読み書きは一切行いません。
 2. **ゲーム設定**：
    - 『ストリートファイター6』を **ボーダーレスウィンドウ** に設定してください。
@@ -164,8 +164,8 @@ Click a language below to expand / 點擊下方語言展開說明 / 下の言語
 ## For Developers / 開發者本地執行
 
 ```bash
-git clone https://github.com/maxhorng/Rhythm-Combo-Trainer.git
-cd Rhythm-Combo-Trainer
+git clone https://github.com/maxhorng/Frame-Beat-Trainer.git
+cd Frame-Beat-Trainer
 npm install
 npm run dev       # Start in development mode
 npm run dist:win  # Build Windows portable .exe (outputs to release/)

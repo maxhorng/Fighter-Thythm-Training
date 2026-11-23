@@ -96,10 +96,10 @@ export const GameHubView: React.FC<GameHubViewProps> = ({
         <div className="titlebar-brand">
           <img
             src="./icon.png"
-            alt="RhythmCombo Trainer"
+            alt="Frame Beat Trainer (FBT)"
             style={{ width: 22, height: 22, borderRadius: 5, objectFit: 'cover' }}
           />
-          <span className="brand-title">RhythmCombo Trainer</span>
+          <span className="brand-title">Frame Beat Trainer (FBT)</span>
           <span
             style={{
               fontSize: 10,

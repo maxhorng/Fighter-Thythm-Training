@@ -1,6 +1,6 @@
 {
   "name": "fighter-music-combo",
-  "version": "0.2.0-beta.8",
+  "version": "0.2.0-beta.9",
   "author": "maxhorng / 92anini",
   "license": "UNLICENSED",
   "description": "Street Fighter 6 osu!-style Rhythm Combo Trainer Overlay",
@@ -13,6 +13,7 @@
     "build": "vite build && npm run build:electron",
     "dist:win": "npm run build && electron-builder --win portable",
     "start": "npm run build && electron .",
+    "add-combo": "node scripts/add-combo.mjs",
     "sync:framedata": "node -e \"fetch('https://raw.githubusercontent.com/D4RKONION/FAT/master/src/js/constants/framedata/SF6FrameData.json').then(r=>r.text()).then(t=>{require('fs').writeFileSync('src/data/sf6_framedata_db.json',t);console.log('Synced SF6 Frame Data DB:',Object.keys(JSON.parse(t)).length,'characters')})\""
   },
   "dependencies": {
@@ -37,7 +38,7 @@
   },
   "build": {
     "appId": "com.maxhorng.fighterthythmtraining",
-    "productName": "RhythmCombo Trainer",
+    "productName": "Frame Beat Trainer",
     "directories": {
       "output": "release"
     },
@@ -61,7 +62,7 @@
           ]
         }
       ],
-      "artifactName": "RhythmCombo-Trainer-${version}-win-portable.exe"
+      "artifactName": "Frame-Beat-Trainer-${version}-win-portable.exe"
     }
   }
 }
