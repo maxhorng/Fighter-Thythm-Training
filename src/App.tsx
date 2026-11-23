@@ -4,6 +4,7 @@ import { BUILTIN_COMBOS } from './data/combos';
 import { DEFAULT_BINDINGS } from './data/bindings';
 import { AppLang, DEFAULT_OVERLAY_HOTKEYS, OverlayHotkeys } from './data/i18n';
 import { MenuView } from './components/MenuView';
+import { GameHubView } from './components/GameHubView';
 import { OverlayView } from './components/OverlayView';
 import { RecordOverlayView } from './components/RecordOverlayView';
 
@@ -66,6 +67,7 @@ function loadCustomCombos(): ComboData[] {
 }
 
 export const App: React.FC = () => {
+  const [selectedGame, setSelectedGame] = useState<'sf6' | null>(null);
   const [mode, setMode] = useState<ControlMode>('classic');
   const [customCombos, setCustomCombos] = useState<ComboData[]>(loadCustomCombos);
   const allCombos = [...BUILTIN_COMBOS, ...customCombos];
@@ -109,6 +111,19 @@ export const App: React.FC = () => {
       return next;
     });
     setSelectedCombo((curr) => (curr.id === comboId ? BUILTIN_COMBOS[0] : curr));
+  }, []);
+
+  const handleUpdateCombo = useCallback((updated: ComboData) => {
+    setCustomCombos((prev) => {
+      const next = prev.map((c) => (c.id === updated.id ? updated : c));
+      try {
+        localStorage.setItem(STORAGE_KEY_CUSTOM_COMBOS, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+    setSelectedCombo((curr) => (curr.id === updated.id ? updated : curr));
   }, []);
 
   const commitRecordedDraftIfAny = useCallback(() => {
@@ -266,16 +281,29 @@ export const App: React.FC = () => {
     );
   }
 
+  if (selectedGame === null) {
+    return (
+      <GameHubView
+        lang={lang}
+        onChangeLang={handleChangeLang}
+        sf6ComboCount={allCombos.length}
+        onSelectGame={(g) => setSelectedGame(g)}
+      />
+    );
+  }
+
   return (
     <MenuView
       mode={mode}
       onChangeMode={setMode}
+      onBackToGames={() => setSelectedGame(null)}
       combos={allCombos}
       customComboIds={new Set(customCombos.map((c) => c.id))}
       selectedCombo={selectedCombo}
       onSelectCombo={setSelectedCombo}
       onAddCombo={handleAddCombo}
       onDeleteCombo={handleDeleteCombo}
+      onUpdateCombo={handleUpdateCombo}
       bindings={bindings}
       onChangeBindings={handleChangeBindings}
       lang={lang}

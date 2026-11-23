@@ -13,6 +13,7 @@ import {
   Trash2,
   HelpCircle,
   Download,
+  Wrench,
 } from 'lucide-react';
 import {
   ComboData,
@@ -38,12 +39,14 @@ const RELEASES_LATEST_URL = 'https://github.com/maxhorng/Rhythm-Combo-Trainer/re
 interface MenuViewProps {
   mode: ControlMode;
   onChangeMode: (mode: ControlMode) => void;
+  onBackToGames?: () => void;
   combos: ComboData[];
   customComboIds: Set<string>;
   selectedCombo: ComboData;
   onSelectCombo: (combo: ComboData) => void;
   onAddCombo: (combo: ComboData) => void;
   onDeleteCombo: (comboId: string) => void;
+  onUpdateCombo: (combo: ComboData) => void;
   bindings: KeyBindingMap;
   onChangeBindings: (next: KeyBindingMap) => void;
   lang: AppLang;
@@ -65,12 +68,14 @@ interface MenuViewProps {
 export const MenuView: React.FC<MenuViewProps> = ({
   mode,
   onChangeMode,
+  onBackToGames,
   combos,
   customComboIds,
   selectedCombo,
   onSelectCombo,
   onAddCombo,
   onDeleteCombo,
+  onUpdateCombo,
   bindings,
   onChangeBindings,
   lang,
@@ -112,6 +117,10 @@ export const MenuView: React.FC<MenuViewProps> = ({
     }
   });
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [editingCombo, setEditingCombo] = useState<ComboData | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editPosition, setEditPosition] = useState<'midscreen' | 'corner'>('midscreen');
+  const [editTags, setEditTags] = useState('');
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
   const [latestReleaseTag, setLatestReleaseTag] = useState<string | null>(null);
   const [updateDismissed, setUpdateDismissed] = useState(false);
@@ -217,6 +226,47 @@ export const MenuView: React.FC<MenuViewProps> = ({
     [combos, mode, selectedCharId, difficultyFilter, positionFilter]
   );
 
+  const openEditModal = (e: React.MouseEvent, combo: ComboData) => {
+    e.stopPropagation();
+    const pos: 'midscreen' | 'corner' = isCornerCombo(combo) ? 'corner' : 'midscreen';
+    // Strip leading [角落] and characterName, and trailing (N 擊 · Xf) so user only edits the middle name
+    let middle = combo.title
+      .replace(/^\[角落\]\s*/, '')
+      .replace(new RegExp(`^${combo.characterName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*`, 'i'), '')
+      .replace(/\s*\(\d+\s*擊\s*·\s*\d+f\)\s*$/, '')
+      .trim();
+    if (!middle) middle = '實錄連段';
+    setEditName(middle);
+    setEditPosition(pos);
+    setEditTags(
+      combo.tags
+        .filter((tg) => !/^(角落|角落限定|非角落|實機錄製|60fps原味)$/i.test(tg))
+        .join(', ')
+    );
+    setEditingCombo(combo);
+  };
+
+  const saveEditModal = () => {
+    if (!editingCombo) return;
+    const cleanName = editName.trim() || '實錄連段';
+    const hits = editingCombo.notes.length;
+    const lastFrame = editingCombo.notes[hits - 1]?.frame ?? 0;
+    const newTitle = `${editPosition === 'corner' ? '[角落] ' : ''}${editingCombo.characterName} ${cleanName} (${hits} 擊 · ${lastFrame}f)`;
+    const parsedTags = editTags
+      .split(/[,，、\s]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const posTag = editPosition === 'corner' ? '角落' : '非角落';
+    const nextTags = Array.from(new Set([posTag, ...parsedTags]));
+    onUpdateCombo({
+      ...editingCombo,
+      title: newTitle,
+      position: editPosition,
+      tags: nextTags,
+    });
+    setEditingCombo(null);
+  };
+
   const handleModeSwitch = (nextMode: ControlMode) => {
     onChangeMode(nextMode);
     const firstMatch =
@@ -241,6 +291,41 @@ export const MenuView: React.FC<MenuViewProps> = ({
       {/* Custom Titlebar */}
       <header className="titlebar">
         <div className="titlebar-brand">
+          {onBackToGames && (
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={onBackToGames}
+              style={{
+                padding: '3px 9px',
+                fontSize: 11.5,
+                fontWeight: 700,
+                marginRight: 4,
+                WebkitAppRegion: 'no-drag',
+              } as React.CSSProperties}
+              title={
+                lang === 'en'
+                  ? 'Back to Game List'
+                  : lang === 'ja'
+                  ? 'ゲーム一覧へ戻る'
+                  : lang === 'ko'
+                  ? '게임 목록으로'
+                  : lang === 'zh-CN'
+                  ? '返回游戏列表'
+                  : '返回遊戲列表'
+              }
+            >
+              {lang === 'en'
+                ? '← Games'
+                : lang === 'ja'
+                ? '← ゲーム選択'
+                : lang === 'ko'
+                ? '← 게임 목록'
+                : lang === 'zh-CN'
+                ? '← 切换游戏'
+                : '← 切換遊戲'}
+            </button>
+          )}
           <img
             src="./icon.png"
             alt="RhythmCombo Trainer"
@@ -801,22 +886,37 @@ export const MenuView: React.FC<MenuViewProps> = ({
                       </>
                     )}
                     {customComboIds.has(combo.id) && (
-                      <button
-                        className="btn-secondary"
-                        style={{
-                          padding: '2px 7px',
-                          fontSize: 11,
-                          borderColor: 'rgba(244, 63, 94, 0.45)',
-                          color: '#fda4af',
-                        }}
-                        title="刪除此自訂/實錄連段"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteCombo(combo.id);
-                        }}
-                      >
-                        <Trash2 size={12} />
-                      </button>
+                      <>
+                        <button
+                          className="btn-secondary"
+                          style={{
+                            padding: '2px 7px',
+                            fontSize: 11,
+                            borderColor: 'rgba(56, 189, 248, 0.45)',
+                            color: '#7dd3fc',
+                          }}
+                          title={lang === 'en' ? 'Edit combo name & tags' : '編輯連段名稱與標籤'}
+                          onClick={(e) => openEditModal(e, combo)}
+                        >
+                          <Wrench size={12} />
+                        </button>
+                        <button
+                          className="btn-secondary"
+                          style={{
+                            padding: '2px 7px',
+                            fontSize: 11,
+                            borderColor: 'rgba(244, 63, 94, 0.45)',
+                            color: '#fda4af',
+                          }}
+                          title="刪除此自訂/實錄連段"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteCombo(combo.id);
+                          }}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </>
                     )}
                     <span
                       className={`diff-badge ${combo.difficulty === 'Ultra Hard' ? 'ultra' : combo.difficulty.toLowerCase()}`}
@@ -977,6 +1077,138 @@ export const MenuView: React.FC<MenuViewProps> = ({
           onChangeOverlayHotkeys={onChangeOverlayHotkeys}
           onClose={() => setShowKeybinds(false)}
         />
+      )}
+
+      {editingCombo && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setEditingCombo(null)}
+          style={{ zIndex: 60 }}
+        >
+          <div
+            className="modal-card"
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: 'min(420px, 92vw)', padding: '18px 20px' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#f8fafc' }}>
+                <Wrench size={16} color="#38bdf8" />
+                <span>{lang === 'en' ? 'Edit Custom Combo' : '編輯自訂連段'}</span>
+              </div>
+              <button className="btn-icon" onClick={() => setEditingCombo(null)}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', marginBottom: 5 }}>
+                  {lang === 'en' ? 'Combo Name (Character prefix preserved)' : '連段名稱（前面自動保留角色名）'}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span
+                    style={{
+                      padding: '6px 10px',
+                      borderRadius: 8,
+                      fontSize: 12.5,
+                      fontWeight: 800,
+                      background: 'rgba(56, 189, 248, 0.16)',
+                      color: '#7dd3fc',
+                      border: '1px solid rgba(56, 189, 248, 0.4)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {editingCombo.characterName}
+                  </span>
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    placeholder={lang === 'en' ? 'e.g. Corner DR Punish' : '例如：確反綠衝'}
+                    style={{
+                      flex: 1,
+                      padding: '7px 10px',
+                      borderRadius: 8,
+                      fontSize: 13,
+                      border: '1px solid rgba(148, 163, 184, 0.35)',
+                      background: 'rgba(15, 23, 42, 0.9)',
+                      color: '#f8fafc',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', marginBottom: 5 }}>
+                  {lang === 'en' ? 'Position' : '角落分類'}
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    type="button"
+                    className={`trigger-btn ${editPosition === 'midscreen' ? 'active' : ''}`}
+                    style={{ flex: 1, padding: '7px 10px', justifyContent: 'center' }}
+                    onClick={() => setEditPosition('midscreen')}
+                  >
+                    <span style={{ fontSize: 12.5, fontWeight: 800 }}>
+                      {lang === 'en' ? 'Midscreen' : '非角落'}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`trigger-btn ${editPosition === 'corner' ? 'active' : ''}`}
+                    style={{ flex: 1, padding: '7px 10px', justifyContent: 'center' }}
+                    onClick={() => setEditPosition('corner')}
+                  >
+                    <span style={{ fontSize: 12.5, fontWeight: 800 }}>
+                      {lang === 'en' ? 'Corner' : '角落'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', marginBottom: 5 }}>
+                  {lang === 'en' ? 'Custom Tags (comma separated)' : '自訂標籤（逗號分隔，可留空）'}
+                </div>
+                <input
+                  type="text"
+                  value={editTags}
+                  onChange={(e) => setEditTags(e.target.value)}
+                  placeholder={lang === 'en' ? 'e.g. Punish, Safe Jump' : '例如：確反, 安全跳, 高傷害'}
+                  style={{
+                    width: '100%',
+                    padding: '7px 10px',
+                    borderRadius: 8,
+                    fontSize: 13,
+                    border: '1px solid rgba(148, 163, 184, 0.35)',
+                    background: 'rgba(15, 23, 42, 0.9)',
+                    color: '#f8fafc',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+                <button className="btn-secondary" onClick={() => setEditingCombo(null)}>
+                  {lang === 'en' ? 'Cancel' : '取消'}
+                </button>
+                <button
+                  className="btn-secondary"
+                  style={{
+                    background: 'rgba(56, 189, 248, 0.24)',
+                    borderColor: '#38bdf8',
+                    color: '#e0f2fe',
+                    fontWeight: 800,
+                  }}
+                  onClick={saveEditModal}
+                >
+                  {lang === 'en' ? 'Save' : '儲存'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {showImport && (

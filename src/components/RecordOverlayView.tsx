@@ -37,6 +37,7 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
   const startTimeRef = useRef<number | null>(null);
   const [recordedNotes, setRecordedNotes] = useState<ComboNote[]>([]);
   const [position, setPosition] = useState<'midscreen' | 'corner'>('midscreen');
+  const [customTitleInput, setCustomTitleInput] = useState('');
   const [customTagsInput, setCustomTagsInput] = useState('');
   const recordedRef = useRef<ComboNote[]>([]);
   recordedRef.current = recordedNotes;
@@ -105,12 +106,14 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
     const posTag = position === 'corner' ? '角落' : '非角落';
     const finalTags = Array.from(new Set([posTag, ...parsedCustomTags]));
 
+    const cleanCustomName = customTitleInput.trim() || '實錄連段';
+
     return {
       id: `rec-${Date.now()}`,
       characterId: charMeta.id,
       characterName: charMeta.name,
       mode,
-      title: `${position === 'corner' ? '[角落] ' : ''}${charMeta.name} 實錄連段 (${notes.length} 擊 · ${notes[notes.length - 1].frame}f)`,
+      title: `${position === 'corner' ? '[角落] ' : ''}${charMeta.name} ${cleanCustomName} (${notes.length} 擊 · ${notes[notes.length - 1].frame}f)`,
       difficulty: notes.length >= 6 ? 'Advanced' : 'Intermediate',
       position,
       description: `${notes.map((n) => `${n.notation}(${n.frame}f)`).join(' → ')}`,
@@ -118,7 +121,7 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
       notes,
       inputHistory: history,
     };
-  }, [charMeta.id, charMeta.name, customTagsInput, mode, position]);
+  }, [charMeta.id, charMeta.name, customTagsInput, customTitleInput, mode, position]);
 
   const finishAndSave = useCallback(() => {
     const combo = buildCombo();
@@ -728,6 +731,22 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
               >
                 {position === 'corner' ? '角落' : '非角落'}
               </button>
+              <input
+                type="text"
+                value={customTitleInput}
+                onChange={(e) => setCustomTitleInput(e.target.value)}
+                placeholder="自訂連段名(可留空)"
+                style={{
+                  width: 135,
+                  padding: '4px 8px',
+                  fontSize: 11.5,
+                  borderRadius: 6,
+                  border: '1px solid rgba(56, 189, 248, 0.45)',
+                  background: 'rgba(15, 23, 42, 0.9)',
+                  color: '#f8fafc',
+                  outline: 'none',
+                }}
+              />
               <input
                 type="text"
                 value={customTagsInput}
