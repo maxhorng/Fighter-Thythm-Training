@@ -1,6 +1,8 @@
-export type ControlMode = 'classic' | 'modern';
+﻿export type ControlMode = 'classic' | 'modern';
 
 export type PlayerSide = 'left' | 'right';
+
+export type ChartLayoutMode = 'focused' | 'fixed';
 
 export type DirectionButtonId = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 

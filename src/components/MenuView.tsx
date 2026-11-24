@@ -22,6 +22,7 @@ import {
   ControlMode,
   KeyBindingMap,
   PlayerSide,
+  ChartLayoutMode,
   StartTriggerMode,
 } from '../types/combo';
 import { CHARACTERS } from '../data/combos';
@@ -61,6 +62,8 @@ interface MenuViewProps {
   onChangeTriggerMode: (m: StartTriggerMode) => void;
   playerSide: PlayerSide;
   onChangePlayerSide: (side: PlayerSide) => void;
+  chartLayout: ChartLayoutMode;
+  onChangeChartLayout: (m: ChartLayoutMode) => void;
   showRecordedInputs: boolean;
   onChangeShowRecordedInputs: (v: boolean) => void;
   lowPerfMode: boolean;
@@ -94,6 +97,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
   onChangeTriggerMode,
   playerSide,
   onChangePlayerSide,
+  chartLayout,
+  onChangeChartLayout,
   showRecordedInputs,
   onChangeShowRecordedInputs,
   lowPerfMode,
@@ -1156,6 +1161,28 @@ export const MenuView: React.FC<MenuViewProps> = ({
                 <span style={{ fontSize: 12.5, fontWeight: 800 }}>
                   {t.sideRight}
                 </span>
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', marginRight: 2 }}>
+                {t.chartLayoutLabel}
+              </span>
+              <button
+                type="button"
+                className={`trigger-btn ${chartLayout === 'focused' ? 'active' : ''}`}
+                style={{ flex: 1, padding: '6px 10px', justifyContent: 'center' }}
+                onClick={() => onChangeChartLayout('focused')}
+              >
+                <span style={{ fontSize: 12.5, fontWeight: 800 }}>{t.chartLayoutFocused}</span>
+              </button>
+              <button
+                type="button"
+                className={`trigger-btn ${chartLayout === 'fixed' ? 'active' : ''}`}
+                style={{ flex: 1, padding: '6px 10px', justifyContent: 'center' }}
+                onClick={() => onChangeChartLayout('fixed')}
+              >
+                <span style={{ fontSize: 12.5, fontWeight: 800 }}>{t.chartLayoutFixed}</span>
               </button>
             </div>
 

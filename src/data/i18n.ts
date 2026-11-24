@@ -205,6 +205,9 @@ export const I18N = {
     sideLabel: '站位方向：',
     sideLeft: '◀ 1P 左側（預設）',
     sideRight: '2P 右側（鏡像） ▶',
+    chartLayoutLabel: '版面模式：',
+    chartLayoutFocused: '◎ 聚焦模式',
+    chartLayoutFixed: '▦ 固定版面',
   },
   'zh-CN': {
     appSubtitle: 'Street Fighter 6 · 透明覆盖节奏连段训练器',
@@ -309,6 +312,9 @@ export const I18N = {
     sideLabel: '站位方向：',
     sideLeft: '◀ 1P 左侧（默认）',
     sideRight: '2P 右侧（镜像） ▶',
+    chartLayoutLabel: '版面模式：',
+    chartLayoutFocused: '◎ 聚焦模式',
+    chartLayoutFixed: '▦ 固定版面',
   },
   en: {
     appSubtitle: 'Street Fighter 6 · Transparent Rhythm Combo Trainer',
@@ -413,6 +419,9 @@ export const I18N = {
     sideLabel: 'Side:',
     sideLeft: '◀ 1P Left (Default)',
     sideRight: '2P Right (Mirrored) ▶',
+    chartLayoutLabel: 'Chart Layout:',
+    chartLayoutFocused: '◎ Focused',
+    chartLayoutFixed: '▦ Fixed Layout',
   },
   ja: {
     appSubtitle: 'Street Fighter 6 · 透過オーバーレイ コンボリズム練習ツール',
@@ -517,6 +526,9 @@ export const I18N = {
     sideLabel: '立ち位置：',
     sideLeft: '◀ 1P 左側（標準）',
     sideRight: '2P 右側（反転） ▶',
+    chartLayoutLabel: '譜面レイアウト：',
+    chartLayoutFocused: '◎ フォーカス',
+    chartLayoutFixed: '▦ 固定レイアウト',
   },
   ko: {
     appSubtitle: 'Street Fighter 6 · 투명 오버레이 리듬 콤보 트레이너',
@@ -621,6 +633,9 @@ export const I18N = {
     sideLabel: '위치 방향:',
     sideLeft: '◀ 1P 왼쪽 (기본)',
     sideRight: '2P 오른쪽 (좌우반전) ▶',
+    chartLayoutLabel: '차트 레이아웃:',
+    chartLayoutFocused: '◎ 포커스',
+    chartLayoutFixed: '▦ 고정 레이아웃',
   },
 } as const;
 

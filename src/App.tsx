@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ComboData, ControlMode, KeyBindingMap, PlayerSide, StartTriggerMode } from './types/combo';
+import { ChartLayoutMode, ComboData, ControlMode, KeyBindingMap, PlayerSide, StartTriggerMode } from './types/combo';
 import { BUILTIN_COMBOS } from './data/combos';
 import { DEFAULT_BINDINGS } from './data/bindings';
 import { AppLang, DEFAULT_OVERLAY_HOTKEYS, OverlayHotkeys } from './data/i18n';
@@ -30,6 +30,14 @@ function loadSfxEnabled(): boolean {
     return localStorage.getItem(STORAGE_KEY_SFX) !== '0';
   } catch {
     return true;
+  }
+}
+
+function loadChartLayout(): ChartLayoutMode {
+  try {
+    return localStorage.getItem('fbt_chart_layout_v1') === 'fixed' ? 'fixed' : 'focused';
+  } catch {
+    return 'focused';
   }
 }
 
@@ -97,6 +105,7 @@ export const App: React.FC = () => {
   const [triggerMode, setTriggerMode] = useState<StartTriggerMode>('trigger-first');
   const [playerSide, setPlayerSide] = useState<PlayerSide>('left');
   const [showRecordedInputs, setShowRecordedInputs] = useState(true);
+  const [chartLayout, setChartLayout] = useState<ChartLayoutMode>(loadChartLayout);
   const [lowPerfMode, setLowPerfMode] = useState<boolean>(loadLowPerfMode);
   const [sfxEnabled, setSfxEnabled] = useState<boolean>(() => {
     const v = loadSfxEnabled();
@@ -205,6 +214,15 @@ export const App: React.FC = () => {
     setDynamicResync(next);
     try {
       localStorage.setItem(STORAGE_KEY_DYNAMIC_RESYNC, next ? '1' : '0');
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleChangeChartLayout = (next: ChartLayoutMode) => {
+    setChartLayout(next);
+    try {
+      localStorage.setItem('fbt_chart_layout_v1', next);
     } catch {
       // ignore
     }
@@ -320,6 +338,7 @@ export const App: React.FC = () => {
         playerSide={playerSide}
         showRecordedInputs={showRecordedInputs}
         lowPerfMode={lowPerfMode}
+        chartLayout={chartLayout}
         sfxEnabled={sfxEnabled}
         dynamicResync={dynamicResync}
         isClickThrough={isClickThrough}
@@ -361,6 +380,8 @@ export const App: React.FC = () => {
       onChangeTriggerMode={setTriggerMode}
       playerSide={playerSide}
       onChangePlayerSide={setPlayerSide}
+      chartLayout={chartLayout}
+      onChangeChartLayout={handleChangeChartLayout}
       showRecordedInputs={showRecordedInputs}
       onChangeShowRecordedInputs={setShowRecordedInputs}
       lowPerfMode={lowPerfMode}

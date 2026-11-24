@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, MousePointerClick, RotateCcw } from 'lucide-react';
 import {
   ActionButtonId,
+  ChartLayoutMode,
   ComboData,
   ComboNote,
   ControlMode,
@@ -28,6 +29,7 @@ interface OverlayViewProps {
   playerSide: PlayerSide;
   showRecordedInputs: boolean;
   lowPerfMode: boolean;
+  chartLayout?: ChartLayoutMode;
   sfxEnabled?: boolean;
   /** When true, late presses on cancel/juggle notes shift the playback clock (adaptive tempo).
    *  When false (default), playback strictly reproduces the recorded rhythm. */
@@ -92,6 +94,389 @@ function mirrorSet(set: Set<ActionButtonId>, isRight: boolean): Set<ActionButton
 }
 
 /**
+ * Fixed Layout (arcade / hitbox) board:
+ * - Right side: fixed attack button grid (gray when idle, lit + shrinking osu! approach ring + sequence badge + follow lines).
+ * - Left side: original osu! drawMotionSlider for motions, original direction circle for simple directions, or subtle gray idle circle.
+ */
+function drawFixedBoard(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  notes: ComboNote[],
+  activeIdx: number,
+  currentFrame: number,
+  phase: string,
+  now: number,
+  mode: ControlMode,
+  isRight: boolean,
+  lowPerfMode: boolean
+) {
+  const R = Math.max(30, Math.min(42, w * 0.026));
+  const gap = R * 2.35;
+  // Left direction / motion cue center
+  const padX = w * 0.22;
+  const padY = h * 0.44;
+  // Right fixed attack button grid
+  const gx = w * 0.62;
+  const gy = h * 0.34;
+  const gapX = R * 2.5;
+  const gapY = R * 2.5;
+  const pos: Partial<Record<ActionButtonId, { x: number; y: number; r: number }>> = {};
+  const top: ActionButtonId[] = mode === 'modern' ? ['L', 'M', 'H', 'DI'] : ['LP', 'MP', 'HP', 'DI'];
+  const bottom: ActionButtonId[] = mode === 'modern' ? ['SP', 'AUTO', 'PARRY'] : ['LK', 'MK', 'HK', 'PARRY'];
+  top.forEach((b, i) => { pos[b] = { x: gx + i * gapX, y: gy, r: R }; });
+  bottom.forEach((b, i) => { pos[b] = { x: gx + i * gapX, y: gy + gapY, r: R }; });
+
+  const lit = new Map<ActionButtonId, { color: string; scale: number; prog: number; gold: boolean; alpha: number; seq: number; isActive: boolean }[]>();
+  const visible: number[] = [];
+  for (let i = activeIdx; i < notes.length && visible.length < 8; i++) {
+    const until = notes[i].frame - currentFrame;
+    if (i === activeIdx || (phase !== 'waiting-first' && until <= APPROACH_FRAMES)) visible.push(i);
+    else break;
+  }
+
+  // Resolve each visible note into right-side fixed attack buttons
+  const attackTargets = (n: ComboNote): ActionButtonId[] =>
+    n.buttons.filter((b) => !DIRECTION_IDS.has(b) && Boolean(pos[b]));
+
+  visible.forEach((idx) => {
+    const n = notes[idx];
+    const isActive = idx === activeIdx;
+    const until = n.frame - currentFrame;
+    let prog: number;
+    let scale: number;
+    if (phase === 'waiting-first' && isActive) {
+      const pulse = (Math.sin(now / 220) + 1) / 2;
+      prog = 0.5 + pulse * 0.5;
+      scale = 1.12 + pulse * 0.35;
+    } else {
+      const c = Math.max(0, Math.min(APPROACH_FRAMES, until));
+      prog = 1 - c / APPROACH_FRAMES;
+      scale = 1 + (1 - prog) * 1.6;
+    }
+    const gold = phase === 'playing' && until <= 9 && until >= -2;
+    const attacks = n.buttons.filter((b) => !DIRECTION_IDS.has(b));
+    const primary = attacks[attacks.length - 1] ?? n.buttons[n.buttons.length - 1];
+    const color = BUTTON_META[primary]?.color ?? '#38bdf8';
+    const alpha = isActive ? 1 : Math.min(0.9, prog * 2 + 0.2);
+    attackTargets(n).forEach((b) => {
+      const arr = lit.get(b) ?? [];
+      arr.push({ color, scale, prog, gold, alpha, seq: idx + 1, isActive });
+      lit.set(b, arr);
+    });
+  });
+
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Board panels (ultra-subtle transparent backdrop so SF6 remains clearly visible)
+  const panel = (x: number, y: number, pw: number, ph: number) => {
+    ctx.fillStyle = 'rgba(10, 14, 24, 0.12)';
+    ctx.beginPath();
+    ctx.roundRect(x, y, pw, ph, 22);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.10)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  };
+  panel(padX - gap - R - 22, padY - gap - R - 22, gap * 2 + R * 2 + 44, gap * 2 + R * 2 + 44);
+
+  // Left side:
+  // Always draw the 8 fixed directional buttons at exact drawMotionSlider coordinates
+  // (ring radius = 72, button radius = 26, centered at (padX, padY)).
+  // When active/imminent note has a motion, draw the exact original drawMotionSlider right on top
+  // at centerY = padY + 72 * 0.15 so its arcCy === padY aligns dead-center on 2/3/6 (and 2/1/4, 6/2/4).
+  const ringR = 72;
+  const btnR = 26;
+  const compass: { key: string; arrow: string; x: number; y: number }[] = [
+    { key: '8', arrow: '↑', x: padX, y: padY - ringR },
+    { key: '9', arrow: '↗', x: padX + ringR * Math.SQRT1_2, y: padY - ringR * Math.SQRT1_2 },
+    { key: '6', arrow: '→', x: padX + ringR, y: padY },
+    { key: '3', arrow: '↘', x: padX + ringR * Math.SQRT1_2, y: padY + ringR * Math.SQRT1_2 },
+    { key: '2', arrow: '↓', x: padX, y: padY + ringR },
+    { key: '1', arrow: '↙', x: padX - ringR * Math.SQRT1_2, y: padY + ringR * Math.SQRT1_2 },
+    { key: '4', arrow: '←', x: padX - ringR, y: padY },
+    { key: '7', arrow: '↖', x: padX - ringR * Math.SQRT1_2, y: padY - ringR * Math.SQRT1_2 },
+  ];
+  const compassMap = new Map(compass.map((c) => [c.key, c]));
+
+  // Draw all 8 idle ghosted compass buttons
+  compass.forEach((c) => {
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, btnR, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.20)';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.38)';
+    ctx.font = '900 22px system-ui, sans-serif';
+    ctx.fillText(c.arrow, c.x, c.y);
+  });
+
+  // Subtle neutral center dot
+  ctx.beginPath();
+  ctx.arc(padX, padY, 5, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(148, 163, 184, 0.22)';
+  ctx.fill();
+
+  // Light up required 8-way direction(s) for visible non-motion notes (later notes first)
+  const dirEvents: {
+    key: string;
+    color: string;
+    scale: number;
+    gold: boolean;
+    alpha: number;
+    seq: number;
+    isActive: boolean;
+  }[] = [];
+
+  visible.forEach((idx) => {
+    const n = notes[idx];
+    if (n.motion) return;
+    const dirs = n.buttons
+      .filter((b) => DIRECTION_IDS.has(b))
+      .map((b) => mirrorBtn(b, isRight));
+    if (dirs.length === 0) return;
+
+    const hasUp = dirs.includes('UP');
+    const hasDown = dirs.includes('DOWN');
+    const hasLeft = dirs.includes('LEFT');
+    const hasRight = dirs.includes('RIGHT');
+    const key =
+      hasDown && hasRight
+        ? '3'
+        : hasDown && hasLeft
+        ? '1'
+        : hasUp && hasRight
+        ? '9'
+        : hasUp && hasLeft
+        ? '7'
+        : hasDown
+        ? '2'
+        : hasUp
+        ? '8'
+        : hasLeft
+        ? '4'
+        : hasRight
+        ? '6'
+        : '';
+    if (!key) return;
+
+    const isActive = idx === activeIdx;
+    const until = n.frame - currentFrame;
+    let prog: number;
+    let scale: number;
+    if (phase === 'waiting-first' && isActive) {
+      const pulse = (Math.sin(now / 220) + 1) / 2;
+      prog = 0.5 + pulse * 0.5;
+      scale = 1.15 + pulse * 0.35;
+    } else {
+      const c = Math.max(0, Math.min(APPROACH_FRAMES, until));
+      prog = 1 - c / APPROACH_FRAMES;
+      scale = 1 + (1 - prog) * 1.5;
+    }
+    const gold = phase === 'playing' && until <= 9 && until >= -2;
+    const attacks = n.buttons.filter((b) => !DIRECTION_IDS.has(b));
+    const primary = attacks[attacks.length - 1] ?? n.buttons[n.buttons.length - 1];
+    const color = BUTTON_META[primary]?.color ?? '#38bdf8';
+    const alpha = isActive ? 1 : Math.min(0.9, prog * 2 + 0.2);
+    dirEvents.push({ key, color, scale, gold, alpha, seq: idx + 1, isActive });
+  });
+
+  dirEvents.sort((a, b) => b.seq - a.seq);
+  dirEvents.forEach((e) => {
+    const c = compassMap.get(e.key);
+    if (!c) return;
+    const ring = e.gold ? '#facc15' : e.color;
+    ctx.save();
+    ctx.globalAlpha = e.alpha;
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, btnR * e.scale, 0, Math.PI * 2);
+    ctx.strokeStyle = ring;
+    ctx.lineWidth = e.gold ? 4.5 : 3.5;
+    if (!lowPerfMode) {
+      ctx.shadowColor = ring;
+      ctx.shadowBlur = e.gold ? 18 : 10;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, btnR, 0, Math.PI * 2);
+    ctx.fillStyle = e.gold ? 'rgba(250, 204, 21, 0.42)' : e.color + '55';
+    ctx.fill();
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = e.isActive ? '#ffffff' : ring;
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 22px system-ui, sans-serif';
+    ctx.fillText(c.arrow, c.x, c.y);
+    ctx.restore();
+  });
+
+  // Overlay the exact original drawMotionSlider right on top when active/imminent note has a motion
+  const activeNote = activeIdx < notes.length ? notes[activeIdx] : undefined;
+  const activeHasDir = Boolean(activeNote?.buttons.some((b) => DIRECTION_IDS.has(b)));
+  const motionIdx = activeNote?.motion
+    ? activeIdx
+    : !activeHasDir
+    ? visible.find((idx) => idx > activeIdx && Boolean(notes[idx].motion))
+    : undefined;
+
+  if (motionIdx !== undefined) {
+    const lNote = notes[motionIdx];
+    const lUntil = lNote.frame - currentFrame;
+    const lProg =
+      phase === 'waiting-first' && motionIdx === activeIdx
+        ? 0.5 + ((Math.sin(now / 220) + 1) / 2) * 0.5
+        : 1 - Math.max(0, Math.min(APPROACH_FRAMES, lUntil)) / APPROACH_FRAMES;
+    const lGold = phase === 'playing' && lUntil <= 9 && lUntil >= -2;
+    const lAttacks = lNote.buttons.filter((b) => !DIRECTION_IDS.has(b));
+    const lPrimary = lAttacks[lAttacks.length - 1] ?? lNote.buttons[lNote.buttons.length - 1];
+    const lRingColor = lGold ? '#facc15' : (BUTTON_META[lPrimary]?.color ?? '#38bdf8');
+    const lAlpha = motionIdx === activeIdx ? 1 : Math.min(0.9, lProg * 2 + 0.2);
+
+    ctx.save();
+    ctx.globalAlpha = lAlpha;
+    drawMotionSlider(
+      ctx,
+      lNote.motion!,
+      padX,
+      padY + ringR * 0.15,
+      ringR,
+      lProg,
+      lRingColor,
+      motionIdx + 1,
+      lowPerfMode,
+      isRight
+    );
+    ctx.restore();
+  }
+
+  // Right-side fixed base attack buttons (ghosted when idle)
+  (Object.keys(pos) as ActionButtonId[]).forEach((b) => {
+    const p = pos[b]!;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.20)';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.38)';
+    ctx.font = '900 17px system-ui, sans-serif';
+    ctx.fillText(BUTTON_META[b]?.shortLabel ?? b, p.x, p.y);
+  });
+
+  // Follow-point dashed lines: active note -> next notes (on their primary attack positions)
+  const anchor = (n: ComboNote): { x: number; y: number } | null => {
+    const attacks = attackTargets(n);
+    const key = attacks[attacks.length - 1];
+    const p = key ? pos[key] : undefined;
+    return p ? { x: p.x, y: p.y } : null;
+  };
+  if (visible.length > 1) {
+    ctx.save();
+    ctx.setLineDash([7, 7]);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.42)';
+    ctx.lineWidth = 3;
+    for (let k = 0; k < visible.length - 1; k++) {
+      const a = anchor(notes[visible[k]]);
+      const b = anchor(notes[visible[k + 1]]);
+      if (!a || !b || (a.x === b.x && a.y === b.y)) continue;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const len = Math.hypot(dx, dy);
+      const ux = dx / len;
+      const uy = dy / len;
+      ctx.beginPath();
+      ctx.moveTo(a.x + ux * (R + 4), a.y + uy * (R + 4));
+      ctx.lineTo(b.x - ux * (R + 4), b.y - uy * (R + 4));
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // Right-side lit attack notes (draw later notes first so earlier ones stay on top)
+  const entries = Array.from(lit.entries());
+  const all: { b: ActionButtonId; e: (typeof entries)[number][1][number] }[] = [];
+  entries.forEach(([b, arr]) => arr.forEach((e) => all.push({ b, e })));
+  all.sort((a, b) => b.e.seq - a.e.seq);
+  all.forEach(({ b, e }) => {
+    const p = pos[b]!;
+    const ring = e.gold ? '#facc15' : e.color;
+    ctx.save();
+    ctx.globalAlpha = e.alpha;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * e.scale, 0, Math.PI * 2);
+    ctx.strokeStyle = ring;
+    ctx.lineWidth = e.gold ? 5 : 3.5;
+    if (!lowPerfMode) {
+      ctx.shadowColor = ring;
+      ctx.shadowBlur = e.gold ? 20 : 10;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = e.gold ? 'rgba(250, 204, 21, 0.4)' : e.color + '55';
+    ctx.fill();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = e.isActive ? '#ffffff' : ring;
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 17px system-ui, sans-serif';
+    ctx.fillText(BUTTON_META[b]?.shortLabel ?? b, p.x, p.y);
+    // sequence number badge
+    const bx = p.x - p.r * 0.72;
+    const by = p.y - p.r * 0.72;
+    ctx.beginPath();
+    ctx.arc(bx, by, 12, 0, Math.PI * 2);
+    ctx.fillStyle = ring;
+    ctx.fill();
+    ctx.fillStyle = '#090d16';
+    ctx.font = '900 12px system-ui, sans-serif';
+    ctx.fillText(String(e.seq), bx, by);
+    ctx.restore();
+  });
+
+  // Move name + motion/notation badge for the active note
+  if (activeIdx < notes.length) {
+    const n = notes[activeIdx];
+    const arrows: Record<string, string> = isRight
+      ? { '236': '↓↙← 236', '214': '↓↘→ 214', '623': '←↓↙ 623', '6214': '←↓→ 6214', '22': '↓↓ 22', '66': '←← 66' }
+      : { '236': '↓↘→ 236', '214': '↓↙← 214', '623': '→↓↘ 623', '6214': '→↓← 6214', '22': '↓↓ 22', '66': '→→ 66' };
+    const text = n.motion ? (arrows[n.motion] ?? n.motion) : '';
+    const label = `${activeIdx + 1}. ${n.notation}${text ? '  ' + text : ''}`;
+    ctx.font = '800 16px system-ui, sans-serif';
+    const tw = ctx.measureText(label).width + 28;
+    const by = padY + gap + R + 52;
+    ctx.fillStyle = 'rgba(10, 14, 24, 0.88)';
+    ctx.beginPath();
+    ctx.roundRect(padX - tw / 2, by - 14, tw, 28, 14);
+    ctx.fill();
+    ctx.strokeStyle = n.motion ? '#facc15' : 'rgba(148, 163, 184, 0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillText(label, padX, by);
+
+    ctx.font = '700 14px system-ui, sans-serif';
+    const mw = ctx.measureText(n.moveName).width + 26;
+    const my = gy + gapY + R + 46;
+    ctx.fillStyle = 'rgba(10, 14, 24, 0.88)';
+    ctx.beginPath();
+    ctx.roundRect(gx + gapX * 1.5 - mw / 2, my - 13, mw, 26, 13);
+    ctx.fill();
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillText(n.moveName, gx + gapX * 1.5, my);
+  }
+  ctx.restore();
+}
+/**
  * Draws an osu!-style motion slider (236 QCF, 214 QCB, 623 DP) on the LEFT half of the screen.
  */
 function drawMotionSlider(
@@ -108,8 +493,8 @@ function drawMotionSlider(
 ) {
   ctx.save();
 
-  // Slider ball glides along the track during the last 55% of the approach window
-  const slideT = Math.max(0, Math.min(1, (progress - 0.45) / 0.55));
+  // Realistic SF6 motion speed: glide briskly over the last ~11.5 frames (32% of 36f approach)
+  const slideT = Math.max(0, Math.min(1, (progress - 0.68) / 0.32));
 
   if (motion === '236' || motion === '214') {
     const isRight = mirrored ? motion === '214' : motion === '236';
@@ -802,6 +1187,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   playerSide,
   showRecordedInputs,
   lowPerfMode,
+  chartLayout = 'focused',
   sfxEnabled = true,
   dynamicResync = false,
   isClickThrough,
@@ -1259,7 +1645,12 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         }
       }
 
-      if (chainIndices.length > 0) {
+      const isFixed = chartLayout === 'fixed';
+      if (isFixed) {
+        drawFixedBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, mode, isRightSide, lowPerfMode);
+      }
+
+      if (!isFixed && chainIndices.length > 0) {
         const nextRadius = 42;
         const firstNextX = centerX + CIRCLE_RADIUS + 115;
         const chainGapX = 128;
@@ -1424,7 +1815,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       }
 
       // 2. Render CURRENT ACTIVE NOTE right in the CENTER (1.5x larger)
-      if (activeIdx < notes.length) {
+      if (!isFixed && activeIdx < notes.length) {
         const note = notes[activeIdx];
         const attackButtons = note.buttons.filter((b) => !DIRECTION_IDS.has(b));
         const dirButtons = note.buttons
@@ -1822,7 +2213,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
     };
-  }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, sfxEnabled, recordHit, resetRun, activeButtonsRef, getCurrentChargeMs, isRightSide, lang]);
+  }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, chartLayout, sfxEnabled, recordHit, resetRun, activeButtonsRef, getCurrentChargeMs, isRightSide, lang]);
 
   const totalHits = stats.perfect + stats.good + stats.early + stats.late + stats.miss;
   const accuracy =
