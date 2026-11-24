@@ -174,6 +174,7 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
   const [modeFilter, setModeFilter] = useState('');
   const [posFilter, setPosFilter] = useState('');
   const [sort, setSort] = useState<OnlineSort>('likes');
+  const [showUnverified, setShowUnverified] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
 
@@ -257,6 +258,7 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
           sort,
           q: appliedSearch || undefined,
           page: targetPage,
+          includePending: showUnverified,
         });
         setItems((prev) => (append ? [...prev, ...res.items] : res.items));
         setPage(res.page);
@@ -271,7 +273,7 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
         setLoadingList(false);
       }
     },
-    [configured, charFilter, diffFilter, modeFilter, posFilter, sort, appliedSearch, t, reportLimitIfAny]
+    [configured, charFilter, diffFilter, modeFilter, posFilter, sort, appliedSearch, showUnverified, t, reportLimitIfAny]
   );
 
   useEffect(() => {
@@ -777,6 +779,35 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
                 <option value="new">{t.sortNew}</option>
               </select>
 
+              <label
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  padding: '4px 9px',
+                  borderRadius: 7,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  border: showUnverified
+                    ? '1px solid rgba(251, 191, 36, 0.65)'
+                    : '1px solid rgba(148, 163, 184, 0.3)',
+                  background: showUnverified
+                    ? 'rgba(245, 158, 11, 0.18)'
+                    : 'rgba(15, 23, 42, 0.9)',
+                  color: showUnverified ? '#fde047' : '#cbd5e1',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={showUnverified}
+                  onChange={(e) => setShowUnverified(e.target.checked)}
+                  style={{ accentColor: '#fbbf24', width: 13, height: 13, margin: 0 }}
+                />
+                <span>{t.showUnverified}</span>
+              </label>
+
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -922,6 +953,21 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
                             </span>
                           )}
                           {renderDifficultyBadge(item.difficulty)}
+                          {item.status === 'pending' && (
+                            <span
+                              style={{
+                                fontSize: 10.5,
+                                fontWeight: 800,
+                                padding: '1px 7px',
+                                borderRadius: 999,
+                                background: 'rgba(245, 158, 11, 0.2)',
+                                color: '#fde047',
+                                border: '1px solid rgba(251, 191, 36, 0.6)',
+                              }}
+                            >
+                              {t.unverifiedBadge}
+                            </span>
+                          )}
                           <span style={{ fontWeight: 700, fontSize: 13.5, color: '#f8fafc' }}>
                             {displayTitle}
                           </span>

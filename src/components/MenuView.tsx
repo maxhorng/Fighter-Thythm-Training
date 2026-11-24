@@ -143,6 +143,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [editingCombo, setEditingCombo] = useState<ComboData | null>(null);
   const [editName, setEditName] = useState('');
+  const [editDifficulty, setEditDifficulty] = useState<ComboData['difficulty']>('Intermediate');
   const [editPosition, setEditPosition] = useState<'midscreen' | 'corner'>('midscreen');
   const [editTags, setEditTags] = useState('');
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
@@ -268,6 +269,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
       .trim();
     if (!middle) middle = '實錄連段';
     setEditName(middle);
+    setEditDifficulty(combo.difficulty);
     setEditPosition(pos);
     setEditTags(
       combo.tags
@@ -292,6 +294,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
     onUpdateCombo({
       ...editingCombo,
       title: newTitle,
+      difficulty: editDifficulty,
       position: editPosition,
       tags: nextTags,
     });
@@ -1240,6 +1243,47 @@ export const MenuView: React.FC<MenuViewProps> = ({
                       outline: 'none',
                     }}
                   />
+                </div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', marginBottom: 5 }}>
+                  {lang === 'en' ? 'Difficulty' : lang === 'ja' ? '難易度' : lang === 'ko' ? '난이도' : '難度分類'}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {(
+                    [
+                      { id: 'Beginner', label: t.filterEasy, color: '#4ade80' },
+                      { id: 'Intermediate', label: t.filterMedium, color: '#facc15' },
+                      { id: 'Advanced', label: t.filterHard, color: '#fb7185' },
+                      { id: 'Ultra Hard', label: 'Ultra Hard', color: '#c084fc' },
+                    ] as const
+                  ).map((opt) => {
+                    const active = editDifficulty === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setEditDifficulty(opt.id)}
+                        style={{
+                          flex: 1,
+                          minWidth: 72,
+                          padding: '6px 8px',
+                          fontSize: 12,
+                          fontWeight: 800,
+                          borderRadius: 8,
+                          cursor: 'pointer',
+                          border: active
+                            ? `1px solid ${opt.color}`
+                            : '1px solid rgba(148, 163, 184, 0.3)',
+                          background: active ? `${opt.color}28` : 'rgba(15, 23, 42, 0.8)',
+                          color: active ? opt.color : '#cbd5e1',
+                        }}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

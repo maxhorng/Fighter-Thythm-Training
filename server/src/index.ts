@@ -34,6 +34,7 @@ export interface Env {
   DISCORD_REDIRECT_URI: string;
   SESSION_SECRET: string;
   ADMIN_TOKEN: string;
+  ADMIN_DISCORD_IDS?: string;
   AUTO_APPROVE?: string;
   MIN_ACCOUNT_AGE_DAYS?: string;
   DISCORD_WEBHOOK_URL?: string;
@@ -398,6 +399,7 @@ async function listCombos(req: Request, url: URL, env: Env, ctx: ExecutionContex
   const sort = url.searchParams.get('sort') ?? 'likes';
   const q = (url.searchParams.get('q') ?? '').trim().slice(0, 40);
   const page = Math.max(0, Math.min(500, Number(url.searchParams.get('page') ?? '0') || 0));
+  const includePending = url.searchParams.get('includePending') === '1';
 
   if (character && !SF6_CHARACTER_IDS.has(character)) throw new HttpError(400, 'bad_request', 'Unknown character.');
   if (difficulty && !['Beginner', 'Intermediate', 'Advanced', 'Ultra Hard'].includes(difficulty)) {
@@ -408,7 +410,16 @@ async function listCombos(req: Request, url: URL, env: Env, ctx: ExecutionContex
   if (!['likes', 'downloads', 'new'].includes(sort)) throw new HttpError(400, 'bad_request', 'Unknown sort.');
 
   const canonical = new URL(url.origin + '/api/combos');
-  Object.entries({ character, difficulty, mode, position, sort, q, page: String(page) }).forEach(([k, v]) => {
+  Object.entries({
+    character,
+    difficulty,
+    mode,
+    position,
+    sort,
+    q,
+    page: String(page),
+    includePending: includePending ? '1' : '',
+  }).forEach(([k, v]) => {
     if (v) canonical.searchParams.set(k, v);
   });
   const cacheKey = new Request(canonical.toString(), { method: 'GET' });
@@ -416,7 +427,7 @@ async function listCombos(req: Request, url: URL, env: Env, ctx: ExecutionContex
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
-  const where: string[] = [`c.status = 'approved'`];
+  const where: string[] = [includePending ? `c.status IN ('approved', 'pending')` : `c.status = 'approved'`];
   const binds: unknown[] = [];
   if (character) (where.push('c.character_id = ?'), binds.push(character));
   if (difficulty) (where.push('c.difficulty = ?'), binds.push(difficulty));
@@ -429,10 +440,10 @@ async function listCombos(req: Request, url: URL, env: Env, ctx: ExecutionContex
   }
   const orderBy =
     sort === 'downloads'
-      ? 'c.downloads DESC, c.likes DESC, c.approved_at DESC'
+      ? 'c.downloads DESC, c.likes DESC, COALESCE(c.approved_at, c.created_at) DESC'
       : sort === 'new'
-      ? 'c.approved_at DESC'
-      : 'c.likes DESC, c.downloads DESC, c.approved_at DESC';
+      ? 'COALESCE(c.approved_at, c.created_at) DESC'
+      : 'c.likes DESC, c.downloads DESC, COALESCE(c.approved_at, c.created_at) DESC';
 
   const { results } = await env.DB.prepare(
     `SELECT ${LIST_COLUMNS} FROM combos c JOIN users u ON u.id = c.user_id
@@ -457,7 +468,7 @@ async function serveFile(id: string, req: Request, env: Env, ctx: ExecutionConte
   const cacheKey = new Request(new URL(req.url).toString(), { method: 'GET' });
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
-  const row = await env.DB.prepare(`SELECT body FROM combos WHERE id = ? AND status = 'approved'`)
+  const row = await env.DB.prepare(`SELECT body FROM combos WHERE id = ? AND status IN ('approved', 'pending')`)
     .bind(id)
     .first<{ body: string }>();
   if (!row) throw new HttpError(404, 'not_found', 'Combo not found.');
@@ -516,16 +527,27 @@ async function checkUploadLimits(env: Env, userId: string, ip: string) {
   }
 }
 
+function isAdminDiscordUser(userId: string, env: Env): boolean {
+  if (!env.ADMIN_DISCORD_IDS) return false;
+  return env.ADMIN_DISCORD_IDS.split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .includes(userId);
+}
+
 async function uploadCombo(req: Request, url: URL, env: Env, ctx: ExecutionContext): Promise<Response> {
   const user = await requireUser(req, env);
   const ip = await ipHash(req, env);
-  await rateLimit(env.WRITE_LIMITER, `write:${ip}`);
-  await checkUploadLimits(env, user.id, ip);
+  const isAdminUser = isAdminDiscordUser(user.id, env);
+  if (!isAdminUser) {
+    await rateLimit(env.WRITE_LIMITER, `write:${ip}`);
+    await checkUploadLimits(env, user.id, ip);
 
-  // Every authenticated attempt counts (even invalid ones) so the limit cannot be probed for free
-  await env.DB.prepare('INSERT INTO upload_attempts (user_id, ip_hash, created_at) VALUES (?, ?, ?)')
-    .bind(user.id, ip, Date.now())
-    .run();
+    // Every authenticated attempt counts (even invalid ones) so the limit cannot be probed for free
+    await env.DB.prepare('INSERT INTO upload_attempts (user_id, ip_hash, created_at) VALUES (?, ?, ?)')
+      .bind(user.id, ip, Date.now())
+      .run();
+  }
 
   const declared = Number(req.headers.get('Content-Length') ?? '0');
   if (declared > COMBO_LIMITS.maxJsonBytes) {
@@ -558,7 +580,7 @@ async function uploadCombo(req: Request, url: URL, env: Env, ctx: ExecutionConte
   const dup = await env.DB.prepare('SELECT id FROM combos WHERE content_hash = ?').bind(contentHash).first<{ id: string }>();
   if (dup) throw new HttpError(409, 'duplicate', 'An identical combo has already been uploaded.', { existingId: dup.id });
 
-  const autoApprove = env.AUTO_APPROVE === 'true';
+  const autoApprove = env.AUTO_APPROVE === 'true' || isAdminUser;
   const now = Date.now();
   await env.DB.prepare(
     `INSERT INTO combos (id, user_id, character_id, mode, difficulty, position, title, title_en, tags_json,
@@ -615,7 +637,7 @@ async function toggleLike(id: string, req: Request, env: Env): Promise<Response>
   const user = await requireUser(req, env);
   await rateLimit(env.WRITE_LIMITER, `like:${user.id}`);
   if (!isValidComboId(id)) throw new HttpError(404, 'not_found', 'Combo not found.');
-  const combo = await env.DB.prepare(`SELECT id FROM combos WHERE id = ? AND status = 'approved'`).bind(id).first();
+  const combo = await env.DB.prepare(`SELECT id FROM combos WHERE id = ? AND status IN ('approved', 'pending')`).bind(id).first();
   if (!combo) throw new HttpError(404, 'not_found', 'Combo not found.');
 
   const ins = await env.DB.prepare('INSERT OR IGNORE INTO likes (user_id, combo_id, created_at) VALUES (?, ?, ?)')
@@ -643,7 +665,7 @@ async function countDownload(id: string, req: Request, env: Env): Promise<Respon
   const day = new Date().toISOString().slice(0, 10);
   const ins = await env.DB.prepare(
     `INSERT OR IGNORE INTO download_events (combo_id, ip_hash, day)
-     SELECT id, ?, ? FROM combos WHERE id = ? AND status = 'approved'`
+     SELECT id, ?, ? FROM combos WHERE id = ? AND status IN ('approved', 'pending')`
   )
     .bind(ip, day, id)
     .run();
@@ -679,10 +701,12 @@ async function myCombos(req: Request, env: Env): Promise<Response> {
 async function adminPending(req: Request, env: Env): Promise<Response> {
   requireAdmin(req, env);
   const { results } = await env.DB.prepare(
-    `SELECT ${LIST_COLUMNS}, c.body FROM combos c JOIN users u ON u.id = c.user_id
+    `SELECT ${LIST_COLUMNS}, c.user_id, c.body FROM combos c JOIN users u ON u.id = c.user_id
       WHERE c.status = 'pending' ORDER BY c.created_at ASC LIMIT 100`
-  ).all<ComboRow & { body: string }>();
-  return json({ items: results.map((r) => ({ ...toListItem(r), body: JSON.parse(r.body) })) });
+  ).all<ComboRow & { user_id: string; body: string }>();
+  return json({
+    items: results.map((r) => ({ ...toListItem(r), userId: r.user_id, body: JSON.parse(r.body) })),
+  });
 }
 
 async function adminApprove(id: string, req: Request, env: Env): Promise<Response> {
@@ -726,6 +750,301 @@ async function adminBan(userId: string, req: Request, env: Env, banned: boolean)
   return json({ ok: true, userId, banned });
 }
 
+function serveAdminPage(): Response {
+  const html = `<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FBT Admin Moderation</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #090d16; color: #e2e8f0; min-height: 100vh; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid rgba(148,163,184,0.2); margin-bottom: 20px; }
+  h1 { margin: 0; font-size: 20px; color: #f8fafc; letter-spacing: 0.02em; }
+  .sub { font-size: 12.5px; color: #94a3b8; margin-top: 3px; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  input[type=password], input[type=text] { background: #0f172a; color: #f8fafc; border: 1px solid rgba(148,163,184,0.35); border-radius: 8px; padding: 8px 12px; font-size: 13.5px; outline: none; }
+  input:focus { border-color: #38bdf8; }
+  button { cursor: pointer; border-radius: 8px; border: 1px solid rgba(148,163,184,0.35); background: rgba(30,41,59,0.85); color: #e2e8f0; padding: 7px 13px; font-size: 13px; font-weight: 700; transition: opacity .12s; }
+  button:hover:not(:disabled) { filter: brightness(1.15); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: rgba(56,189,248,0.22); border-color: #38bdf8; color: #e0f2fe; }
+  .btn-approve { background: rgba(34,197,94,0.2); border-color: rgba(74,222,128,0.65); color: #86efac; }
+  .btn-reject { background: rgba(245,158,11,0.2); border-color: rgba(251,191,36,0.65); color: #fde047; }
+  .btn-ban { background: rgba(244,63,94,0.2); border-color: rgba(251,113,133,0.65); color: #fda4af; }
+  .card { background: rgba(15,23,42,0.85); border: 1px solid rgba(148,163,184,0.22); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+  .login-box { max-width: 440px; margin: 64px auto; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: rgba(56,189,248,0.16); color: #bae6fd; border: 1px solid rgba(56,189,248,0.4); }
+  .pill-mode { background: rgba(168,85,247,0.2); color: #e9d5ff; border-color: rgba(192,132,252,0.5); }
+  .pill-pos { background: rgba(45,212,191,0.16); color: #5eead4; border-color: rgba(45,212,191,0.45); }
+  .pill-diff { background: rgba(250,204,21,0.16); color: #fde047; border-color: rgba(250,204,21,0.45); }
+  .pill-tag { background: rgba(148,163,184,0.14); color: #cbd5e1; border-color: rgba(148,163,184,0.3); font-weight: 600; }
+  .title { font-size: 15.5px; font-weight: 800; color: #f8fafc; margin: 8px 0 6px; }
+  .meta { font-size: 12px; color: #94a3b8; display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+  .moves { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(2,6,23,0.75); border: 1px solid rgba(148,163,184,0.18); display: none; }
+  .moves.open { display: block; }
+  .move-chip { display: inline-flex; align-items: baseline; gap: 4px; padding: 3px 7px; margin: 3px 4px 3px 0; border-radius: 6px; background: rgba(30,41,59,0.9); border: 1px solid rgba(148,163,184,0.25); font-size: 12px; }
+  .move-chip small { color: #94a3b8; font-size: 10.5px; }
+  .desc { font-size: 12.5px; color: #cbd5e1; margin-bottom: 8px; white-space: pre-wrap; }
+  .banner { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; display: none; }
+  .banner.err { display: block; background: rgba(244,63,94,0.18); border: 1px solid rgba(251,113,133,0.55); color: #fecdd3; }
+  .banner.ok { display: block; background: rgba(34,197,94,0.16); border: 1px solid rgba(74,222,128,0.55); color: #bbf7d0; }
+  .empty { text-align: center; padding: 40px 16px; color: #94a3b8; border: 1px dashed rgba(148,163,184,0.25); border-radius: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Frame Beat Trainer - Admin Moderation</h1>
+      <div class="sub" id="statusLine">待審核連段管理後台</div>
+    </div>
+    <div class="row" id="headerActions" style="display:none">
+      <button type="button" class="btn-primary" id="refreshBtn">重新整理 / Refresh</button>
+      <button type="button" id="logoutBtn">登出 / Logout</button>
+    </div>
+  </header>
+
+  <div id="banner" class="banner" role="alert"></div>
+
+  <section id="loginView" class="card login-box">
+    <div class="title" style="margin-top:0">管理員驗證 / Admin Login</div>
+    <div class="sub" style="margin-bottom:12px">Token 僅儲存在此分頁的 sessionStorage，關閉分頁即自動清除。</div>
+    <form id="loginForm" class="row">
+      <input type="password" id="tokenInput" placeholder="輸入 ADMIN_TOKEN" autocomplete="off" style="flex:1;min-width:200px" required />
+      <button type="submit" class="btn-primary">登入</button>
+    </form>
+  </section>
+
+  <main id="appView" style="display:none">
+    <div id="listRoot"></div>
+  </main>
+</div>
+
+<script>
+(function() {
+  const STORAGE_KEY = 'fbt_admin_token';
+  const loginView = document.getElementById('loginView');
+  const appView = document.getElementById('appView');
+  const headerActions = document.getElementById('headerActions');
+  const statusLine = document.getElementById('statusLine');
+  const banner = document.getElementById('banner');
+  const listRoot = document.getElementById('listRoot');
+  const tokenInput = document.getElementById('tokenInput');
+
+  function getToken() { return sessionStorage.getItem(STORAGE_KEY) || ''; }
+  function setToken(t) { if (t) sessionStorage.setItem(STORAGE_KEY, t); else sessionStorage.removeItem(STORAGE_KEY); }
+  function showBanner(kind, text) {
+    banner.className = 'banner ' + kind;
+    banner.textContent = text;
+  }
+  function clearBanner() {
+    banner.className = 'banner';
+    banner.textContent = '';
+  }
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  async function api(path, opts) {
+    const res = await fetch(path, {
+      ...opts,
+      headers: {
+        'Authorization': 'Bearer ' + getToken(),
+        ...(opts && opts.headers ? opts.headers : {}),
+      },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) {
+      setToken('');
+      showLogin('驗證失敗或 Token 無效，請重新輸入 ADMIN_TOKEN。');
+      throw new Error('unauthorized');
+    }
+    if (!res.ok) throw new Error(data.message || ('HTTP ' + res.status));
+    return data;
+  }
+
+  function showLogin(errMsg) {
+    loginView.style.display = 'block';
+    appView.style.display = 'none';
+    headerActions.style.display = 'none';
+    statusLine.textContent = '待審核連段管理後台';
+    if (errMsg) showBanner('err', errMsg);
+  }
+
+  function renderPending(items) {
+    listRoot.replaceChildren();
+    statusLine.textContent = '目前待審核：' + items.length + ' 筆';
+    if (!items.length) {
+      listRoot.appendChild(el('div', 'empty', '目前沒有待審核的連段。'));
+      return;
+    }
+
+    for (const item of items) {
+      const card = el('article', 'card');
+
+      const pills = el('div', 'row');
+      pills.appendChild(el('span', 'pill', item.characterName || item.characterId));
+      pills.appendChild(el('span', 'pill pill-mode', item.mode === 'modern' ? 'Modern' : 'Classic'));
+      pills.appendChild(el('span', 'pill pill-diff', item.difficulty));
+      if (item.position) {
+        pills.appendChild(el('span', 'pill pill-pos', item.position === 'corner' ? 'Corner / 角落' : 'Midscreen / 非角落'));
+      }
+      if (Array.isArray(item.tags)) {
+        for (const tg of item.tags) pills.appendChild(el('span', 'pill pill-tag', '#' + tg));
+      }
+      card.appendChild(pills);
+
+      card.appendChild(el('div', 'title', item.title + (item.titleEn ? ' / ' + item.titleEn : '')));
+
+      const meta = el('div', 'meta');
+      meta.appendChild(el('span', '', '作者: ' + item.author + (item.userId ? ' (ID: ' + item.userId + ')' : '')));
+      meta.appendChild(el('span', '', 'ID: ' + item.id));
+      meta.appendChild(el('span', '', item.noteCount + ' 擊 · ' + item.totalFrames + 'f'));
+      if (item.createdAt) {
+        meta.appendChild(el('span', '', new Date(item.createdAt).toLocaleString()));
+      }
+      card.appendChild(meta);
+
+      const movesBox = el('div', 'moves');
+      if (item.body && item.body.description) {
+        movesBox.appendChild(el('div', 'desc', item.body.description));
+      }
+      const notes = (item.body && Array.isArray(item.body.notes)) ? item.body.notes : [];
+      for (const n of notes) {
+        const chip = el('span', 'move-chip');
+        chip.appendChild(el('strong', '', n.notation || ''));
+        chip.appendChild(el('small', '', String(n.frame) + 'f'));
+        if (n.moveName) chip.appendChild(el('small', '', '(' + n.moveName + ')'));
+        movesBox.appendChild(chip);
+      }
+
+      const actions = el('div', 'row');
+      const inspectBtn = el('button', '', '檢視指令 (' + notes.length + ')');
+      inspectBtn.type = 'button';
+      inspectBtn.addEventListener('click', () => {
+        movesBox.classList.toggle('open');
+      });
+
+      const approveBtn = el('button', 'btn-approve', '通過 (Approve)');
+      approveBtn.type = 'button';
+      approveBtn.addEventListener('click', async () => {
+        approveBtn.disabled = true;
+        try {
+          await api('/api/admin/combos/' + encodeURIComponent(item.id) + '/approve', { method: 'POST' });
+          card.remove();
+          showBanner('ok', '已通過並公開：' + item.title);
+          loadPending();
+        } catch (e) {
+          approveBtn.disabled = false;
+          if (e.message !== 'unauthorized') showBanner('err', '操作失敗：' + e.message);
+        }
+      });
+
+      const rejectBtn = el('button', 'btn-reject', '退回 (Reject)');
+      rejectBtn.type = 'button';
+      rejectBtn.addEventListener('click', async () => {
+        const reason = window.prompt('退回原因（選填，留空亦可）：', '');
+        if (reason === null) return;
+        rejectBtn.disabled = true;
+        try {
+          await api('/api/admin/combos/' + encodeURIComponent(item.id) + '/reject', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason }),
+          });
+          card.remove();
+          showBanner('ok', '已退回：' + item.title);
+          loadPending();
+        } catch (e) {
+          rejectBtn.disabled = false;
+          if (e.message !== 'unauthorized') showBanner('err', '操作失敗：' + e.message);
+        }
+      });
+
+      actions.appendChild(inspectBtn);
+      actions.appendChild(approveBtn);
+      actions.appendChild(rejectBtn);
+
+      if (item.userId) {
+        const banBtn = el('button', 'btn-ban', '封鎖作者 (Ban User)');
+        banBtn.type = 'button';
+        banBtn.addEventListener('click', async () => {
+          if (!window.confirm('確定要封鎖作者 ' + item.author + ' (Discord ID: ' + item.userId + ')？')) return;
+          banBtn.disabled = true;
+          try {
+            await api('/api/admin/users/' + encodeURIComponent(item.userId) + '/ban', { method: 'POST' });
+            showBanner('ok', '已封鎖使用者：' + item.author + ' (' + item.userId + ')');
+          } catch (e) {
+            banBtn.disabled = false;
+            if (e.message !== 'unauthorized') showBanner('err', '封鎖失敗：' + e.message);
+          }
+        });
+        actions.appendChild(banBtn);
+      }
+
+      card.appendChild(actions);
+      card.appendChild(movesBox);
+      listRoot.appendChild(card);
+    }
+  }
+
+  async function loadPending() {
+    try {
+      const data = await api('/api/admin/pending');
+      loginView.style.display = 'none';
+      appView.style.display = 'block';
+      headerActions.style.display = 'flex';
+      renderPending(Array.isArray(data.items) ? data.items : []);
+    } catch (e) {
+      if (e.message !== 'unauthorized') showBanner('err', '載入失敗：' + e.message);
+    }
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    clearBanner();
+    const val = tokenInput.value.trim();
+    if (!val) return;
+    setToken(val);
+    tokenInput.value = '';
+    loadPending();
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', () => {
+    clearBanner();
+    loadPending();
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    setToken('');
+    clearBanner();
+    showLogin();
+  });
+
+  if (getToken()) loadPending();
+})();
+</script>
+</body>
+</html>`;
+  return new Response(html, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-Frame-Options': 'DENY',
+      'X-Content-Type-Options': 'nosniff',
+      'Referrer-Policy': 'no-referrer',
+    },
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
@@ -738,6 +1057,7 @@ async function route(req: Request, env: Env, ctx: ExecutionContext): Promise<Res
   if (method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
 
   if (method === 'GET' && path === '/health') return json({ ok: true, schemaVersion: COMBO_SCHEMA_VERSION });
+  if (method === 'GET' && path === '/admin') return serveAdminPage();
   if (method === 'GET' && path === '/auth/discord/start') return authStart(url, env);
   if (method === 'GET' && path === '/auth/discord/callback') return authCallback(url, env);
   if (method === 'POST' && path === '/auth/exchange') return authExchange(req, env);

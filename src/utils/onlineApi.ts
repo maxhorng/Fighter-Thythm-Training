@@ -40,6 +40,7 @@ export interface OnlineListQuery {
   sort: OnlineSort;
   q?: string;
   page: number;
+  includePending?: boolean;
 }
 
 export class OnlineApiError extends Error {
@@ -238,6 +239,7 @@ export function listOnlineCombos(q: OnlineListQuery): Promise<{ items: OnlineCom
   if (q.mode) params.set('mode', q.mode);
   if (q.position) params.set('position', q.position);
   if (q.q) params.set('q', q.q);
+  if (q.includePending) params.set('includePending', '1');
   params.set('sort', q.sort);
   params.set('page', String(q.page));
   return request(`/api/combos?${params.toString()}`);
