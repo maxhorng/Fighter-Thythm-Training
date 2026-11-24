@@ -65,15 +65,16 @@ curl https://fbt-combos.<your-subdomain>.workers.dev/health
 Expected response: `{"ok":true,"schemaVersion":1}`.
 
 ## 6. Connect the Desktop App
-Set the deployed Worker URL in `src/config/online.ts` (`ONLINE_API_BASE_DEFAULT`), or pass `VITE_FBT_API_BASE` at build time:
+Create a gitignored `.env.local` file in the project root with your deployed Worker URL:
+```env
+VITE_FBT_API_BASE=https://fbt-combos.<your-subdomain>.workers.dev
+```
+Or pass `VITE_FBT_API_BASE` in the shell before building:
 ```powershell
 $env:VITE_FBT_API_BASE = "https://fbt-combos.<your-subdomain>.workers.dev"
 npm run build
 ```
-For local testing against `npm run dev` (`http://127.0.0.1:8787`), you can override the URL at runtime in DevTools:
-```js
-localStorage.setItem('fbt_online_api_base', 'http://127.0.0.1:8787');
-```
+In Vite DEV mode (`npm run dev`), you can also override the URL at runtime via DevTools (`localStorage.setItem('fbt_online_api_base', 'http://127.0.0.1:8787')`). Production builds ignore `localStorage` overrides and strictly use `VITE_FBT_API_BASE`.
 
 ## Rate Limits & Anti-Abuse
 - Uploads: 3 per hour per Discord account, 10 per day per Discord account, 20 per day per IP hash (every authenticated attempt counts).

@@ -20,6 +20,15 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 
+-- Short-lived (60s) single-use OAuth exchange codes so session tokens never appear in browser URLs
+CREATE TABLE IF NOT EXISTS oauth_codes (
+  code_hash  TEXT PRIMARY KEY,            -- SHA-256 of one-time exchange code
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at INTEGER NOT NULL,
+  expires_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_oauth_codes_expires ON oauth_codes(expires_at);
+
 CREATE TABLE IF NOT EXISTS combos (
   id            TEXT PRIMARY KEY,
   user_id       TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, screen, shell } from 'electron';
+import { app, BrowserWindow, globalShortcut, ipcMain, safeStorage, screen, shell } from 'electron';
 import crypto from 'crypto';
 import fs from 'fs';
 import http from 'http';
@@ -426,12 +426,51 @@ ipcMain.handle('window-close', () => {
 
 // ---------------------------------------------------------------------------
 // Discord login for the Online Combo Library (loopback OAuth redirect)
-// The system browser handles Discord login on the Worker; the Worker then redirects the
-// browser to http://127.0.0.1:<port>/callback?token=...&state=... which we capture here.
+// The system browser handles Discord login on the Worker; the Worker redirects to
+// http://127.0.0.1:<port>/callback?code=...&state=... (a 60s single-use code, never
+// the session token). Main process exchanges the code via POST /auth/exchange.
 // No client secret ever lives in the app.
 // ---------------------------------------------------------------------------
 let activeLoginServer: http.Server | null = null;
 let cancelActiveLogin: ((error?: string) => void) | null = null;
+
+function getOnlineTokenPath(): string {
+  return path.join(app.getPath('userData'), 'online-session.bin');
+}
+
+ipcMain.handle('online-token-get', (): string | null => {
+  try {
+    if (!safeStorage.isEncryptionAvailable()) return null;
+    const filePath = getOnlineTokenPath();
+    if (!fs.existsSync(filePath)) return null;
+    const encrypted = fs.readFileSync(filePath);
+    if (!encrypted.length) return null;
+    const decrypted = safeStorage.decryptString(encrypted);
+    return /^[A-Za-z0-9_-]{20,128}$/.test(decrypted) ? decrypted : null;
+  } catch {
+    return null;
+  }
+});
+
+ipcMain.handle('online-token-set', (_event, token: string): boolean => {
+  try {
+    if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{20,128}$/.test(token)) return false;
+    if (!safeStorage.isEncryptionAvailable()) return false;
+    const encrypted = safeStorage.encryptString(token);
+    fs.writeFileSync(getOnlineTokenPath(), encrypted);
+    return true;
+  } catch {
+    return false;
+  }
+});
+
+ipcMain.handle('online-token-clear', (): void => {
+  try {
+    fs.rmSync(getOnlineTokenPath(), { force: true });
+  } catch {
+    // ignore
+  }
+});
 
 function isAllowedApiBase(apiBase: string): boolean {
   try {
@@ -471,16 +510,39 @@ ipcMain.handle('discord-login', async (_event, apiBase: string) => {
     const cancelFn = (err = 'cancelled') => finish({ ok: false, error: err });
     cancelActiveLogin = cancelFn;
 
-    const server = http.createServer((req, res) => {
+    const server = http.createServer(async (req, res) => {
       const reqUrl = new URL(req.url ?? '/', 'http://127.0.0.1');
       if (reqUrl.pathname !== '/callback') {
         res.writeHead(404).end();
         return;
       }
       const okState = reqUrl.searchParams.get('state') === state;
-      const token = reqUrl.searchParams.get('token') ?? '';
-      const error = reqUrl.searchParams.get('error') ?? (okState ? '' : 'bad_state');
-      const success = okState && !error && /^[A-Za-z0-9_-]{20,128}$/.test(token);
+      const code = reqUrl.searchParams.get('code') ?? '';
+      let error = reqUrl.searchParams.get('error') ?? (okState ? '' : 'bad_state');
+      let token = '';
+
+      if (okState && !error && /^[A-Za-z0-9_-]{20,128}$/.test(code)) {
+        try {
+          const exchangeUrl = new URL('/auth/exchange', apiBase).toString();
+          const exRes = await fetch(exchangeUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code }),
+          });
+          const exData = (await exRes.json().catch(() => ({}))) as { token?: unknown; error?: unknown };
+          if (exRes.ok && typeof exData.token === 'string' && /^[A-Za-z0-9_-]{20,128}$/.test(exData.token)) {
+            token = exData.token;
+          } else {
+            error = typeof exData.error === 'string' ? exData.error : 'exchange_failed';
+          }
+        } catch {
+          error = 'network';
+        }
+      } else if (!error) {
+        error = 'invalid_code';
+      }
+
+      const success = Boolean(token) && !error;
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       res.end(
         `<!doctype html><meta charset="utf-8"><title>Frame Beat Trainer</title>` +
@@ -492,7 +554,7 @@ ipcMain.handle('discord-login', async (_event, apiBase: string) => {
         if (mainWindow.isMinimized()) mainWindow.restore();
         mainWindow.focus();
       }
-      finish(success ? { ok: true, token } : { ok: false, error: error || 'invalid_token' });
+      finish(success ? { ok: true, token } : { ok: false, error: error || 'exchange_failed' });
     });
     const timer = setTimeout(() => {
       finish({ ok: false, error: 'timeout' });

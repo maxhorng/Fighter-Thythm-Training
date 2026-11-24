@@ -48,6 +48,7 @@ const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
 const SESSION_TTL_MS = 30 * DAY_MS;
 const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
+const OAUTH_CODE_TTL_MS = 60 * 1000;
 const LIST_PAGE_SIZE = 20;
 const LIST_CACHE_SECONDS = 60;
 const FILE_CACHE_SECONDS = 300;
@@ -261,17 +262,71 @@ async function authCallback(url: URL, env: Env): Promise<Response> {
   const banned = await env.DB.prepare('SELECT banned FROM users WHERE id = ?').bind(me.id).first<{ banned: number }>();
   if (banned?.banned) return back({ error: 'banned' });
 
+  const exchangeCode = randomToken(32);
+  await env.DB.batch([
+    env.DB.prepare('DELETE FROM oauth_codes WHERE expires_at < ?').bind(now),
+    env.DB.prepare('INSERT INTO oauth_codes (code_hash, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)').bind(
+      await sha256Hex(exchangeCode),
+      me.id,
+      now,
+      now + OAUTH_CODE_TTL_MS
+    ),
+  ]);
+  return back({ code: exchangeCode });
+}
+
+async function authExchange(req: Request, env: Env): Promise<Response> {
+  await rateLimit(env.WRITE_LIMITER, `exchange:${await ipHash(req, env)}`);
+  let code = '';
+  try {
+    const body = (await req.json()) as { code?: unknown };
+    if (typeof body.code === 'string') code = body.code;
+  } catch {
+    throw new HttpError(400, 'bad_request', 'Invalid JSON body.');
+  }
+  if (!/^[A-Za-z0-9_-]{20,128}$/.test(code)) {
+    throw new HttpError(400, 'invalid_code', 'Invalid exchange code.');
+  }
+
+  const now = Date.now();
+  const codeHash = await sha256Hex(code);
+  const row = await env.DB.prepare(
+    `SELECT c.expires_at, u.id, u.username, u.display_name, u.avatar, u.banned
+       FROM oauth_codes c JOIN users u ON u.id = c.user_id
+      WHERE c.code_hash = ?`
+  )
+    .bind(codeHash)
+    .first<SessionUser & { expires_at: number }>();
+
+  // Delete immediately (single-use) and verify we actually consumed it (prevents concurrent replay)
+  const del = await env.DB.prepare('DELETE FROM oauth_codes WHERE code_hash = ?').bind(codeHash).run();
+  if (!row || del.meta.changes === 0 || row.expires_at <= now) {
+    throw new HttpError(400, 'invalid_code', 'Exchange code is invalid or expired.');
+  }
+  if (row.banned) {
+    throw new HttpError(403, 'banned', 'This account has been suspended.');
+  }
+
   const token = randomToken(32);
   await env.DB.batch([
-    env.DB.prepare('DELETE FROM sessions WHERE user_id = ? AND expires_at < ?').bind(me.id, now),
+    env.DB.prepare('DELETE FROM sessions WHERE user_id = ? AND expires_at < ?').bind(row.id, now),
     env.DB.prepare('INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)').bind(
       await sha256Hex(token),
-      me.id,
+      row.id,
       now,
       now + SESSION_TTL_MS
     ),
   ]);
-  return back({ token });
+
+  return json({
+    token,
+    user: {
+      id: row.id,
+      username: row.username,
+      displayName: row.display_name,
+      avatar: row.avatar,
+    },
+  });
 }
 
 async function authLogout(req: Request, env: Env): Promise<Response> {
@@ -685,6 +740,7 @@ async function route(req: Request, env: Env, ctx: ExecutionContext): Promise<Res
   if (method === 'GET' && path === '/health') return json({ ok: true, schemaVersion: COMBO_SCHEMA_VERSION });
   if (method === 'GET' && path === '/auth/discord/start') return authStart(url, env);
   if (method === 'GET' && path === '/auth/discord/callback') return authCallback(url, env);
+  if (method === 'POST' && path === '/auth/exchange') return authExchange(req, env);
   if (method === 'POST' && path === '/auth/logout') return authLogout(req, env);
 
   if (method === 'GET' && path === '/api/me') {

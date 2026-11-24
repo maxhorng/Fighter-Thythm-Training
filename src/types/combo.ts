@@ -110,6 +110,9 @@ export interface ElectronAPI {
   closeWindow: () => Promise<void>;
   discordLogin?: (apiBase: string) => Promise<{ ok: boolean; token?: string; error?: string }>;
   cancelDiscordLogin?: () => Promise<void>;
+  getOnlineToken?: () => Promise<string | null>;
+  setOnlineToken?: (token: string) => Promise<boolean>;
+  clearOnlineToken?: () => Promise<void>;
   resizeWindow?: (width: number, height: number) => void;
   onGlobalKeyDown: (cb: (code: string) => void) => () => void;
   onGlobalKeyUp: (cb: (code: string) => void) => () => void;

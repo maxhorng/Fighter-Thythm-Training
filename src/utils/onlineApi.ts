@@ -54,7 +54,36 @@ export class OnlineApiError extends Error {
   }
 }
 
-export function getStoredToken(): string | null {
+function clearLegacyLocalToken() {
+  try {
+    localStorage.removeItem(STORAGE_KEY_ONLINE_TOKEN);
+  } catch {
+    // ignore
+  }
+}
+
+export async function getStoredToken(): Promise<string | null> {
+  if (window.electronAPI?.getOnlineToken) {
+    try {
+      const encryptedToken = await window.electronAPI.getOnlineToken();
+      if (encryptedToken) {
+        clearLegacyLocalToken();
+        return encryptedToken;
+      }
+      // One-time migration from legacy plaintext localStorage token to DPAPI safeStorage
+      const legacy = localStorage.getItem(STORAGE_KEY_ONLINE_TOKEN);
+      if (legacy) {
+        clearLegacyLocalToken();
+        if (window.electronAPI.setOnlineToken) {
+          await window.electronAPI.setOnlineToken(legacy);
+        }
+        return legacy;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
   try {
     return localStorage.getItem(STORAGE_KEY_ONLINE_TOKEN);
   } catch {
@@ -62,7 +91,17 @@ export function getStoredToken(): string | null {
   }
 }
 
-export function setStoredToken(token: string | null) {
+export async function setStoredToken(token: string | null): Promise<void> {
+  if (window.electronAPI?.setOnlineToken && window.electronAPI?.clearOnlineToken) {
+    clearLegacyLocalToken();
+    try {
+      if (token) await window.electronAPI.setOnlineToken(token);
+      else await window.electronAPI.clearOnlineToken();
+    } catch {
+      // ignore
+    }
+    return;
+  }
   try {
     if (token) localStorage.setItem(STORAGE_KEY_ONLINE_TOKEN, token);
     else localStorage.removeItem(STORAGE_KEY_ONLINE_TOKEN);
@@ -134,7 +173,7 @@ async function request<T>(path: string, init: RequestInit & { auth?: boolean; ki
   const { auth, kind = 'browse', ...fetchInit } = init;
   const headers = new Headers(fetchInit.headers);
   if (auth) {
-    const token = getStoredToken();
+    const token = await getStoredToken();
     if (token) headers.set('Authorization', `Bearer ${token}`);
   }
   let res: Response;
@@ -154,7 +193,7 @@ async function request<T>(path: string, init: RequestInit & { auth?: boolean; ki
     }
   }
   if (!res.ok) {
-    if (res.status === 401 && auth) setStoredToken(null);
+    if (res.status === 401 && auth) await setStoredToken(null);
     const limitErr = classifyLimitError(res, data, rawText, kind);
     if (limitErr) throw limitErr;
     throw new OnlineApiError(
@@ -172,7 +211,7 @@ export async function loginWithDiscord(): Promise<OnlineUser> {
   if (!window.electronAPI?.discordLogin) throw new OnlineApiError(0, 'browser_only', 'Desktop app required');
   const result = await window.electronAPI.discordLogin(getOnlineApiBase());
   if (!result.ok || !result.token) throw new OnlineApiError(0, result.error ?? 'login_failed', result.error ?? 'Login failed');
-  setStoredToken(result.token);
+  await setStoredToken(result.token);
   return fetchMe();
 }
 
@@ -188,7 +227,7 @@ export async function logout() {
   try {
     await request('/auth/logout', { method: 'POST', auth: true });
   } finally {
-    setStoredToken(null);
+    await setStoredToken(null);
   }
 }
 

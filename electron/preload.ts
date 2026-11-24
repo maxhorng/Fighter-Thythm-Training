@@ -17,6 +17,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   discordLogin: (apiBase: string): Promise<{ ok: boolean; token?: string; error?: string }> =>
     ipcRenderer.invoke('discord-login', apiBase),
   cancelDiscordLogin: (): Promise<void> => ipcRenderer.invoke('discord-login-cancel'),
+  getOnlineToken: (): Promise<string | null> => ipcRenderer.invoke('online-token-get'),
+  setOnlineToken: (token: string): Promise<boolean> => ipcRenderer.invoke('online-token-set', token),
+  clearOnlineToken: (): Promise<void> => ipcRenderer.invoke('online-token-clear'),
   resizeWindow: (width: number, height: number): void =>
     ipcRenderer.send('window-resize', { width, height }),
   onGlobalKeyDown: (callback: (code: string) => void) => {

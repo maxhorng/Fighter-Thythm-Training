@@ -216,19 +216,21 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
 
   // Restore existing session on mount
   useEffect(() => {
-    if (!configured || !getStoredToken()) return;
+    if (!configured) return;
     let cancelled = false;
-    fetchMe()
-      .then((me) => {
+    (async () => {
+      const token = await getStoredToken();
+      if (cancelled || !token) return;
+      try {
+        const me = await fetchMe();
         if (cancelled) return;
         setUser(me);
-        return fetchMyLikes().then((ids) => {
-          if (!cancelled) setLikedIds(new Set(ids));
-        });
-      })
-      .catch(() => {
+        const ids = await fetchMyLikes();
+        if (!cancelled) setLikedIds(new Set(ids));
+      } catch {
         // Expired or unreachable — stay logged out
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };
