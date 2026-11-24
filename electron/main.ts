@@ -158,12 +158,13 @@ function applyOverlayMode(enabled: boolean, compact = false) {
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
     if (compact) {
-      // Compact centered transparent overlay in Low-Performance Mode:
-      // drastically reduces Windows DWM alpha-compositing pixels (~70-80% fewer pixels!)
+      // Compact overlay in Low-Performance Mode: keep a narrow centered column (<= 1080px wide)
+      // but span the full screen height so the top HUD sits at the top edge and the recorded
+      // stick bar sits at the bottom edge (~56% of full-screen pixels on 1920x1080).
       const ow = Math.min(width, 1080);
-      const oh = Math.min(height - 1, 620);
+      const oh = height - 1;
       const ox = x + Math.round((width - ow) / 2);
-      const oy = y + Math.round((height - oh) * 0.22);
+      const oy = y;
       mainWindow.setBounds({ x: ox, y: oy, width: ow, height: oh });
     } else {
       // Use height - 1 on Windows so DWM does not disable alpha transparency for exact fullscreen bounds

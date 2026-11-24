@@ -19,7 +19,7 @@
 ---
 
 ## 2. Key Files
-- `electron/main.ts`: Frameless transparent window, compact low-perf overlay (`1080x620`), persistent window size (`userData/window-size.json`), global hotkeys (`F7`/`F9`/`F10`), `uiohook-napi`, XInput + `winmm.dll` DirectInput poller.
+- `electron/main.ts`: Frameless transparent window, compact low-perf overlay (`1080 x full screen height` narrow column), persistent window size (`userData/window-size.json`), global hotkeys (`F7`/`F9`/`F10`), `uiohook-napi`, XInput + `winmm.dll` DirectInput poller.
 - `electron/preload.ts`: IPC bridge (`setOverlayMode(enabled, compact)`, `setClickThrough`, `setHotkeys`, `resizeWindow`, `minimizeWindow`, `closeWindow`, global key/gamepad listeners).
 - `src/App.tsx`: Top-level state (`selectedGame`, `mode`, `playerSide`, `lowPerfMode`, `sfxEnabled`, `customCombos`, `bindings`, `lang`, `overlayHotkeys`).
 - `src/components/GameHubView.tsx`: Multi-game landing screen (currently Street Fighter 6 + Coming Soon placeholder).
@@ -48,7 +48,8 @@
 ---
 
 ## 4. Recent Release History
-- **Unreleased (working tree)**: Added "Adaptive Tempo" toggle (`dynamicResync`, localStorage `fmc_dynamic_resync_v1`, default OFF). OFF = playback strictly reproduces recorded rhythm; ON = late presses on `cancel` / `dr-cancel` / `juggle` notes shift `startTimeRef` (old always-on behavior). Wired via `App.tsx` -> `MenuView.tsx` checkbox (below SFX) -> `OverlayView.tsx` prop; i18n keys `dynamicResync` / `dynamicResyncHint` in all 5 languages.
+- **Unreleased (working tree)**: Added "Adaptive Tempo" toggle (`dynamicResync`, localStorage `fmc_dynamic_resync_v1`, default OFF). OFF = playback strictly reproduces recorded rhythm; ON = late presses on `cancel` / `dr-cancel` / `juggle` notes shift `startTimeRef` (old always-on behavior). Wired via `App.tsx` -> `MenuView.tsx` checkbox (below SFX) -> `OverlayView.tsx` prop; i18n keys `dynamicResync` / `dynamicResyncHint` in all 5 languages. (committed `164c2d2`)
+- **Unreleased (working tree)**: Low-perf compact overlay changed from `1080x620` to `1080 x (screenHeight-1)` (Plan A, ~56% of 1080p pixels vs 32% before) so top HUD sits at screen top and recorded stick bar at screen bottom. Fixed live input pills overlapping the recorded stick bar (pills now sit above the bar in both canvas and DOM modes). Future option (Plan B): `setShape` region to expose only HUD / center / bottom bar (~38% pixels).
 - `v0.2.0-beta.12` (`34d8d4e`): Compact low-perf overlay (`1080x620`), `+1f` beat cue visual sync, `winmm.dll` DirectInput background fallback.
 - `v0.2.0-beta.11` (`99f400e`): Target-frame Web Audio beat cue SFX + GameHubView titlebar layout fix.
 - `v0.2.0-beta.10` (`ff9989e`): Carry-in direction fix for `2MP -> 236P` diagnostics, default Beginner->Ultra Hard sorting, simplified checkbox labels.

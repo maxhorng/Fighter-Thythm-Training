@@ -809,6 +809,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
 }) => {
   const t = I18N[lang];
   const isRightSide = playerSide === 'right';
+  const hasRecordedBar = Boolean(showRecordedInputs && combo.inputHistory && combo.inputHistory.length > 0);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const phaseRef = useRef<'waiting-first' | 'countdown' | 'playing' | 'finished'>(
@@ -1665,7 +1666,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       }
 
       // 4. Bottom-Center Recorded Stick & Button Playback Bar (if enabled & combo has inputHistory)
-      if (showRecordedInputs && combo.inputHistory && combo.inputHistory.length > 0) {
+      if (hasRecordedBar && combo.inputHistory) {
         const ih = combo.inputHistory;
         let activeEntry = ih[0];
         if (phaseRef.current === 'playing') {
@@ -1797,7 +1798,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         );
         const totalW = widths.reduce((sum, bw) => sum + bw, 0) + gap * (activeList.length - 1);
         let curX = w * 0.5 - totalW / 2;
-        const pillY = h - 24 - pillH;
+        // Sit directly above the recorded stick bar (barY = h - 96) so the two never overlap
+        const pillY = hasRecordedBar ? h - 96 - 12 - pillH : h - 24 - pillH;
         for (let i = 0; i < activeList.length; i++) {
           const btnId = activeList[i];
           const bw = widths[i];
@@ -2042,7 +2044,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
 
       {/* Live Input Strip at Bottom Center (DOM only in standard mode; Canvas in low-perf mode) */}
       {!lowPerfMode && (
-        <div className="overlay-input-strip">
+        <div className="overlay-input-strip" style={hasRecordedBar ? { bottom: 108 } : undefined}>
           {Array.from(activeButtons).map((btnId) => (
             <span
               key={btnId}
