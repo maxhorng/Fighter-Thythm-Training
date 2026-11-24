@@ -2,7 +2,7 @@
 
 export type PlayerSide = 'left' | 'right';
 
-export type ChartLayoutMode = 'focused' | 'fixed';
+export type ChartLayoutMode = 'fixed' | 'osu' | 'focused';
 
 export type DirectionButtonId = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 

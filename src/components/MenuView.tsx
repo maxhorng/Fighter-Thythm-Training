@@ -1224,26 +1224,36 @@ export const MenuView: React.FC<MenuViewProps> = ({
               </button>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', marginRight: 2 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', whiteSpace: 'nowrap' }}>
                 {t.chartLayoutLabel}
               </span>
-              <button
-                type="button"
-                className={`trigger-btn ${chartLayout === 'fixed' ? 'active' : ''}`}
-                style={{ flex: 1, padding: '6px 10px', justifyContent: 'center' }}
-                onClick={() => onChangeChartLayout('fixed')}
+              <select
+                value={chartLayout}
+                onChange={(e) => onChangeChartLayout(e.target.value as ChartLayoutMode)}
+                style={{
+                  flex: 1,
+                  padding: '6px 10px',
+                  borderRadius: 8,
+                  fontSize: 12.5,
+                  fontWeight: 700,
+                  background: 'rgba(15, 23, 42, 0.92)',
+                  color: '#e0f2fe',
+                  border: '1px solid rgba(56, 189, 248, 0.55)',
+                  outline: 'none',
+                  cursor: 'pointer',
+                }}
               >
-                <span style={{ fontSize: 12.5, fontWeight: 800 }}>{t.chartLayoutFixed}</span>
-              </button>
-              <button
-                type="button"
-                className={`trigger-btn ${chartLayout === 'focused' ? 'active' : ''}`}
-                style={{ flex: 1, padding: '6px 10px', justifyContent: 'center' }}
-                onClick={() => onChangeChartLayout('focused')}
-              >
-                <span style={{ fontSize: 12.5, fontWeight: 800 }}>{t.chartLayoutFocused}</span>
-              </button>
+                <option value="fixed" style={{ background: '#0f172a', color: '#f8fafc' }}>
+                  {t.chartLayoutFixed}
+                </option>
+                <option value="osu" style={{ background: '#0f172a', color: '#f8fafc' }}>
+                  {t.chartLayoutOsu}
+                </option>
+                <option value="focused" style={{ background: '#0f172a', color: '#f8fafc' }}>
+                  {t.chartLayoutFocused}
+                </option>
+              </select>
             </div>
 
             {/* Collapsible Advanced Options */}

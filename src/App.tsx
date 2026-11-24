@@ -69,10 +69,11 @@ function loadApproachFrames(): number {
 function loadChartLayout(): ChartLayoutMode {
   try {
     const raw = localStorage.getItem('fbt_chart_layout_v1');
-    return raw === 'focused' ? 'focused' : 'fixed';
+    if (raw === 'fixed' || raw === 'osu' || raw === 'focused') return raw;
   } catch {
-    return 'fixed';
+    // ignore
   }
+  return 'fixed';
 }
 
 function loadLowPerfMode(): boolean {

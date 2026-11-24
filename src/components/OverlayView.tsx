@@ -95,6 +95,396 @@ function mirrorSet(set: Set<ActionButtonId>, isRight: boolean): Set<ActionButton
 }
 
 /**
+ * Shared left-side 8-way fixed directional compass ring (R = 72, btnR = 26)
+ * + pixel-aligned drawMotionSlider overlay (used by both Fixed Layout and osu! Chart Mode).
+ */
+function drawFixedLeftPad(
+  ctx: CanvasRenderingContext2D,
+  padX: number,
+  padY: number,
+  notes: ComboNote[],
+  visible: number[],
+  activeIdx: number,
+  currentFrame: number,
+  phase: string,
+  now: number,
+  isRight: boolean,
+  lowPerfMode: boolean,
+  approachFrames: number
+) {
+  const ringR = 72;
+  const btnR = 26;
+  const compass: { key: string; arrow: string; x: number; y: number }[] = [
+    { key: '8', arrow: '↑', x: padX, y: padY - ringR },
+    { key: '9', arrow: '↗', x: padX + ringR * Math.SQRT1_2, y: padY - ringR * Math.SQRT1_2 },
+    { key: '6', arrow: '→', x: padX + ringR, y: padY },
+    { key: '3', arrow: '↘', x: padX + ringR * Math.SQRT1_2, y: padY + ringR * Math.SQRT1_2 },
+    { key: '2', arrow: '↓', x: padX, y: padY + ringR },
+    { key: '1', arrow: '↙', x: padX - ringR * Math.SQRT1_2, y: padY + ringR * Math.SQRT1_2 },
+    { key: '4', arrow: '←', x: padX - ringR, y: padY },
+    { key: '7', arrow: '↖', x: padX - ringR * Math.SQRT1_2, y: padY - ringR * Math.SQRT1_2 },
+  ];
+  const compassMap = new Map(compass.map((c) => [c.key, c]));
+
+  // Draw all 8 idle ghosted compass buttons
+  compass.forEach((c) => {
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, btnR, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.20)';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.38)';
+    ctx.font = '900 22px system-ui, sans-serif';
+    ctx.fillText(c.arrow, c.x, c.y);
+  });
+
+  // Subtle neutral center dot
+  ctx.beginPath();
+  ctx.arc(padX, padY, 5, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(148, 163, 184, 0.22)';
+  ctx.fill();
+
+  // Light up required 8-way direction(s) for visible non-motion notes (no shrinking ring on held dirs)
+  const dirEvents: {
+    key: string;
+    color: string;
+    gold: boolean;
+    alpha: number;
+    seq: number;
+    isActive: boolean;
+  }[] = [];
+
+  visible.forEach((idx) => {
+    const n = notes[idx];
+    if (n.motion) return;
+    const dirs = n.buttons
+      .filter((b) => DIRECTION_IDS.has(b))
+      .map((b) => mirrorBtn(b, isRight));
+    if (dirs.length === 0) return;
+
+    const hasUp = dirs.includes('UP');
+    const hasDown = dirs.includes('DOWN');
+    const hasLeft = dirs.includes('LEFT');
+    const hasRight = dirs.includes('RIGHT');
+    const key =
+      hasDown && hasRight
+        ? '3'
+        : hasDown && hasLeft
+        ? '1'
+        : hasUp && hasRight
+        ? '9'
+        : hasUp && hasLeft
+        ? '7'
+        : hasDown
+        ? '2'
+        : hasUp
+        ? '8'
+        : hasLeft
+        ? '4'
+        : hasRight
+        ? '6'
+        : '';
+    if (!key) return;
+
+    const isActive = idx === activeIdx;
+    const until = n.frame - currentFrame;
+    let prog: number;
+    if (phase === 'waiting-first' && isActive) {
+      const pulse = (Math.sin(now / 220) + 1) / 2;
+      prog = 0.5 + pulse * 0.5;
+    } else {
+      const c = Math.max(0, Math.min(approachFrames, until));
+      prog = 1 - c / approachFrames;
+    }
+    const gold = phase === 'playing' && until <= 9 && until >= -2;
+    const attacks = n.buttons.filter((b) => !DIRECTION_IDS.has(b));
+    const primary = attacks[attacks.length - 1] ?? n.buttons[n.buttons.length - 1];
+    const color = BUTTON_META[primary]?.color ?? '#38bdf8';
+    const alpha = isActive ? 1 : Math.min(0.9, prog * 2 + 0.2);
+    dirEvents.push({ key, color, gold, alpha, seq: idx + 1, isActive });
+  });
+
+  dirEvents.sort((a, b) => b.seq - a.seq);
+  dirEvents.forEach((e) => {
+    const c = compassMap.get(e.key);
+    if (!c) return;
+    const ring = e.gold ? '#facc15' : e.color;
+    ctx.save();
+    ctx.globalAlpha = e.alpha;
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, btnR, 0, Math.PI * 2);
+    ctx.fillStyle = e.gold ? 'rgba(250, 204, 21, 0.42)' : e.color + '55';
+    ctx.fill();
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = e.isActive ? '#ffffff' : ring;
+    if (!lowPerfMode) {
+      ctx.shadowColor = ring;
+      ctx.shadowBlur = e.gold ? 18 : 10;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 22px system-ui, sans-serif';
+    ctx.fillText(c.arrow, c.x, c.y);
+    ctx.restore();
+  });
+
+  // Overlay the exact original drawMotionSlider right on top when active/imminent note has a motion
+  const activeNote = activeIdx < notes.length ? notes[activeIdx] : undefined;
+  const activeHasDir = Boolean(activeNote?.buttons.some((b) => DIRECTION_IDS.has(b)));
+  const motionIdx = activeNote?.motion
+    ? activeIdx
+    : !activeHasDir
+    ? visible.find((idx) => idx > activeIdx && Boolean(notes[idx].motion))
+    : undefined;
+
+  if (motionIdx !== undefined) {
+    const lNote = notes[motionIdx];
+    const lUntil = lNote.frame - currentFrame;
+    const lProg =
+      phase === 'waiting-first' && motionIdx === activeIdx
+        ? (now % 1100) / 1100
+        : 1 - Math.max(0, Math.min(approachFrames, lUntil)) / approachFrames;
+    const lGold = phase === 'playing' && lUntil <= 9 && lUntil >= -2;
+    const lAttacks = lNote.buttons.filter((b) => !DIRECTION_IDS.has(b));
+    const lPrimary = lAttacks[lAttacks.length - 1] ?? lNote.buttons[lNote.buttons.length - 1];
+    const lRingColor = lGold ? '#facc15' : (BUTTON_META[lPrimary]?.color ?? '#38bdf8');
+    const lAlpha = motionIdx === activeIdx ? 1 : Math.min(0.9, lProg * 2 + 0.2);
+    const isDouble = /236236|214214/.test(lNote.notation);
+
+    ctx.save();
+    ctx.globalAlpha = lAlpha;
+    drawMotionSlider(
+      ctx,
+      lNote.motion!,
+      padX,
+      padY + ringR * 0.15,
+      ringR,
+      lProg,
+      lRingColor,
+      motionIdx + 1,
+      lowPerfMode,
+      isRight,
+      isDouble
+    );
+    ctx.restore();
+  }
+}
+
+/**
+ * osu! Chart Mode:
+ * - Left side: exact same 8-way compass ring + drawMotionSlider as Fixed Layout.
+ * - Right side: all attack notes of the current page (4x4 = 16 per page) laid out in sequence
+ *   with dashed follow-point lines, faded past notes, soft future notes, and vivid shrinking rings.
+ */
+function drawOsuChartBoard(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  notes: ComboNote[],
+  activeIdx: number,
+  currentFrame: number,
+  phase: string,
+  now: number,
+  isRight: boolean,
+  lowPerfMode: boolean,
+  approachFrames: number
+) {
+  const R = Math.max(28, Math.min(38, w * 0.024));
+  const gap = Math.max(30, Math.min(42, w * 0.026)) * 2.35;
+  const padX = w * 0.22;
+  const padY = h * 0.44;
+
+  const visible: number[] = [];
+  for (let i = activeIdx; i < notes.length && visible.length < 8; i++) {
+    const until = notes[i].frame - currentFrame;
+    if (i === activeIdx || until <= approachFrames) visible.push(i);
+    else break;
+  }
+
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Left side: identical to Fixed Layout
+  drawFixedLeftPad(ctx, padX, padY, notes, visible, activeIdx, currentFrame, phase, now, isRight, lowPerfMode, approachFrames);
+
+  // Right side: paginated 4x4 grid (16 notes per page)
+  const PAGE_SIZE = 16;
+  const COLS = 4;
+  const safeActive = Math.min(activeIdx, Math.max(0, notes.length - 1));
+  const pageIdx = Math.floor(safeActive / PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(notes.length / PAGE_SIZE));
+  const pageStart = pageIdx * PAGE_SIZE;
+  const pageEnd = Math.min(notes.length, pageStart + PAGE_SIZE);
+  const pageCount = pageEnd - pageStart;
+  const rows = Math.max(1, Math.ceil(pageCount / COLS));
+
+  const gapX = R * 2.75;
+  const gapY = R * 2.85;
+  const gx = w * 0.56;
+  const gy = Math.max(h * 0.22, h * 0.44 - ((rows - 1) * gapY) / 2);
+
+  const nodePos = (localIdx: number) => ({
+    x: gx + (localIdx % COLS) * gapX,
+    y: gy + Math.floor(localIdx / COLS) * gapY,
+  });
+
+  // Dashed follow-point lines connecting note i -> i+1 within the current page
+  if (pageCount > 1) {
+    ctx.save();
+    ctx.setLineDash([7, 7]);
+    ctx.lineWidth = 2.8;
+    for (let k = 0; k < pageCount - 1; k++) {
+      const globalIdx = pageStart + k;
+      const a = nodePos(k);
+      const b = nodePos(k + 1);
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const len = Math.hypot(dx, dy);
+      if (len <= R * 2 + 6) continue;
+      const ux = dx / len;
+      const uy = dy / len;
+      ctx.strokeStyle =
+        globalIdx < activeIdx
+          ? 'rgba(148, 163, 184, 0.14)'
+          : globalIdx === activeIdx
+          ? 'rgba(255, 255, 255, 0.55)'
+          : 'rgba(255, 255, 255, 0.26)';
+      ctx.beginPath();
+      ctx.moveTo(a.x + ux * (R + 4), a.y + uy * (R + 4));
+      ctx.lineTo(b.x - ux * (R + 4), b.y - uy * (R + 4));
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // Draw notes back-to-front so active/earlier approach rings stay cleanly on top
+  for (let k = pageCount - 1; k >= 0; k--) {
+    const idx = pageStart + k;
+    const n = notes[idx];
+    const p = nodePos(k);
+    const isPast = idx < activeIdx;
+    const isActive = idx === activeIdx;
+    const until = n.frame - currentFrame;
+    const inApproach = !isPast && (isActive || until <= approachFrames);
+
+    const attacks = n.buttons.filter((b) => !DIRECTION_IDS.has(b));
+    const primary = attacks[attacks.length - 1] ?? n.buttons[n.buttons.length - 1];
+    const color = BUTTON_META[primary]?.color ?? '#38bdf8';
+    const btnLabel =
+      attacks.length > 1
+        ? attacks.map((b) => BUTTON_META[b]?.shortLabel ?? b).join('+')
+        : BUTTON_META[primary]?.shortLabel ?? primary;
+
+    let prog = 0;
+    let scale = 1;
+    if (phase === 'waiting-first' && isActive) {
+      const pulse = (Math.sin(now / 220) + 1) / 2;
+      prog = 0.5 + pulse * 0.5;
+      scale = 1.12 + pulse * 0.35;
+    } else if (inApproach) {
+      const c = Math.max(0, Math.min(approachFrames, until));
+      prog = 1 - c / approachFrames;
+      scale = 1 + (1 - prog) * 1.55;
+    }
+    const gold = !isPast && phase === 'playing' && until <= 9 && until >= -2;
+    const ring = gold ? '#facc15' : color;
+
+    ctx.save();
+    ctx.globalAlpha = isPast ? 0.16 : inApproach ? (isActive ? 1 : Math.min(0.92, 0.6 + prog * 0.35)) : 0.38;
+
+    // Shrinking osu! approach circle for active & upcoming notes within approachFrames
+    if (inApproach) {
+      ctx.save();
+      ctx.globalAlpha = isActive ? 1 : Math.min(0.75, Math.max(0.55, 0.55 + prog * 0.2));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, R * scale, 0, Math.PI * 2);
+      ctx.strokeStyle = ring;
+      ctx.lineWidth = isActive ? (gold ? 5.5 : 4.5) : 3;
+      if (!lowPerfMode && isActive) {
+        ctx.shadowColor = ring;
+        ctx.shadowBlur = gold ? 18 : 12;
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+
+    // Note body
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, R, 0, Math.PI * 2);
+    ctx.fillStyle = inApproach ? (gold ? 'rgba(250, 204, 21, 0.42)' : color + '55') : color + '28';
+    ctx.fill();
+    ctx.lineWidth = isActive ? 4 : 2.5;
+    ctx.strokeStyle = isActive ? '#ffffff' : ring;
+    ctx.stroke();
+
+    // Attack button label
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `900 ${btnLabel.length > 4 ? 12 : 16}px system-ui, sans-serif`;
+    ctx.fillText(btnLabel, p.x, p.y);
+
+    // Sequence number badge (top-left)
+    const bx = p.x - R * 0.72;
+    const by = p.y - R * 0.72;
+    ctx.beginPath();
+    ctx.arc(bx, by, 11, 0, Math.PI * 2);
+    ctx.fillStyle = ring;
+    ctx.fill();
+    ctx.fillStyle = '#090d16';
+    ctx.font = '900 11px system-ui, sans-serif';
+    ctx.fillText(String(idx + 1), bx, by);
+
+    // Notation below the circle
+    ctx.fillStyle = isActive ? '#f8fafc' : '#cbd5e1';
+    ctx.font = '800 11.5px system-ui, sans-serif';
+    ctx.fillText(n.notation, p.x, p.y + R + 14);
+    ctx.restore();
+  }
+
+  // Active note notation/motion badge below left pad + moveName / page indicator below right grid
+  if (activeIdx < notes.length) {
+    const n = notes[activeIdx];
+    const arrows: Record<string, string> = isRight
+      ? { '236': '↓↙← 236', '214': '↓↘→ 214', '623': '←↓↙ 623', '6214': '←↓→ 6214', '22': '↓↓ 22', '66': '←← 66' }
+      : { '236': '↓↘→ 236', '214': '↓↙← 214', '623': '→↓↘ 623', '6214': '→↓← 6214', '22': '↓↓ 22', '66': '→→ 66' };
+    const text = n.motion ? (arrows[n.motion] ?? n.motion) : '';
+    const label = `${activeIdx + 1}. ${n.notation}${text ? '  ' + text : ''}`;
+    ctx.font = '800 16px system-ui, sans-serif';
+    const tw = ctx.measureText(label).width + 28;
+    const by = padY + gap + 42 + 52;
+    ctx.fillStyle = 'rgba(10, 14, 24, 0.88)';
+    ctx.beginPath();
+    ctx.roundRect(padX - tw / 2, by - 14, tw, 28, 14);
+    ctx.fill();
+    ctx.strokeStyle = n.motion ? '#facc15' : 'rgba(148, 163, 184, 0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillText(label, padX, by);
+
+    const gridCenterX = gx + ((Math.min(pageCount, COLS) - 1) * gapX) / 2;
+    const footerText =
+      totalPages > 1 ? `${n.moveName}  ·  ${pageIdx + 1}/${totalPages}` : n.moveName;
+    ctx.font = '700 14px system-ui, sans-serif';
+    const mw = ctx.measureText(footerText).width + 26;
+    const my = gy + (rows - 1) * gapY + R + 46;
+    ctx.fillStyle = 'rgba(10, 14, 24, 0.88)';
+    ctx.beginPath();
+    ctx.roundRect(gridCenterX - mw / 2, my - 13, mw, 26, 13);
+    ctx.fill();
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillText(footerText, gridCenterX, my);
+  }
+
+  ctx.restore();
+}
+
+/**
  * Fixed Layout (arcade / hitbox) board:
  * - Right side: fixed attack button grid (gray when idle, lit + shrinking osu! approach ring + sequence badge + follow lines).
  * - Left side: original osu! drawMotionSlider for motions, original direction circle for simple directions, or subtle gray idle circle.
@@ -172,176 +562,8 @@ function drawFixedBoard(
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
-  // Left side:
-  // Always draw the 8 fixed directional buttons at exact drawMotionSlider coordinates
-  // (ring radius = 72, button radius = 26, centered at (padX, padY)).
-  // When active/imminent note has a motion, draw the exact original drawMotionSlider right on top
-  // at centerY = padY + 72 * 0.15 so its arcCy === padY aligns dead-center on 2/3/6 (and 2/1/4, 6/2/4).
-  const ringR = 72;
-  const btnR = 26;
-  const compass: { key: string; arrow: string; x: number; y: number }[] = [
-    { key: '8', arrow: '↑', x: padX, y: padY - ringR },
-    { key: '9', arrow: '↗', x: padX + ringR * Math.SQRT1_2, y: padY - ringR * Math.SQRT1_2 },
-    { key: '6', arrow: '→', x: padX + ringR, y: padY },
-    { key: '3', arrow: '↘', x: padX + ringR * Math.SQRT1_2, y: padY + ringR * Math.SQRT1_2 },
-    { key: '2', arrow: '↓', x: padX, y: padY + ringR },
-    { key: '1', arrow: '↙', x: padX - ringR * Math.SQRT1_2, y: padY + ringR * Math.SQRT1_2 },
-    { key: '4', arrow: '←', x: padX - ringR, y: padY },
-    { key: '7', arrow: '↖', x: padX - ringR * Math.SQRT1_2, y: padY - ringR * Math.SQRT1_2 },
-  ];
-  const compassMap = new Map(compass.map((c) => [c.key, c]));
-
-  // Draw all 8 idle ghosted compass buttons
-  compass.forEach((c) => {
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, btnR, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.20)';
-    ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(148, 163, 184, 0.38)';
-    ctx.font = '900 22px system-ui, sans-serif';
-    ctx.fillText(c.arrow, c.x, c.y);
-  });
-
-  // Subtle neutral center dot
-  ctx.beginPath();
-  ctx.arc(padX, padY, 5, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(148, 163, 184, 0.22)';
-  ctx.fill();
-
-  // Light up required 8-way direction(s) for visible non-motion notes (later notes first)
-  const dirEvents: {
-    key: string;
-    color: string;
-    scale: number;
-    gold: boolean;
-    alpha: number;
-    seq: number;
-    isActive: boolean;
-  }[] = [];
-
-  visible.forEach((idx) => {
-    const n = notes[idx];
-    if (n.motion) return;
-    const dirs = n.buttons
-      .filter((b) => DIRECTION_IDS.has(b))
-      .map((b) => mirrorBtn(b, isRight));
-    if (dirs.length === 0) return;
-
-    const hasUp = dirs.includes('UP');
-    const hasDown = dirs.includes('DOWN');
-    const hasLeft = dirs.includes('LEFT');
-    const hasRight = dirs.includes('RIGHT');
-    const key =
-      hasDown && hasRight
-        ? '3'
-        : hasDown && hasLeft
-        ? '1'
-        : hasUp && hasRight
-        ? '9'
-        : hasUp && hasLeft
-        ? '7'
-        : hasDown
-        ? '2'
-        : hasUp
-        ? '8'
-        : hasLeft
-        ? '4'
-        : hasRight
-        ? '6'
-        : '';
-    if (!key) return;
-
-    const isActive = idx === activeIdx;
-    const until = n.frame - currentFrame;
-    let prog: number;
-    let scale: number;
-    if (phase === 'waiting-first' && isActive) {
-      const pulse = (Math.sin(now / 220) + 1) / 2;
-      prog = 0.5 + pulse * 0.5;
-      scale = 1.15 + pulse * 0.35;
-    } else {
-      const c = Math.max(0, Math.min(approachFrames, until));
-      prog = 1 - c / approachFrames;
-      scale = 1 + (1 - prog) * 1.5;
-    }
-    const gold = phase === 'playing' && until <= 9 && until >= -2;
-    const attacks = n.buttons.filter((b) => !DIRECTION_IDS.has(b));
-    const primary = attacks[attacks.length - 1] ?? n.buttons[n.buttons.length - 1];
-    const color = BUTTON_META[primary]?.color ?? '#38bdf8';
-    const alpha = isActive ? 1 : Math.min(0.9, prog * 2 + 0.2);
-    dirEvents.push({ key, color, scale, gold, alpha, seq: idx + 1, isActive });
-  });
-
-  dirEvents.sort((a, b) => b.seq - a.seq);
-  dirEvents.forEach((e) => {
-    const c = compassMap.get(e.key);
-    if (!c) return;
-    const ring = e.gold ? '#facc15' : e.color;
-    ctx.save();
-    ctx.globalAlpha = e.alpha;
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, btnR, 0, Math.PI * 2);
-    ctx.fillStyle = e.gold ? 'rgba(250, 204, 21, 0.42)' : e.color + '55';
-    ctx.fill();
-    ctx.lineWidth = 3.5;
-    ctx.strokeStyle = e.isActive ? '#ffffff' : ring;
-    if (!lowPerfMode) {
-      ctx.shadowColor = ring;
-      ctx.shadowBlur = e.gold ? 18 : 10;
-    }
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '900 22px system-ui, sans-serif';
-    ctx.fillText(c.arrow, c.x, c.y);
-    ctx.restore();
-  });
-
-  // Overlay the exact original drawMotionSlider right on top when active/imminent note has a motion
-  const activeNote = activeIdx < notes.length ? notes[activeIdx] : undefined;
-  const activeHasDir = Boolean(activeNote?.buttons.some((b) => DIRECTION_IDS.has(b)));
-  const motionIdx = activeNote?.motion
-    ? activeIdx
-    : !activeHasDir
-    ? visible.find((idx) => idx > activeIdx && Boolean(notes[idx].motion))
-    : undefined;
-
-  if (motionIdx !== undefined) {
-    const lNote = notes[motionIdx];
-    const lUntil = lNote.frame - currentFrame;
-    // Use a one-way sawtooth loop in waiting-first so 214/236 never oscillate backwards
-    const lProg =
-      phase === 'waiting-first' && motionIdx === activeIdx
-        ? (now % 1100) / 1100
-        : 1 - Math.max(0, Math.min(approachFrames, lUntil)) / approachFrames;
-    const lGold = phase === 'playing' && lUntil <= 9 && lUntil >= -2;
-    const lAttacks = lNote.buttons.filter((b) => !DIRECTION_IDS.has(b));
-    const lPrimary = lAttacks[lAttacks.length - 1] ?? lNote.buttons[lNote.buttons.length - 1];
-    const lRingColor = lGold ? '#facc15' : (BUTTON_META[lPrimary]?.color ?? '#38bdf8');
-    const lAlpha = motionIdx === activeIdx ? 1 : Math.min(0.9, lProg * 2 + 0.2);
-    const isDouble = /236236|214214/.test(lNote.notation);
-
-    ctx.save();
-    ctx.globalAlpha = lAlpha;
-    drawMotionSlider(
-      ctx,
-      lNote.motion!,
-      padX,
-      padY + ringR * 0.15,
-      ringR,
-      lProg,
-      lRingColor,
-      motionIdx + 1,
-      lowPerfMode,
-      isRight,
-      isDouble
-    );
-    ctx.restore();
-  }
+  // Left side: shared 8-way compass ring + drawMotionSlider overlay
+  drawFixedLeftPad(ctx, padX, padY, notes, visible, activeIdx, currentFrame, phase, now, isRight, lowPerfMode, approachFrames);
 
   // Right-side fixed base attack buttons (ghosted when idle)
   (Object.keys(pos) as ActionButtonId[]).forEach((b) => {
@@ -1683,12 +1905,14 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         }
       }
 
-      const isFixed = chartLayout === 'fixed';
-      if (isFixed) {
+      const isCustomLayout = chartLayout === 'fixed' || chartLayout === 'osu';
+      if (chartLayout === 'fixed') {
         drawFixedBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, mode, isRightSide, lowPerfMode, approachFrames);
+      } else if (chartLayout === 'osu') {
+        drawOsuChartBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, isRightSide, lowPerfMode, approachFrames);
       }
 
-      if (!isFixed && chainIndices.length > 0) {
+      if (!isCustomLayout && chainIndices.length > 0) {
         const nextRadius = 42;
         const firstNextX = centerX + CIRCLE_RADIUS + 115;
         const chainGapX = 128;
@@ -1853,7 +2077,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       }
 
       // 2. Render CURRENT ACTIVE NOTE right in the CENTER (1.5x larger)
-      if (!isFixed && activeIdx < notes.length) {
+      if (!isCustomLayout && activeIdx < notes.length) {
         const note = notes[activeIdx];
         const attackButtons = note.buttons.filter((b) => !DIRECTION_IDS.has(b));
         const dirButtons = note.buttons
