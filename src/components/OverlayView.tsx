@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, MousePointerClick, RotateCcw } from 'lucide-react';
 import {
   ActionButtonId,
@@ -112,8 +112,8 @@ function drawFixedLeftPad(
   lowPerfMode: boolean,
   approachFrames: number
 ) {
-  const ringR = 72;
-  const btnR = 26;
+  const ringR = 82;
+  const btnR = 30;
   const compass: { key: string; arrow: string; x: number; y: number }[] = [
     { key: '8', arrow: '↑', x: padX, y: padY - ringR },
     { key: '9', arrow: '↗', x: padX + ringR * Math.SQRT1_2, y: padY - ringR * Math.SQRT1_2 },
@@ -136,7 +136,7 @@ function drawFixedLeftPad(
     ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
     ctx.stroke();
     ctx.fillStyle = 'rgba(148, 163, 184, 0.38)';
-    ctx.font = '900 22px system-ui, sans-serif';
+    ctx.font = '900 25px system-ui, sans-serif';
     ctx.fillText(c.arrow, c.x, c.y);
   });
 
@@ -146,17 +146,23 @@ function drawFixedLeftPad(
   ctx.fillStyle = 'rgba(148, 163, 184, 0.22)';
   ctx.fill();
 
-  // Light up required 8-way direction(s) for visible non-motion notes (no shrinking ring on held dirs)
-  const dirEvents: {
+  // Light up required 8-way direction(s) for up to 6 visible non-motion directional notes
+  // (3-pass rendering: button body once -> concentric shrinking rings -> sequence badge)
+  interface DirEvent {
     key: string;
     color: string;
+    scale: number;
+    prog: number;
     gold: boolean;
     alpha: number;
     seq: number;
     isActive: boolean;
-  }[] = [];
+  }
+  const dirByKey = new Map<string, DirEvent[]>();
+  let dirCount = 0;
 
   visible.forEach((idx) => {
+    if (dirCount >= 6) return;
     const n = notes[idx];
     if (n.motion) return;
     const dirs = n.buttons
@@ -191,44 +197,90 @@ function drawFixedLeftPad(
     const isActive = idx === activeIdx;
     const until = n.frame - currentFrame;
     let prog: number;
+    let scale: number;
     if (phase === 'waiting-first' && isActive) {
       const pulse = (Math.sin(now / 220) + 1) / 2;
       prog = 0.5 + pulse * 0.5;
+      scale = 1.12 + pulse * 0.35;
     } else {
       const c = Math.max(0, Math.min(approachFrames, until));
       prog = 1 - c / approachFrames;
+      scale = 1 + (1 - prog) * 1.45;
     }
     const gold = phase === 'playing' && until <= 9 && until >= -2;
     const attacks = n.buttons.filter((b) => !DIRECTION_IDS.has(b));
     const primary = attacks[attacks.length - 1] ?? n.buttons[n.buttons.length - 1];
     const color = BUTTON_META[primary]?.color ?? '#38bdf8';
     const alpha = isActive ? 1 : Math.min(0.9, prog * 2 + 0.2);
-    dirEvents.push({ key, color, gold, alpha, seq: idx + 1, isActive });
+    const arr = dirByKey.get(key) ?? [];
+    arr.push({ key, color, scale, prog, gold, alpha, seq: idx + 1, isActive });
+    dirByKey.set(key, arr);
+    dirCount++;
   });
 
-  dirEvents.sort((a, b) => b.seq - a.seq);
-  dirEvents.forEach((e) => {
+  // Pass A: lit compass button bodies (once per key)
+  dirByKey.forEach((arr, key) => {
+    arr.sort((a, b) => a.seq - b.seq);
+    const first = arr[0];
+    const c = compassMap.get(key);
+    if (!c) return;
+    const ring = first.gold ? '#facc15' : first.color;
+    ctx.save();
+    ctx.globalAlpha = first.isActive ? 1 : Math.max(0.65, first.alpha);
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, btnR, 0, Math.PI * 2);
+    ctx.fillStyle = first.gold ? 'rgba(250, 204, 21, 0.42)' : first.color + '55';
+    ctx.fill();
+    ctx.lineWidth = first.isActive ? 3.5 : 2.5;
+    ctx.strokeStyle = first.isActive ? '#ffffff' : ring;
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 25px system-ui, sans-serif';
+    ctx.fillText(c.arrow, c.x, c.y);
+    ctx.restore();
+  });
+
+  // Pass B: shrinking approach rings for every visible directional note (later notes first)
+  const allDirRings: DirEvent[] = [];
+  dirByKey.forEach((arr) => arr.forEach((e) => allDirRings.push(e)));
+  allDirRings.sort((a, b) => b.seq - a.seq);
+  allDirRings.forEach((e) => {
     const c = compassMap.get(e.key);
     if (!c) return;
     const ring = e.gold ? '#facc15' : e.color;
     ctx.save();
-    ctx.globalAlpha = e.alpha;
+    ctx.globalAlpha = e.isActive ? 1 : Math.min(0.75, Math.max(0.5, 0.5 + e.prog * 0.25));
     ctx.beginPath();
-    ctx.arc(c.x, c.y, btnR, 0, Math.PI * 2);
-    ctx.fillStyle = e.gold ? 'rgba(250, 204, 21, 0.42)' : e.color + '55';
-    ctx.fill();
-    ctx.lineWidth = 3.5;
-    ctx.strokeStyle = e.isActive ? '#ffffff' : ring;
-    if (!lowPerfMode) {
+    ctx.arc(c.x, c.y, btnR * e.scale, 0, Math.PI * 2);
+    ctx.strokeStyle = ring;
+    ctx.lineWidth = e.isActive ? 4 : 2.75;
+    if (!lowPerfMode && e.isActive) {
       ctx.shadowColor = ring;
       ctx.shadowBlur = e.gold ? 18 : 10;
     }
     ctx.stroke();
     ctx.shadowBlur = 0;
+    ctx.restore();
+  });
 
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '900 22px system-ui, sans-serif';
-    ctx.fillText(c.arrow, c.x, c.y);
+  // Pass C: sequence number badge (#1, #2, #3) on each lit compass button
+  dirByKey.forEach((arr, key) => {
+    const first = arr[0];
+    const c = compassMap.get(key);
+    if (!c) return;
+    const ring = first.gold ? '#facc15' : first.color;
+    ctx.save();
+    ctx.globalAlpha = first.isActive ? 1 : Math.max(0.75, first.alpha);
+    const bx = c.x - btnR * 0.72;
+    const by = c.y - btnR * 0.72;
+    ctx.beginPath();
+    ctx.arc(bx, by, 10, 0, Math.PI * 2);
+    ctx.fillStyle = ring;
+    ctx.fill();
+    ctx.fillStyle = '#090d16';
+    ctx.font = '900 10.5px system-ui, sans-serif';
+    ctx.fillText(String(first.seq), bx, by);
     ctx.restore();
   });
 
@@ -254,6 +306,9 @@ function drawFixedLeftPad(
     const lRingColor = lGold ? '#facc15' : (BUTTON_META[lPrimary]?.color ?? '#38bdf8');
     const lAlpha = motionIdx === activeIdx ? 1 : Math.min(0.9, lProg * 2 + 0.2);
     const isDouble = /236236|214214/.test(lNote.notation);
+    const isTk =
+      (lNote.motion === '214' && /2147/.test(lNote.notation)) ||
+      (lNote.motion === '236' && /2369/.test(lNote.notation));
 
     ctx.save();
     ctx.globalAlpha = lAlpha;
@@ -268,7 +323,8 @@ function drawFixedLeftPad(
       motionIdx + 1,
       lowPerfMode,
       isRight,
-      isDouble
+      isDouble,
+      isTk
     );
     ctx.restore();
   }
@@ -293,9 +349,10 @@ function drawOsuChartBoard(
   lowPerfMode: boolean,
   approachFrames: number
 ) {
-  const R = Math.max(28, Math.min(38, w * 0.024));
+  // 1.5x larger osu! note circles scaled cleanly for both 1080px compact overlay and 1920px+ fullscreen
+  const R = Math.max(42, Math.min(54, w * 0.038));
   const gap = Math.max(30, Math.min(42, w * 0.026)) * 2.35;
-  const padX = w * 0.22;
+  const padX = Math.max(145, w * 0.16);
   const padY = h * 0.44;
 
   const visible: number[] = [];
@@ -323,10 +380,13 @@ function drawOsuChartBoard(
   const pageCount = pageEnd - pageStart;
   const rows = Math.max(1, Math.ceil(pageCount / COLS));
 
-  const gapX = R * 2.75;
-  const gapY = R * 2.85;
-  const gx = w * 0.56;
-  const gy = Math.max(h * 0.22, h * 0.44 - ((rows - 1) * gapY) / 2);
+  const gapX = Math.min(R * 2.8, Math.max(R * 2.45, (w * 0.48) / 3));
+  const gapY = Math.min(R * 2.95, Math.max(R * 2.6, (h * 0.56) / Math.max(1, rows)));
+  const gridSpanW = (COLS - 1) * gapX;
+  const rightAreaLeft = padX + 82 + 30 + R + 32;
+  const rightEdgeMargin = Math.max(44, R + 12);
+  const gx = Math.max(rightAreaLeft, w - gridSpanW - R - rightEdgeMargin);
+  const gy = Math.max(h * 0.18 + R, h * 0.45 - ((rows - 1) * gapY) / 2);
 
   const nodePos = (localIdx: number) => ({
     x: gx + (localIdx % COLS) * gapX,
@@ -372,13 +432,18 @@ function drawOsuChartBoard(
     const until = n.frame - currentFrame;
     const inApproach = !isPast && (isActive || until <= approachFrames);
 
+    const hasAuto = n.buttons.includes('AUTO');
     const attacks = n.buttons.filter((b) => !DIRECTION_IDS.has(b));
-    const primary = attacks[attacks.length - 1] ?? n.buttons[n.buttons.length - 1];
+    const nonAutoAttacks = attacks.filter((b) => b !== 'AUTO');
+    const primary = nonAutoAttacks[nonAutoAttacks.length - 1] ?? attacks[attacks.length - 1] ?? n.buttons[n.buttons.length - 1];
     const color = BUTTON_META[primary]?.color ?? '#38bdf8';
-    const btnLabel =
-      attacks.length > 1
-        ? attacks.map((b) => BUTTON_META[b]?.shortLabel ?? b).join('+')
-        : BUTTON_META[primary]?.shortLabel ?? primary;
+    const btnLabel = hasAuto
+      ? nonAutoAttacks.length > 0
+        ? `AUTO+${nonAutoAttacks.map((b) => BUTTON_META[b]?.shortLabel ?? b).join('+')}`
+        : 'AUTO'
+      : attacks.length > 1
+      ? attacks.map((b) => BUTTON_META[b]?.shortLabel ?? b).join('+')
+      : BUTTON_META[primary]?.shortLabel ?? primary;
 
     let prog = 0;
     let scale = 1;
@@ -423,26 +488,42 @@ function drawOsuChartBoard(
     ctx.strokeStyle = isActive ? '#ffffff' : ring;
     ctx.stroke();
 
-    // Attack button label
+    // Attack button label (1.5x scaled)
     ctx.fillStyle = '#ffffff';
-    ctx.font = `900 ${btnLabel.length > 4 ? 12 : 16}px system-ui, sans-serif`;
+    ctx.font = `900 ${btnLabel.length > 5 ? 16 : btnLabel.length > 3 ? 19 : 24}px system-ui, sans-serif`;
     ctx.fillText(btnLabel, p.x, p.y);
 
-    // Sequence number badge (top-left)
+    // Sequence number badge (top-left, 1.5x scaled)
     const bx = p.x - R * 0.72;
     const by = p.y - R * 0.72;
     ctx.beginPath();
-    ctx.arc(bx, by, 11, 0, Math.PI * 2);
+    ctx.arc(bx, by, 16, 0, Math.PI * 2);
     ctx.fillStyle = ring;
     ctx.fill();
     ctx.fillStyle = '#090d16';
-    ctx.font = '900 11px system-ui, sans-serif';
+    ctx.font = '900 15px system-ui, sans-serif';
     ctx.fillText(String(idx + 1), bx, by);
 
-    // Notation below the circle
+    // Crisp purple AUTO pill badge (top-right, 1.5x scaled) for Modern assisted combos
+    if (hasAuto) {
+      const ax = p.x + R * 0.68;
+      const ay = p.y - R * 0.74;
+      ctx.beginPath();
+      ctx.roundRect(ax - 27, ay - 12, 54, 24, 12);
+      ctx.fillStyle = '#a855f7';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 12.5px system-ui, sans-serif';
+      ctx.fillText('AUTO', ax, ay);
+    }
+
+    // Notation below the circle (1.5x scaled)
     ctx.fillStyle = isActive ? '#f8fafc' : '#cbd5e1';
-    ctx.font = '800 11.5px system-ui, sans-serif';
-    ctx.fillText(n.notation, p.x, p.y + R + 14);
+    ctx.font = '800 15px system-ui, sans-serif';
+    ctx.fillText(n.notation, p.x, p.y + R + 19);
     ctx.restore();
   }
 
@@ -505,14 +586,14 @@ function drawFixedBoard(
 ) {
   const R = Math.max(30, Math.min(42, w * 0.026));
   const gap = R * 2.35;
-  // Left direction / motion cue center
-  const padX = w * 0.22;
+  // Left direction / motion cue center (nudged left so screen center stays wide open)
+  const padX = Math.max(145, w * 0.16);
   const padY = h * 0.44;
-  // Right fixed attack button grid
-  const gx = w * 0.62;
-  const gy = h * 0.34;
+  // Right fixed attack button grid (anchored near right edge so SF6 characters in center stay clear)
   const gapX = R * 2.5;
   const gapY = R * 2.5;
+  const gx = w - (gapX * 3 + R + 58);
+  const gy = h * 0.34;
   const pos: Partial<Record<ActionButtonId, { x: number; y: number; r: number }>> = {};
   const top: ActionButtonId[] = mode === 'modern' ? ['L', 'M', 'H', 'DI'] : ['LP', 'MP', 'HP', 'DI'];
   const bottom: ActionButtonId[] = mode === 'modern' ? ['SP', 'AUTO', 'PARRY'] : ['LK', 'MK', 'HK', 'PARRY'];
@@ -737,7 +818,8 @@ function drawMotionSlider(
   seqNum: number,
   lowPerfMode: boolean,
   mirrored = false,
-  isDoubleMotion = false
+  isDoubleMotion = false,
+  isTk = false
 ) {
   ctx.save();
 
@@ -747,12 +829,13 @@ function drawMotionSlider(
   if (motion === '236' || motion === '214') {
     const isRight = mirrored ? motion === '214' : motion === '236';
     // Arc centered at (centerX, centerY - radius * 0.15):
-    // 236: starts at Bottom (PI/2) -> curves counter-clockwise to Right (0)
-    // 214: starts at Bottom (PI/2) -> curves clockwise to Left (PI)
+    // 236: starts at Bottom (PI/2) -> curves counter-clockwise to Right (0), or ↗ (-PI/4) for TK 2369
+    // 214: starts at Bottom (PI/2) -> curves clockwise to Left (PI), or ↖ (5*PI/4) for TK 2147
     const arcCx = centerX;
     const arcCy = centerY - radius * 0.15;
     const startAngle = Math.PI / 2;
-    const endAngle = isRight ? 0 : Math.PI;
+    const sweep = isTk ? (3 * Math.PI) / 4 : Math.PI / 2;
+    const endAngle = isRight ? startAngle - sweep : startAngle + sweep;
     const anticlockwise = isRight;
 
     const startX = arcCx + Math.cos(startAngle) * radius;
@@ -800,23 +883,23 @@ function drawMotionSlider(
       ctx.shadowBlur = 0;
     }
 
-    // 5. Start label (↓) and End label (→ or ←)
+    // 5. Start label (↓) and End label (→/←, or ↗/↖ for TK 2369/2147)
     ctx.fillStyle = '#ffffff';
     ctx.font = '900 20px system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('↓', startX, startY);
-    ctx.fillText(isRight ? '→' : '←', endX, endY);
+    ctx.fillText(isTk ? (isRight ? '↗' : '↖') : (isRight ? '→' : '←'), endX, endY);
 
-    // 6. Gliding Osu! Slider Ball along the quarter-circle arc (2 full passes for 236236 / 214214)
+    // 6. Gliding Osu! Slider Ball along the arc (90° standard, 135° TK, 2 full passes for 236236 / 214214)
     let passT = slideT;
     if (isDoubleMotion) {
       const rawT = Math.max(0, Math.min(1, (progress - 0.45) / 0.55));
       passT = rawT >= 1 ? 1 : (rawT * 2) % 1;
     }
     const ballAngle = isRight
-      ? startAngle - passT * (Math.PI / 2)
-      : startAngle + passT * (Math.PI / 2);
+      ? startAngle - passT * sweep
+      : startAngle + passT * sweep;
     const ballX = arcCx + Math.cos(ballAngle) * radius;
     const ballY = arcCy + Math.sin(ballAngle) * radius;
 
@@ -839,7 +922,9 @@ function drawMotionSlider(
     ctx.fillText(String(seqNum), ballX, ballY);
 
     // Motion text badge
-    const badgeText = isDoubleMotion
+    const badgeText = isTk
+      ? (motion === '236' ? '2369' : '2147')
+      : isDoubleMotion
       ? (isRight ? '236×2 雙右四分之一圈' : '214×2 雙左四分之一圈')
       : (isRight ? '236 往右四分之一圈' : '214 往左四分之一圈');
     ctx.fillStyle = 'rgba(10, 14, 24, 0.8)';
@@ -916,32 +1001,60 @@ function drawMotionSlider(
     ctx.fillStyle = '#090d16';
     ctx.font = '900 13px system-ui, sans-serif';
     ctx.fillText(String(seqNum), bx, by);
-  } else if (motion === '22') {
-    // Double-Down (22): Top ↓ stacked over Bottom ↓
-    const topY = centerY - 46;
-    const botY = centerY + 46;
+  } else if (motion === '22' || motion === '66' || motion === '44') {
+    // Pixel-aligned to 8-way compass center (5 = (centerX, arcCy)) -> 6 / 4 / 2 with brisk double-glide (×2)
+    const arcCy = centerY - radius * 0.15;
+    const startX = centerX;
+    const startY = arcCy;
+    let endX = centerX;
+    let endY = arcCy;
+    let endArrow = '↓';
+    let badgeText = '22 ×2';
 
-    // Vertical connector track
+    if (motion === '66') {
+      const dirSign = mirrored ? -1 : 1;
+      endX = centerX + dirSign * radius;
+      endArrow = dirSign > 0 ? '→' : '←';
+      badgeText = '66 ×2';
+    } else if (motion === '44') {
+      const dirSign = mirrored ? 1 : -1;
+      endX = centerX + dirSign * radius;
+      endArrow = dirSign > 0 ? '→' : '←';
+      badgeText = '44 ×2';
+    } else {
+      endY = arcCy + radius;
+      endArrow = '↓';
+      badgeText = '22 ×2';
+    }
+
+    // Track border + dark body + colored glow
     ctx.beginPath();
-    ctx.moveTo(centerX, topY);
-    ctx.lineTo(centerX, botY);
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
     ctx.lineCap = 'round';
-    ctx.lineWidth = 44;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.lineWidth = 48;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(centerX, topY);
-    ctx.lineTo(centerX, botY);
-    ctx.lineWidth = 36;
-    ctx.strokeStyle = 'rgba(10, 14, 24, 0.9)';
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.lineWidth = 40;
+    ctx.strokeStyle = 'rgba(10, 14, 24, 0.88)';
     ctx.stroke();
 
-    // Shrinking approach circle on top ↓
-    if (progress < 0.65) {
-      const appScale = 1 + (1 - progress / 0.65) * 1.4;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.lineWidth = 32;
+    ctx.strokeStyle = color + '33';
+    ctx.stroke();
+
+    // Shrinking approach circle on center (5) before the double-glide starts
+    if (progress < 0.45) {
+      const appScale = 1 + (1 - progress / 0.45) * 1.4;
       ctx.beginPath();
-      ctx.arc(centerX, topY, 26 * appScale, 0, Math.PI * 2);
+      ctx.arc(startX, startY, 24 * appScale, 0, Math.PI * 2);
       ctx.strokeStyle = color;
       ctx.lineWidth = 4;
       if (!lowPerfMode) {
@@ -952,27 +1065,23 @@ function drawMotionSlider(
       ctx.shadowBlur = 0;
     }
 
-    // Two stacked ↓ circles
-    [topY, botY].forEach((cy) => {
-      ctx.beginPath();
-      ctx.arc(centerX, cy, 24, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(10, 14, 24, 0.92)';
-      ctx.fill();
-      ctx.lineWidth = 3.5;
-      ctx.strokeStyle = color;
-      ctx.stroke();
+    // Center (●) and End (→ / ← / ↓) labels
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 18px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('●', startX, startY);
+    ctx.font = '900 22px system-ui, sans-serif';
+    ctx.fillText(endArrow, endX, endY);
 
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '900 22px system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('↓', centerX, cy);
-    });
+    // Brisk double-glide (2 full passes from 5 -> target)
+    const rawT = Math.max(0, Math.min(1, (progress - 0.45) / 0.55));
+    const passT = rawT >= 1 ? 1 : (rawT * 2) % 1;
+    const bx = startX + (endX - startX) * passT;
+    const by = startY + (endY - startY) * passT;
 
-    // Gliding ball from top ↓ to bottom ↓
-    const by = topY + (botY - topY) * slideT;
     ctx.beginPath();
-    ctx.arc(centerX, by, 14, 0, Math.PI * 2);
+    ctx.arc(bx, by, 20, 0, Math.PI * 2);
     ctx.fillStyle = color;
     if (!lowPerfMode) {
       ctx.shadowColor = color;
@@ -980,99 +1089,22 @@ function drawMotionSlider(
     }
     ctx.fill();
     ctx.shadowBlur = 0;
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 3;
     ctx.strokeStyle = '#ffffff';
     ctx.stroke();
 
     ctx.fillStyle = '#090d16';
-    ctx.font = '900 12px system-ui, sans-serif';
-    ctx.fillText(String(seqNum), centerX, by);
+    ctx.font = '900 13px system-ui, sans-serif';
+    ctx.fillText(String(seqNum), bx, by);
 
     // Motion text badge
     ctx.fillStyle = 'rgba(10, 14, 24, 0.8)';
     ctx.beginPath();
-    ctx.roundRect(centerX - 54, botY + 34, 108, 24, 12);
+    ctx.roundRect(centerX - 44, arcCy + radius + 34, 88, 24, 12);
     ctx.fill();
     ctx.fillStyle = color;
     ctx.font = '800 12px system-ui, sans-serif';
-    ctx.fillText('22 連按兩次下', centerX, botY + 46);
-  } else if (motion === '66') {
-    // Forward Dash (66): Left → followed by Right → (mirrored to ← ← on 2P side)
-    const startX = mirrored ? centerX + 48 : centerX - 48;
-    const endX = mirrored ? centerX - 48 : centerX + 48;
-    const leftX = startX;
-    const rightX = endX;
-
-    ctx.beginPath();
-    ctx.moveTo(leftX, centerY);
-    ctx.lineTo(rightX, centerY);
-    ctx.lineCap = 'round';
-    ctx.lineWidth = 44;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(leftX, centerY);
-    ctx.lineTo(rightX, centerY);
-    ctx.lineWidth = 36;
-    ctx.strokeStyle = 'rgba(10, 14, 24, 0.9)';
-    ctx.stroke();
-
-    if (progress < 0.65) {
-      const appScale = 1 + (1 - progress / 0.65) * 1.4;
-      ctx.beginPath();
-      ctx.arc(leftX, centerY, 26 * appScale, 0, Math.PI * 2);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 4;
-      if (!lowPerfMode) {
-        ctx.shadowColor = color;
-        ctx.shadowBlur = 12;
-      }
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-    }
-
-    [leftX, rightX].forEach((cx) => {
-      ctx.beginPath();
-      ctx.arc(cx, centerY, 24, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(10, 14, 24, 0.92)';
-      ctx.fill();
-      ctx.lineWidth = 3.5;
-      ctx.strokeStyle = color;
-      ctx.stroke();
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '900 22px system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(mirrored ? '←' : '→', cx, centerY);
-    });
-
-    const bx = leftX + (rightX - leftX) * slideT;
-    ctx.beginPath();
-    ctx.arc(bx, centerY, 14, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    if (!lowPerfMode) {
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 14;
-    }
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.lineWidth = 2.5;
-    ctx.strokeStyle = '#ffffff';
-    ctx.stroke();
-
-    ctx.fillStyle = '#090d16';
-    ctx.font = '900 12px system-ui, sans-serif';
-    ctx.fillText(String(seqNum), bx, centerY);
-
-    ctx.fillStyle = 'rgba(10, 14, 24, 0.8)';
-    ctx.beginPath();
-    ctx.roundRect(centerX - 46, centerY + 38, 92, 24, 12);
-    ctx.fill();
-    ctx.fillStyle = color;
-    ctx.font = '800 12px system-ui, sans-serif';
-    ctx.fillText('66 前衝', centerX, centerY + 50);
+    ctx.fillText(badgeText, centerX, arcCy + radius + 46);
   } else if (motion === '6214') {
     // Half-circle back (6214): Right (0) -> Down (PI/2) -> Left (PI) clockwise
     const arcCx = centerX;
@@ -1456,6 +1488,26 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   const t = I18N[lang];
   const isRightSide = playerSide === 'right';
   const hasRecordedBar = Boolean(showRecordedInputs && combo.inputHistory && combo.inputHistory.length > 0);
+  // Filter out bogus standalone jump notes (7 / 8 / 9) recorded <= 10f before a TK special (2147 / 2369 / 62369)
+  // so legacy built-in, custom, and online combos play cleanly as ONE motion without blocking the 214/236/623 slider.
+  const effectiveNotes = useMemo<ComboNote[]>(() => {
+    const raw = combo.notes;
+    return raw.filter((n, idx) => {
+      const next = raw[idx + 1];
+      if (
+        next &&
+        !n.motion &&
+        (n.notation === '7' || n.notation === '8' || n.notation === '9') &&
+        (next.motion === '214' || next.motion === '236' || next.motion === '623') &&
+        /(?:2147|2369|62369)/.test(next.notation) &&
+        next.frame - n.frame >= 0 &&
+        next.frame - n.frame <= 10
+      ) {
+        return false;
+      }
+      return true;
+    });
+  }, [combo.notes]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const phaseRef = useRef<'waiting-first' | 'countdown' | 'playing' | 'finished'>(
@@ -1591,9 +1643,9 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
 
   const recordHit = useCallback((result: HitResult, diagHint?: string) => {
     hitEffectsRef.current.push(result);
-    const noteIdx = combo.notes.findIndex((n) => n.id === result.noteId);
+    const noteIdx = effectiveNotes.findIndex((n) => n.id === result.noteId);
     if (noteIdx !== -1) {
-      const notation = combo.notes[noteIdx].notation;
+      const notation = effectiveNotes[noteIdx].notation;
       setRunLog((prev) => [
         ...prev.filter((item) => item.noteId !== result.noteId),
         {
@@ -1621,7 +1673,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       }
       return { ...prev, miss: prev.miss + 1, streak: 0 };
     });
-  }, [combo.notes, sfxEnabled]);
+  }, [effectiveNotes, sfxEnabled]);
 
   const handleActionPress = useCallback(
     (rawPressedBtn: ActionButtonId, rawActiveSet: Set<ActionButtonId>) => {
@@ -1634,7 +1686,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         resetRun();
         return;
       }
-      const notes = combo.notes;
+      const notes = effectiveNotes;
       const idx = nextNoteIndexRef.current;
       if (idx >= notes.length) return;
 
@@ -1749,7 +1801,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         );
       }
     },
-    [combo.notes, dynamicResync, getCurrentChargeMs, isRightSide, lang, mode, recordHit, resetRun, updateDirectionTracking]
+    [effectiveNotes, dynamicResync, getCurrentChargeMs, isRightSide, lang, mode, recordHit, resetRun, updateDirectionTracking]
   );
 
   const handleActionRelease = useCallback(
@@ -1818,7 +1870,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       const h = window.innerHeight;
       ctx.clearRect(0, 0, w, h);
 
-      const notes = combo.notes;
+      const notes = effectiveNotes;
       let currentFrame = 0;
 
       if (phaseRef.current === 'countdown') {
@@ -2112,6 +2164,9 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           const sliderProgress =
             phaseRef.current === 'waiting-first' ? (now % 1100) / 1100 : progress;
           const isDouble = /236236|214214/.test(note.notation);
+          const isTk =
+            (note.motion === '214' && /2147/.test(note.notation)) ||
+            (note.motion === '236' && /2369/.test(note.notation));
           ctx.save();
           ctx.globalAlpha = alpha;
           drawMotionSlider(
@@ -2125,7 +2180,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
             activeIdx + 1,
             lowPerfMode,
             isRightSide,
-            isDouble
+            isDouble,
+            isTk
           );
           ctx.restore();
         } else if (dirButtons.length > 0) {
@@ -2479,7 +2535,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
     };
-  }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, chartLayout, approachFrames, sfxEnabled, recordHit, resetRun, activeButtonsRef, getCurrentChargeMs, isRightSide, lang]);
+  }, [effectiveNotes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, chartLayout, approachFrames, sfxEnabled, recordHit, resetRun, activeButtonsRef, getCurrentChargeMs, isRightSide, lang]);
 
   const totalHits = stats.perfect + stats.good + stats.early + stats.late + stats.miss;
   const accuracy =
@@ -2586,7 +2642,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
             }}
           >
             <span>
-              {t.reviewTitle} ({combo.notes.length} {t.hitsUnit})
+              {t.reviewTitle} ({effectiveNotes.length} {t.hitsUnit})
               {firstIssue
                 ? ` · ${t.firstIssuePrefix}${firstIssue.step} ${firstIssue.notation} (${
                     firstIssue.diagHint
@@ -2613,7 +2669,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {combo.notes.map((note, idx) => {
+            {effectiveNotes.map((note, idx) => {
               const res = runLog.find((r) => r.noteId === note.id);
               const isProblem =
                 res &&

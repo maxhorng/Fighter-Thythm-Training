@@ -428,12 +428,15 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
         } else if (hasDownChargeRecent && (dirPrefix === '8' || dirPrefix === '7' || dirPrefix === '9')) {
           detectedMotion = '28';
         }
-        // 4. Standard Motion Specials: 623 (incl. SF6 323 / 33 / 633(6363) DP shortcuts) / 236 (incl. TK 2369) / 214 (incl. TK 2147) / 22
+        // 4. Standard Motion Specials: 623 (incl. SF6 323 / 33 / 633(6363) / 636 DP shortcuts & TK 62369) / 236 (incl. TK 2369) / 214 (incl. TK 2147) / 22
         else if (
           (dirPrefix === '3' || dirPrefix === '6') &&
-          /(?:6[35]*2[35]*[36]|3[256]+3|32[5]*6|6[5]*3[56]*3)/.test(seq)
+          /(?:6[35]*2[35]*[36]|3[256]+3|32[5]*6|6[5]*3[56]*3|6[5]*3[5]*6)/.test(seq)
         ) {
           detectedMotion = '623';
+        } else if (dirPrefix === '9' && /6[35]*2[35]*6[65]*9/.test(seq)) {
+          detectedMotion = '623';
+          saLabel = `62369${modPrefix}${btnShort}`;
         } else if (dirPrefix === '9' && /[23][235]*6[65]*9/.test(seq)) {
           detectedMotion = '236';
           saLabel = `2369${modPrefix}${btnShort}`;
@@ -466,10 +469,31 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
         ? `${detectedMotion}${modPrefix}${btnShort}`
         : `${dirPrefix}${modPrefix}${btnShort}`;
 
+      const isTkMotion =
+        (dirPrefix === '9' || dirPrefix === '7') &&
+        (detectedMotion === '236' || detectedMotion === '214' || detectedMotion === '623');
+
       setRecordedNotes((prev) => {
-        // Merge simultaneous chord presses within <= 2 frames (e.g. SP+H for Super Arts!)
-        const last = prev[prev.length - 1];
-        if (last && Math.abs(frame - last.frame) <= 2 && !last.buttons.includes(pressedBtn)) {
+        // Absorb immediately preceding standalone jump note (7 / 8 / 9 within <= 10f) when a TK special
+        // (e.g. 2147LK+HP, 2369MK, 62369MP) is recorded, so TK moves are recorded as ONE clean note.
+        // Real Safe Jumps (30+ frames between jump and aerial attack) are unaffected.
+        let base = prev;
+        const prevLast = prev[prev.length - 1];
+        const absorbedTkJump = Boolean(
+          isTkMotion &&
+            prevLast &&
+            !prevLast.motion &&
+            (prevLast.notation === '9' || prevLast.notation === '7' || prevLast.notation === '8') &&
+            frame - prevLast.frame >= 0 &&
+            frame - prevLast.frame <= 10
+        );
+        if (absorbedTkJump) {
+          base = prev.slice(0, -1);
+        }
+
+        // Merge simultaneous chord presses within <= 2 frames (e.g. SP+H for Super Arts, or 2147LK+HP!)
+        const last = base[base.length - 1];
+        if (!absorbedTkJump && last && Math.abs(frame - last.frame) <= 2 && !last.buttons.includes(pressedBtn)) {
           const mergedButtons = Array.from(new Set([...last.buttons, ...buttons]));
           const mergedNotation = `${last.notation}+${btnShort}`;
           const updated: ComboNote = {
@@ -478,10 +502,10 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
             notation: mergedNotation,
             moveName: `${mergedNotation} (${last.frame}f)`,
           };
-          return [...prev.slice(0, -1), updated];
+          return [...base.slice(0, -1), updated];
         }
 
-        const idx = prev.length;
+        const idx = base.length;
         const noteId = `rec-${idx + 1}`;
         holdStartRef.current.set(pressedBtn, { noteId, pressTime: now });
         const note: ComboNote = {
@@ -494,7 +518,7 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
           x: SLOTS_X[idx % SLOTS_X.length],
           y: 0.50,
         };
-        return [...prev, note];
+        return [...base, note];
       });
     },
     [mode]

@@ -73,7 +73,7 @@ function loadChartLayout(): ChartLayoutMode {
   } catch {
     // ignore
   }
-  return 'fixed';
+  return 'osu';
 }
 
 function loadLowPerfMode(): boolean {
