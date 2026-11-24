@@ -115,6 +115,18 @@ export interface ElectronAPI {
   getOnlineToken?: () => Promise<string | null>;
   setOnlineToken?: (token: string) => Promise<boolean>;
   clearOnlineToken?: () => Promise<void>;
+  getAppUpdateInfo?: () => Promise<{ canAutoUpdate: boolean; isPortable: boolean }>;
+  checkForAppUpdate?: () => Promise<{ ok: boolean }>;
+  downloadAppUpdate?: () => Promise<{ ok: boolean }>;
+  installAppUpdate?: () => Promise<void>;
+  onAppUpdateStatus?: (
+    cb: (status: {
+      status: 'available' | 'downloading' | 'downloaded' | 'error';
+      version?: string;
+      percent?: number;
+      message?: string;
+    }) => void
+  ) => () => void;
   resizeWindow?: (width: number, height: number) => void;
   onGlobalKeyDown: (cb: (code: string) => void) => () => void;
   onGlobalKeyUp: (cb: (code: string) => void) => () => void;

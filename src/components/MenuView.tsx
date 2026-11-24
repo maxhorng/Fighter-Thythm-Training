@@ -158,23 +158,66 @@ export const MenuView: React.FC<MenuViewProps> = ({
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
   const [latestReleaseTag, setLatestReleaseTag] = useState<string | null>(null);
   const [updateDismissed, setUpdateDismissed] = useState(false);
+  const [canAutoUpdate, setCanAutoUpdate] = useState(false);
+  const [autoUpdateState, setAutoUpdateState] = useState<'idle' | 'available' | 'downloading' | 'downloaded' | 'error'>('idle');
+  const [downloadPercent, setDownloadPercent] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    fetch('https://api.github.com/repos/maxhorng/Frame-Beat-Trainer/releases/latest', {
-      headers: { Accept: 'application/vnd.github+json' },
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!cancelled && data && typeof data.tag_name === 'string' && data.tag_name !== CURRENT_VERSION_TAG) {
-          setLatestReleaseTag(data.tag_name);
-        }
+    const unsubUpdate = window.electronAPI?.onAppUpdateStatus?.((ev) => {
+      if (cancelled) return;
+      if (ev.status === 'available') {
+        if (ev.version) setLatestReleaseTag(ev.version);
+        setAutoUpdateState('available');
+      } else if (ev.status === 'downloading') {
+        setAutoUpdateState('downloading');
+        setDownloadPercent(ev.percent ?? 0);
+      } else if (ev.status === 'downloaded') {
+        if (ev.version) setLatestReleaseTag(ev.version);
+        setAutoUpdateState('downloaded');
+        setDownloadPercent(100);
+      } else if (ev.status === 'error') {
+        setAutoUpdateState('error');
+      }
+    });
+
+    const fallbackGithubCheck = () => {
+      fetch('https://api.github.com/repos/maxhorng/Frame-Beat-Trainer/releases/latest', {
+        headers: { Accept: 'application/vnd.github+json' },
       })
-      .catch(() => {
-        // Offline or rate-limited — fail silently
-      });
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!cancelled && data && typeof data.tag_name === 'string' && data.tag_name !== CURRENT_VERSION_TAG) {
+            setLatestReleaseTag(data.tag_name);
+          }
+        })
+        .catch(() => {
+          // Offline or rate-limited — fail silently
+        });
+    };
+
+    if (window.electronAPI?.getAppUpdateInfo) {
+      window.electronAPI
+        .getAppUpdateInfo()
+        .then((info) => {
+          if (cancelled) return;
+          if (info?.canAutoUpdate) {
+            setCanAutoUpdate(true);
+            window.electronAPI?.checkForAppUpdate?.().catch(() => undefined);
+          } else {
+            fallbackGithubCheck();
+          }
+        })
+        .catch(() => {
+          if (!cancelled) fallbackGithubCheck();
+        });
+    } else {
+      fallbackGithubCheck();
+    }
+
     return () => {
       cancelled = true;
+      unsubUpdate?.();
     };
   }, []);
 
@@ -445,21 +488,97 @@ export const MenuView: React.FC<MenuViewProps> = ({
               : `發現新版本 ${latestReleaseTag}！（目前版本：${CURRENT_VERSION_TAG}）`}
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button
-              className="btn-secondary"
-              style={{
-                padding: '3px 10px',
-                fontSize: 11.5,
-                background: 'rgba(56, 189, 248, 0.28)',
-                borderColor: '#38bdf8',
-                color: '#ffffff',
-                fontWeight: 800,
-              }}
-              onClick={() => window.open(RELEASES_LATEST_URL, '_blank')}
-            >
-              <Download size={12} />
-              {t.downloadUpdateBtn}
-            </button>
+            {canAutoUpdate ? (
+              autoUpdateState === 'downloading' ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div
+                    style={{
+                      width: 110,
+                      height: 7,
+                      borderRadius: 999,
+                      background: 'rgba(15, 23, 42, 0.75)',
+                      border: '1px solid rgba(56, 189, 248, 0.45)',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${Math.max(0, Math.min(100, downloadPercent))}%`,
+                        height: '100%',
+                        background: 'linear-gradient(90deg, #38bdf8, #a855f7)',
+                        transition: 'width 0.15s ease',
+                      }}
+                    />
+                  </div>
+                  <span style={{ fontSize: 11.5, fontWeight: 700, color: '#bae6fd' }}>
+                    {t.autoUpdateDownloading} {downloadPercent}%...
+                  </span>
+                </div>
+              ) : autoUpdateState === 'downloaded' ? (
+                <button
+                  className="btn-secondary"
+                  style={{
+                    padding: '3px 11px',
+                    fontSize: 11.5,
+                    background: 'rgba(34, 197, 94, 0.28)',
+                    borderColor: '#4ade80',
+                    color: '#ffffff',
+                    fontWeight: 800,
+                  }}
+                  onClick={() => window.electronAPI?.installAppUpdate?.()}
+                >
+                  {t.autoUpdateInstallBtn}
+                </button>
+              ) : autoUpdateState === 'error' ? (
+                <button
+                  className="btn-secondary"
+                  style={{
+                    padding: '3px 10px',
+                    fontSize: 11.5,
+                    background: 'rgba(245, 158, 11, 0.24)',
+                    borderColor: '#fbbf24',
+                    color: '#fef08a',
+                    fontWeight: 800,
+                  }}
+                  onClick={() => window.open(RELEASES_LATEST_URL, '_blank')}
+                >
+                  <Download size={12} />
+                  {t.autoUpdateError}
+                </button>
+              ) : (
+                <button
+                  className="btn-secondary"
+                  style={{
+                    padding: '3px 11px',
+                    fontSize: 11.5,
+                    background: 'rgba(56, 189, 248, 0.28)',
+                    borderColor: '#38bdf8',
+                    color: '#ffffff',
+                    fontWeight: 800,
+                  }}
+                  onClick={() => window.electronAPI?.downloadAppUpdate?.()}
+                >
+                  <Download size={12} />
+                  {t.autoUpdateDownloadBtn}
+                </button>
+              )
+            ) : (
+              <button
+                className="btn-secondary"
+                style={{
+                  padding: '3px 10px',
+                  fontSize: 11.5,
+                  background: 'rgba(56, 189, 248, 0.28)',
+                  borderColor: '#38bdf8',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                }}
+                onClick={() => window.open(RELEASES_LATEST_URL, '_blank')}
+              >
+                <Download size={12} />
+                {t.downloadUpdateBtn}
+              </button>
+            )}
             <button
               className="btn-icon"
               style={{ width: 22, height: 22 }}

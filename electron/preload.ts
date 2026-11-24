@@ -20,6 +20,31 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getOnlineToken: (): Promise<string | null> => ipcRenderer.invoke('online-token-get'),
   setOnlineToken: (token: string): Promise<boolean> => ipcRenderer.invoke('online-token-set', token),
   clearOnlineToken: (): Promise<void> => ipcRenderer.invoke('online-token-clear'),
+  getAppUpdateInfo: (): Promise<{ canAutoUpdate: boolean; isPortable: boolean }> =>
+    ipcRenderer.invoke('app-update-info'),
+  checkForAppUpdate: (): Promise<{ ok: boolean }> => ipcRenderer.invoke('app-update-check'),
+  downloadAppUpdate: (): Promise<{ ok: boolean }> => ipcRenderer.invoke('app-update-download'),
+  installAppUpdate: (): Promise<void> => ipcRenderer.invoke('app-update-install'),
+  onAppUpdateStatus: (
+    callback: (status: {
+      status: 'available' | 'downloading' | 'downloaded' | 'error';
+      version?: string;
+      percent?: number;
+      message?: string;
+    }) => void
+  ) => {
+    const handler = (
+      _event: Electron.IpcRendererEvent,
+      payload: {
+        status: 'available' | 'downloading' | 'downloaded' | 'error';
+        version?: string;
+        percent?: number;
+        message?: string;
+      }
+    ) => callback(payload);
+    ipcRenderer.on('app-update-status', handler);
+    return () => ipcRenderer.removeListener('app-update-status', handler);
+  },
   resizeWindow: (width: number, height: number): void =>
     ipcRenderer.send('window-resize', { width, height }),
   onGlobalKeyDown: (callback: (code: string) => void) => {

@@ -384,6 +384,7 @@ app.whenReady().then(() => {
   startGlobalKeyHook();
   startGlobalXInputPoller();
   registerOverlayHotkeys(currentHotkeys);
+  setupAutoUpdater();
 });
 
 ipcMain.handle('set-hotkeys', (_event, hotkeys: { clickThrough?: string; exitOverlay?: string }) => {
@@ -581,6 +582,86 @@ ipcMain.handle('discord-login-cancel', () => {
     activeLoginServer.close();
     activeLoginServer = null;
   }
+});
+
+// ---------------------------------------------------------------------------
+// Auto-updater (NSIS installed builds only; disabled for Portable & dev)
+// ---------------------------------------------------------------------------
+type AppUpdateStatus =
+  | { status: 'available'; version: string }
+  | { status: 'downloading'; percent: number }
+  | { status: 'downloaded'; version?: string }
+  | { status: 'error'; message: string };
+
+const isPortableBuild = Boolean(process.env.PORTABLE_EXECUTABLE_DIR);
+let updaterInstance: any = null;
+
+function canAutoUpdateApp(): boolean {
+  return app.isPackaged && !isPortableBuild && Boolean(updaterInstance);
+}
+
+function sendUpdateStatus(payload: AppUpdateStatus) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('app-update-status', payload);
+  }
+}
+
+function setupAutoUpdater() {
+  if (!app.isPackaged || isPortableBuild) return;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { autoUpdater } = require('electron-updater');
+    autoUpdater.autoDownload = false;
+    autoUpdater.autoInstallOnAppQuit = true;
+    autoUpdater.on('update-available', (info: { version?: string }) => {
+      sendUpdateStatus({ status: 'available', version: info?.version ? `v${info.version.replace(/^v/, '')}` : '' });
+    });
+    autoUpdater.on('download-progress', (progress: { percent?: number }) => {
+      sendUpdateStatus({ status: 'downloading', percent: Math.round(progress?.percent ?? 0) });
+    });
+    autoUpdater.on('update-downloaded', (info: { version?: string }) => {
+      sendUpdateStatus({ status: 'downloaded', version: info?.version ? `v${info.version.replace(/^v/, '')}` : undefined });
+    });
+    autoUpdater.on('error', (err: Error) => {
+      sendUpdateStatus({ status: 'error', message: err?.message || 'Update failed' });
+    });
+    updaterInstance = autoUpdater;
+  } catch (err) {
+    console.warn('[FighterMusicCombo] electron-updater unavailable:', err);
+  }
+}
+
+ipcMain.handle('app-update-info', () => ({
+  canAutoUpdate: canAutoUpdateApp(),
+  isPortable: isPortableBuild,
+}));
+
+ipcMain.handle('app-update-check', async () => {
+  if (!canAutoUpdateApp()) return { ok: false };
+  try {
+    await updaterInstance.checkForUpdates();
+    return { ok: true };
+  } catch (err) {
+    sendUpdateStatus({ status: 'error', message: err instanceof Error ? err.message : 'Check failed' });
+    return { ok: false };
+  }
+});
+
+ipcMain.handle('app-update-download', async () => {
+  if (!canAutoUpdateApp()) return { ok: false };
+  try {
+    sendUpdateStatus({ status: 'downloading', percent: 0 });
+    await updaterInstance.downloadUpdate();
+    return { ok: true };
+  } catch (err) {
+    sendUpdateStatus({ status: 'error', message: err instanceof Error ? err.message : 'Download failed' });
+    return { ok: false };
+  }
+});
+
+ipcMain.handle('app-update-install', () => {
+  if (!canAutoUpdateApp()) return;
+  updaterInstance.quitAndInstall(false, true);
 });
 
 app.on('will-quit', () => {

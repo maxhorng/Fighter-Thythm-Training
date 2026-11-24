@@ -5,7 +5,7 @@
 **ストリートファイター6 · 透過オーバーレイ リズムコンボ練習ツール**
 
 > **Author / 作者 / 制作**: `maxhorng / 92anini`  
-> **Latest Version / 最新版本 / 最新版**: `v0.3.1`  
+> **Latest Version / 最新版本 / 最新版**: `v0.3.2`  
 > **Download / 永久最新版下載 / ダウンロード**: **[Download Latest Windows Portable `.exe` (Releases Latest)](https://github.com/maxhorng/Frame-Beat-Trainer/releases/latest)**
 
 Click a language below to expand / 點擊下方語言展開說明 / 下の言語をクリックして展開:

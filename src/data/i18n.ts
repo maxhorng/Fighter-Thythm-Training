@@ -209,6 +209,10 @@ export const I18N = {
     chartLayoutFocused: '◎ 聚焦模式',
     chartLayoutFixed: '▦ 固定版面',
     approachRateLabel: '縮圈速度 (AR)',
+    autoUpdateDownloadBtn: '一鍵下載更新',
+    autoUpdateDownloading: '下載更新中',
+    autoUpdateInstallBtn: '立即重啟並安裝',
+    autoUpdateError: '更新失敗，改開網頁下載',
   },
   'zh-CN': {
     appSubtitle: 'Street Fighter 6 · 透明覆盖节奏连段训练器',
@@ -317,6 +321,10 @@ export const I18N = {
     chartLayoutFocused: '◎ 聚焦模式',
     chartLayoutFixed: '▦ 固定版面',
     approachRateLabel: '缩圈速度 (AR)',
+    autoUpdateDownloadBtn: '一键下载更新',
+    autoUpdateDownloading: '下载更新中',
+    autoUpdateInstallBtn: '立即重启并安装',
+    autoUpdateError: '更新失败，改开网页下载',
   },
   en: {
     appSubtitle: 'Street Fighter 6 · Transparent Rhythm Combo Trainer',
@@ -425,6 +433,10 @@ export const I18N = {
     chartLayoutFocused: '◎ Focused',
     chartLayoutFixed: '▦ Fixed Layout',
     approachRateLabel: 'Approach Rate (AR)',
+    autoUpdateDownloadBtn: 'Download Update',
+    autoUpdateDownloading: 'Downloading',
+    autoUpdateInstallBtn: 'Restart & Install',
+    autoUpdateError: 'Update failed, open download page',
   },
   ja: {
     appSubtitle: 'Street Fighter 6 · 透過オーバーレイ コンボリズム練習ツール',
@@ -533,6 +545,10 @@ export const I18N = {
     chartLayoutFocused: '◎ フォーカス',
     chartLayoutFixed: '▦ 固定レイアウト',
     approachRateLabel: 'アプローチ速度 (AR)',
+    autoUpdateDownloadBtn: 'ワンクリック更新',
+    autoUpdateDownloading: 'ダウンロード中',
+    autoUpdateInstallBtn: '再起動してインストール',
+    autoUpdateError: '更新失敗、ダウンロードページを開く',
   },
   ko: {
     appSubtitle: 'Street Fighter 6 · 투명 오버레이 리듬 콤보 트레이너',
@@ -641,6 +657,10 @@ export const I18N = {
     chartLayoutFocused: '◎ 포커스',
     chartLayoutFixed: '▦ 고정 레이아웃',
     approachRateLabel: '어프로치 속도 (AR)',
+    autoUpdateDownloadBtn: '원클릭 업데이트',
+    autoUpdateDownloading: '다운로드 중',
+    autoUpdateInstallBtn: '재시작 및 설치',
+    autoUpdateError: '업데이트 실패, 다운로드 페이지 열기',
   },
 } as const;
 
