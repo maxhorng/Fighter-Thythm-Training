@@ -131,7 +131,7 @@ function drawFixedBoard(
   const visible: number[] = [];
   for (let i = activeIdx; i < notes.length && visible.length < 8; i++) {
     const until = notes[i].frame - currentFrame;
-    if (i === activeIdx || (phase !== 'waiting-first' && until <= APPROACH_FRAMES)) visible.push(i);
+    if (i === activeIdx || until <= APPROACH_FRAMES) visible.push(i);
     else break;
   }
 
@@ -169,18 +169,6 @@ function drawFixedBoard(
   ctx.save();
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-
-  // Board panels (ultra-subtle transparent backdrop so SF6 remains clearly visible)
-  const panel = (x: number, y: number, pw: number, ph: number) => {
-    ctx.fillStyle = 'rgba(10, 14, 24, 0.12)';
-    ctx.beginPath();
-    ctx.roundRect(x, y, pw, ph, 22);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(148, 163, 184, 0.10)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-  };
-  panel(padX - gap - R - 22, padY - gap - R - 22, gap * 2 + R * 2 + 44, gap * 2 + R * 2 + 44);
 
   // Left side:
   // Always draw the 8 fixed directional buttons at exact drawMotionSlider coordinates
@@ -400,37 +388,59 @@ function drawFixedBoard(
     ctx.restore();
   }
 
-  // Right-side lit attack notes (draw later notes first so earlier ones stay on top)
+  // Right-side lit attack notes (osu! burst-ready 3-pass rendering):
+  // Pass A: draw each lit button body ONCE (using its earliest/most-imminent note)
   const entries = Array.from(lit.entries());
-  const all: { b: ActionButtonId; e: (typeof entries)[number][1][number] }[] = [];
-  entries.forEach(([b, arr]) => arr.forEach((e) => all.push({ b, e })));
-  all.sort((a, b) => b.e.seq - a.e.seq);
-  all.forEach(({ b, e }) => {
+  entries.forEach(([b, arr]) => {
+    arr.sort((a, c) => a.seq - c.seq);
+    const first = arr[0];
     const p = pos[b]!;
-    const ring = e.gold ? '#facc15' : e.color;
+    const ring = first.gold ? '#facc15' : first.color;
     ctx.save();
-    ctx.globalAlpha = e.alpha;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r * e.scale, 0, Math.PI * 2);
-    ctx.strokeStyle = ring;
-    ctx.lineWidth = e.gold ? 5 : 3.5;
-    if (!lowPerfMode) {
-      ctx.shadowColor = ring;
-      ctx.shadowBlur = e.gold ? 20 : 10;
-    }
-    ctx.stroke();
-    ctx.shadowBlur = 0;
+    ctx.globalAlpha = first.isActive ? 1 : Math.max(0.65, first.alpha);
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = e.gold ? 'rgba(250, 204, 21, 0.4)' : e.color + '55';
+    ctx.fillStyle = first.gold ? 'rgba(250, 204, 21, 0.42)' : first.color + '55';
     ctx.fill();
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = e.isActive ? '#ffffff' : ring;
+    ctx.lineWidth = first.isActive ? 4 : 3;
+    ctx.strokeStyle = first.isActive ? '#ffffff' : ring;
     ctx.stroke();
     ctx.fillStyle = '#ffffff';
     ctx.font = '900 17px system-ui, sans-serif';
     ctx.fillText(BUTTON_META[b]?.shortLabel ?? b, p.x, p.y);
-    // sequence number badge
+    ctx.restore();
+  });
+
+  // Pass B: draw EVERY visible note's shrinking approach ring (concentric rings on multi-tap bursts!)
+  const allRings: { b: ActionButtonId; e: (typeof entries)[number][1][number] }[] = [];
+  entries.forEach(([b, arr]) => arr.forEach((e) => allRings.push({ b, e })));
+  allRings.sort((a, b) => b.e.seq - a.e.seq);
+  allRings.forEach(({ b, e }) => {
+    const p = pos[b]!;
+    const ring = e.gold ? '#facc15' : e.color;
+    ctx.save();
+    ctx.globalAlpha = e.isActive ? 1 : Math.min(0.75, Math.max(0.55, 0.55 + e.prog * 0.2));
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * e.scale, 0, Math.PI * 2);
+    ctx.strokeStyle = ring;
+    ctx.lineWidth = e.isActive ? (e.gold ? 6 : 4.5) : 3;
+    if (!lowPerfMode && e.isActive) {
+      ctx.shadowColor = ring;
+      ctx.shadowBlur = e.gold ? 20 : 12;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.restore();
+  });
+
+  // Pass C: sequence number badge (top-left) + multi-tap burst counter badge ×2/×3 (top-right)
+  entries.forEach(([b, arr]) => {
+    const first = arr[0];
+    const p = pos[b]!;
+    const ring = first.gold ? '#facc15' : first.color;
+    ctx.save();
+    ctx.globalAlpha = first.isActive ? 1 : Math.max(0.75, first.alpha);
+
     const bx = p.x - p.r * 0.72;
     const by = p.y - p.r * 0.72;
     ctx.beginPath();
@@ -439,7 +449,23 @@ function drawFixedBoard(
     ctx.fill();
     ctx.fillStyle = '#090d16';
     ctx.font = '900 12px system-ui, sans-serif';
-    ctx.fillText(String(e.seq), bx, by);
+    ctx.fillText(String(first.seq), bx, by);
+
+    if (arr.length >= 2) {
+      const mx = p.x + p.r * 0.76;
+      const my = p.y - p.r * 0.76;
+      const burstText = `×${arr.length}`;
+      ctx.beginPath();
+      ctx.roundRect(mx - 15, my - 11, 30, 22, 11);
+      ctx.fillStyle = '#facc15';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+      ctx.fillStyle = '#090d16';
+      ctx.font = '900 12px system-ui, sans-serif';
+      ctx.fillText(burstText, mx, my);
+    }
     ctx.restore();
   });
 
