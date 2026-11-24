@@ -9,6 +9,7 @@ import {
   X,
   CheckCircle2,
   Sparkles,
+  Cloud,
 } from 'lucide-react';
 import { AppLang, OverlayHotkeys } from '../data/i18n';
 import { formatKeyCode } from '../data/bindings';
@@ -40,7 +41,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({
   const steps = [
     {
       icon: <Monitor size={28} color="#38bdf8" />,
-      badge: isEn ? 'STEP 1 / 4 · DISPLAY' : '步驟 1 / 4 · 遊戲畫面設定',
+      badge: isEn ? 'STEP 1 / 5 · DISPLAY' : '步驟 1 / 5 · 遊戲畫面設定',
       title: isEn
         ? 'Set SF6 to Borderless Windowed'
         : '先把 SF6 設為「無邊框視窗」',
@@ -117,7 +118,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({
     },
     {
       icon: <Gamepad2 size={28} color="#a855f7" />,
-      badge: isEn ? 'STEP 2 / 4 · CONTROLS' : '步驟 2 / 4 · 綁定你的按鍵',
+      badge: isEn ? 'STEP 2 / 5 · CONTROLS' : '步驟 2 / 5 · 綁定你的按鍵',
       title: isEn
         ? 'Bind Keyboard or Controller & Hotkeys'
         : '設定鍵盤 / 手把按鍵與全域快捷鍵',
@@ -177,7 +178,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({
     },
     {
       icon: <Target size={28} color="#facc15" />,
-      badge: isEn ? 'STEP 3 / 4 · RHYTHM PLAY' : '步驟 3 / 4 · 看懂節奏圈圈',
+      badge: isEn ? 'STEP 3 / 5 · RHYTHM PLAY' : '步驟 3 / 5 · 看懂節奏圈圈',
       title: isEn
         ? 'Hit When the Outer Ring Shrinks In!'
         : '外圈縮到按鈕邊緣時按下！',
@@ -245,7 +246,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({
     },
     {
       icon: <Radio size={28} color="#f43f5e" />,
-      badge: isEn ? 'STEP 4 / 4 · RECORD & SHARE' : '步驟 4 / 4 · 錄製與分享連段',
+      badge: isEn ? 'STEP 4 / 5 · RECORD & SHARE' : '步驟 4 / 5 · 錄製與分享連段',
       title: isEn
         ? 'Record Your Own Combos & Load Friends’ JSON'
         : '自己錄製連段 ＆ 載入別人分享的檔案',
@@ -278,6 +279,66 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({
           <span style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(34, 197, 94, 0.2)', color: '#bbf7d0', border: '1px solid rgba(34, 197, 94, 0.5)' }}>
             {isEn ? '+ Import JSON' : '+ 匯入分享'}
           </span>
+        </div>
+      ),
+    },
+    {
+      icon: <Cloud size={28} color="#38bdf8" />,
+      badge: isEn ? 'STEP 5 / 5 · LAYOUT, AR & ONLINE' : '步驟 5 / 5 · 圖譜模式、縮圈速度與線上連段庫',
+      title: isEn
+        ? 'Chart Layout, Approach Rate (AR) & Online Library'
+        : '圖譜模式、縮圈速度 (AR) 與線上連段庫',
+      desc: isEn
+        ? 'Switch between Fixed Layout (osu! arcade pad, default) and Focused Mode, tune Approach Rate (AR 7.5–10.3) in Settings, toggle Beat Cue SFX & 1P/2P Mirror, and browse/download community combos in the Online Library (no login needed to download; Discord login to upload or like).'
+        : '可在主選單切換「固定版面 (osu! 模式，預設)」或「聚焦模式」，並於右上角設定調整「縮圈速度 (AR 7.5–10.3)」。同時支援節拍提示音、1P / 2P 左右鏡像，以及「線上連段庫」（免登入即可瀏覽下載，使用 Discord 登入即可上傳連段與按愛心）。',
+      visual: (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 8,
+            padding: '12px',
+            borderRadius: 12,
+            background: 'rgba(15, 23, 42, 0.85)',
+            border: '1px solid rgba(56, 189, 248, 0.35)',
+            fontSize: 11.5,
+          }}
+        >
+          {[
+            {
+              title: isEn ? 'Fixed / Focused Layout' : '固定鍵位 / 聚焦模式',
+              sub: isEn ? '8-way pad + fixed attacks' : '8 向方向盤 + 固定攻擊鍵盤',
+              color: '#38bdf8',
+            },
+            {
+              title: isEn ? 'Approach Rate (AR)' : '縮圈速度 (AR)',
+              sub: isEn ? 'AR 7.5 (54f) – 10.3 (22f)' : '設定內 5 段速度自由切換',
+              color: '#a855f7',
+            },
+            {
+              title: isEn ? 'Beat SFX & 1P/2P Mirror' : '節拍提示音 & 1P/2P 鏡像',
+              sub: isEn ? 'Audio cue + instant side flip' : '目標幀提示音 + 左右站位翻轉',
+              color: '#22c55e',
+            },
+            {
+              title: isEn ? 'Online Combo Library' : '線上連段庫',
+              sub: isEn ? 'Free download · Discord upload' : '免登入下載 · Discord 登入上傳',
+              color: '#facc15',
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              style={{
+                padding: '8px 10px',
+                borderRadius: 9,
+                background: 'rgba(30, 41, 59, 0.85)',
+                border: `1px solid ${item.color}55`,
+              }}
+            >
+              <div style={{ fontWeight: 800, color: item.color }}>{item.title}</div>
+              <div style={{ fontSize: 11, color: '#cbd5e1', marginTop: 2 }}>{item.sub}</div>
+            </div>
+          ))}
         </div>
       ),
     },

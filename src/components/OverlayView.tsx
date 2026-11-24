@@ -30,6 +30,7 @@ interface OverlayViewProps {
   showRecordedInputs: boolean;
   lowPerfMode: boolean;
   chartLayout?: ChartLayoutMode;
+  approachFrames?: number;
   sfxEnabled?: boolean;
   /** When true, late presses on cancel/juggle notes shift the playback clock (adaptive tempo).
    *  When false (default), playback strictly reproduces the recorded rhythm. */
@@ -40,7 +41,7 @@ interface OverlayViewProps {
 
 const FPS = 60;
 const FRAME_MS = 1000 / FPS;
-const APPROACH_FRAMES = 36; // 600ms approach circle shrink time
+const DEFAULT_APPROACH_FRAMES = 36; // 600ms approach circle shrink time (AR 9.3 default)
 const CIRCLE_RADIUS = 64; // 1.5x larger centered osu! button
 
 /**
@@ -109,7 +110,8 @@ function drawFixedBoard(
   now: number,
   mode: ControlMode,
   isRight: boolean,
-  lowPerfMode: boolean
+  lowPerfMode: boolean,
+  approachFrames: number
 ) {
   const R = Math.max(30, Math.min(42, w * 0.026));
   const gap = R * 2.35;
@@ -131,7 +133,7 @@ function drawFixedBoard(
   const visible: number[] = [];
   for (let i = activeIdx; i < notes.length && visible.length < 8; i++) {
     const until = notes[i].frame - currentFrame;
-    if (i === activeIdx || until <= APPROACH_FRAMES) visible.push(i);
+    if (i === activeIdx || until <= approachFrames) visible.push(i);
     else break;
   }
 
@@ -150,8 +152,8 @@ function drawFixedBoard(
       prog = 0.5 + pulse * 0.5;
       scale = 1.12 + pulse * 0.35;
     } else {
-      const c = Math.max(0, Math.min(APPROACH_FRAMES, until));
-      prog = 1 - c / APPROACH_FRAMES;
+      const c = Math.max(0, Math.min(approachFrames, until));
+      prog = 1 - c / approachFrames;
       scale = 1 + (1 - prog) * 1.6;
     }
     const gold = phase === 'playing' && until <= 9 && until >= -2;
@@ -261,8 +263,8 @@ function drawFixedBoard(
       prog = 0.5 + pulse * 0.5;
       scale = 1.15 + pulse * 0.35;
     } else {
-      const c = Math.max(0, Math.min(APPROACH_FRAMES, until));
-      prog = 1 - c / APPROACH_FRAMES;
+      const c = Math.max(0, Math.min(approachFrames, until));
+      prog = 1 - c / approachFrames;
       scale = 1 + (1 - prog) * 1.5;
     }
     const gold = phase === 'playing' && until <= 9 && until >= -2;
@@ -320,7 +322,7 @@ function drawFixedBoard(
     const lProg =
       phase === 'waiting-first' && motionIdx === activeIdx
         ? 0.5 + ((Math.sin(now / 220) + 1) / 2) * 0.5
-        : 1 - Math.max(0, Math.min(APPROACH_FRAMES, lUntil)) / APPROACH_FRAMES;
+        : 1 - Math.max(0, Math.min(approachFrames, lUntil)) / approachFrames;
     const lGold = phase === 'playing' && lUntil <= 9 && lUntil >= -2;
     const lAttacks = lNote.buttons.filter((b) => !DIRECTION_IDS.has(b));
     const lPrimary = lAttacks[lAttacks.length - 1] ?? lNote.buttons[lNote.buttons.length - 1];
@@ -1213,7 +1215,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   playerSide,
   showRecordedInputs,
   lowPerfMode,
-  chartLayout = 'focused',
+  chartLayout = 'fixed',
+  approachFrames = DEFAULT_APPROACH_FRAMES,
   sfxEnabled = true,
   dynamicResync = false,
   isClickThrough,
@@ -1673,7 +1676,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
 
       const isFixed = chartLayout === 'fixed';
       if (isFixed) {
-        drawFixedBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, mode, isRightSide, lowPerfMode);
+        drawFixedBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, mode, isRightSide, lowPerfMode, approachFrames);
       }
 
       if (!isFixed && chainIndices.length > 0) {
@@ -1708,14 +1711,14 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           ctx.save();
           ctx.globalAlpha = c === 0 ? 0.85 : 0.65;
 
-          // Shrinking osu! approach circle with identical APPROACH_FRAMES & scale as the center circle
+          // Shrinking osu! approach circle with identical approachFrames & scale as the center circle
           const nextFramesUntil = nextNote.frame - currentFrame;
           if (
             (phaseRef.current === 'playing' || phaseRef.current === 'countdown') &&
-            nextFramesUntil <= APPROACH_FRAMES &&
+            nextFramesUntil <= approachFrames &&
             nextFramesUntil >= -4
           ) {
-            const nextProg = Math.max(0, Math.min(1, 1 - nextFramesUntil / APPROACH_FRAMES));
+            const nextProg = Math.max(0, Math.min(1, 1 - nextFramesUntil / approachFrames));
             const nextAppScale = 1 + (1 - nextProg) * 1.6;
             const ringCol = nextFramesUntil <= 9 ? '#facc15' : nextColor;
             ctx.beginPath();
@@ -1861,10 +1864,10 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           progress = 0.5 + pulse * 0.5;
           alpha = 1;
         } else {
-          const clampedUntil = Math.max(0, Math.min(APPROACH_FRAMES, framesUntilHit));
-          progress = 1 - clampedUntil / APPROACH_FRAMES;
-          alpha = framesUntilHit > APPROACH_FRAMES ? 0.45 : Math.min(1, progress * 2.2 + 0.25);
-          approachScale = framesUntilHit > APPROACH_FRAMES ? 2.4 : 1 + (1 - progress) * 1.6;
+          const clampedUntil = Math.max(0, Math.min(approachFrames, framesUntilHit));
+          progress = 1 - clampedUntil / approachFrames;
+          alpha = framesUntilHit > approachFrames ? 0.45 : Math.min(1, progress * 2.2 + 0.25);
+          approachScale = framesUntilHit > approachFrames ? 2.4 : 1 + (1 - progress) * 1.6;
         }
 
         const isHitWindowGold =
@@ -2239,7 +2242,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
     };
-  }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, chartLayout, sfxEnabled, recordHit, resetRun, activeButtonsRef, getCurrentChargeMs, isRightSide, lang]);
+  }, [combo.notes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, chartLayout, approachFrames, sfxEnabled, recordHit, resetRun, activeButtonsRef, getCurrentChargeMs, isRightSide, lang]);
 
   const totalHits = stats.perfect + stats.good + stats.early + stats.late + stats.miss;
   const accuracy =

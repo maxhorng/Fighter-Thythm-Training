@@ -208,6 +208,7 @@ export const I18N = {
     chartLayoutLabel: '版面模式：',
     chartLayoutFocused: '◎ 聚焦模式',
     chartLayoutFixed: '▦ 固定版面',
+    approachRateLabel: '縮圈速度 (AR)',
   },
   'zh-CN': {
     appSubtitle: 'Street Fighter 6 · 透明覆盖节奏连段训练器',
@@ -315,6 +316,7 @@ export const I18N = {
     chartLayoutLabel: '版面模式：',
     chartLayoutFocused: '◎ 聚焦模式',
     chartLayoutFixed: '▦ 固定版面',
+    approachRateLabel: '缩圈速度 (AR)',
   },
   en: {
     appSubtitle: 'Street Fighter 6 · Transparent Rhythm Combo Trainer',
@@ -422,6 +424,7 @@ export const I18N = {
     chartLayoutLabel: 'Chart Layout:',
     chartLayoutFocused: '◎ Focused',
     chartLayoutFixed: '▦ Fixed Layout',
+    approachRateLabel: 'Approach Rate (AR)',
   },
   ja: {
     appSubtitle: 'Street Fighter 6 · 透過オーバーレイ コンボリズム練習ツール',
@@ -529,6 +532,7 @@ export const I18N = {
     chartLayoutLabel: '譜面レイアウト：',
     chartLayoutFocused: '◎ フォーカス',
     chartLayoutFixed: '▦ 固定レイアウト',
+    approachRateLabel: 'アプローチ速度 (AR)',
   },
   ko: {
     appSubtitle: 'Street Fighter 6 · 투명 오버레이 리듬 콤보 트레이너',
@@ -636,6 +640,7 @@ export const I18N = {
     chartLayoutLabel: '차트 레이아웃:',
     chartLayoutFocused: '◎ 포커스',
     chartLayoutFixed: '▦ 고정 레이아웃',
+    approachRateLabel: '어프로치 속도 (AR)',
   },
 } as const;
 

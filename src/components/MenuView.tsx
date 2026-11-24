@@ -64,6 +64,8 @@ interface MenuViewProps {
   onChangePlayerSide: (side: PlayerSide) => void;
   chartLayout: ChartLayoutMode;
   onChangeChartLayout: (m: ChartLayoutMode) => void;
+  approachFrames: number;
+  onChangeApproachFrames: (frames: number) => void;
   showRecordedInputs: boolean;
   onChangeShowRecordedInputs: (v: boolean) => void;
   lowPerfMode: boolean;
@@ -99,6 +101,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
   onChangePlayerSide,
   chartLayout,
   onChangeChartLayout,
+  approachFrames,
+  onChangeApproachFrames,
   showRecordedInputs,
   onChangeShowRecordedInputs,
   lowPerfMode,
@@ -1170,19 +1174,19 @@ export const MenuView: React.FC<MenuViewProps> = ({
               </span>
               <button
                 type="button"
-                className={`trigger-btn ${chartLayout === 'focused' ? 'active' : ''}`}
-                style={{ flex: 1, padding: '6px 10px', justifyContent: 'center' }}
-                onClick={() => onChangeChartLayout('focused')}
-              >
-                <span style={{ fontSize: 12.5, fontWeight: 800 }}>{t.chartLayoutFocused}</span>
-              </button>
-              <button
-                type="button"
                 className={`trigger-btn ${chartLayout === 'fixed' ? 'active' : ''}`}
                 style={{ flex: 1, padding: '6px 10px', justifyContent: 'center' }}
                 onClick={() => onChangeChartLayout('fixed')}
               >
                 <span style={{ fontSize: 12.5, fontWeight: 800 }}>{t.chartLayoutFixed}</span>
+              </button>
+              <button
+                type="button"
+                className={`trigger-btn ${chartLayout === 'focused' ? 'active' : ''}`}
+                style={{ flex: 1, padding: '6px 10px', justifyContent: 'center' }}
+                onClick={() => onChangeChartLayout('focused')}
+              >
+                <span style={{ fontSize: 12.5, fontWeight: 800 }}>{t.chartLayoutFocused}</span>
               </button>
             </div>
 
@@ -1209,6 +1213,8 @@ export const MenuView: React.FC<MenuViewProps> = ({
           onChangeLang={onChangeLang}
           overlayHotkeys={overlayHotkeys}
           onChangeOverlayHotkeys={onChangeOverlayHotkeys}
+          approachFrames={approachFrames}
+          onChangeApproachFrames={onChangeApproachFrames}
           onClose={() => setShowKeybinds(false)}
         />
       )}

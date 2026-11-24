@@ -33,11 +33,24 @@ function loadSfxEnabled(): boolean {
   }
 }
 
+const STORAGE_KEY_APPROACH_FRAMES = 'fbt_approach_frames_v1';
+
+function loadApproachFrames(): number {
+  try {
+    const raw = Number(localStorage.getItem(STORAGE_KEY_APPROACH_FRAMES));
+    if (Number.isFinite(raw) && raw >= 18 && raw <= 72) return Math.round(raw);
+  } catch {
+    // ignore
+  }
+  return 36;
+}
+
 function loadChartLayout(): ChartLayoutMode {
   try {
-    return localStorage.getItem('fbt_chart_layout_v1') === 'fixed' ? 'fixed' : 'focused';
+    const raw = localStorage.getItem('fbt_chart_layout_v1');
+    return raw === 'focused' ? 'focused' : 'fixed';
   } catch {
-    return 'focused';
+    return 'fixed';
   }
 }
 
@@ -106,6 +119,7 @@ export const App: React.FC = () => {
   const [playerSide, setPlayerSide] = useState<PlayerSide>('left');
   const [showRecordedInputs, setShowRecordedInputs] = useState(true);
   const [chartLayout, setChartLayout] = useState<ChartLayoutMode>(loadChartLayout);
+  const [approachFrames, setApproachFrames] = useState<number>(loadApproachFrames);
   const [lowPerfMode, setLowPerfMode] = useState<boolean>(loadLowPerfMode);
   const [sfxEnabled, setSfxEnabled] = useState<boolean>(() => {
     const v = loadSfxEnabled();
@@ -228,6 +242,15 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleChangeApproachFrames = (next: number) => {
+    setApproachFrames(next);
+    try {
+      localStorage.setItem(STORAGE_KEY_APPROACH_FRAMES, String(next));
+    } catch {
+      // ignore
+    }
+  };
+
   const handleChangeLowPerfMode = (next: boolean) => {
     setLowPerfMode(next);
     try {
@@ -339,6 +362,7 @@ export const App: React.FC = () => {
         showRecordedInputs={showRecordedInputs}
         lowPerfMode={lowPerfMode}
         chartLayout={chartLayout}
+        approachFrames={approachFrames}
         sfxEnabled={sfxEnabled}
         dynamicResync={dynamicResync}
         isClickThrough={isClickThrough}
@@ -382,6 +406,8 @@ export const App: React.FC = () => {
       onChangePlayerSide={setPlayerSide}
       chartLayout={chartLayout}
       onChangeChartLayout={handleChangeChartLayout}
+      approachFrames={approachFrames}
+      onChangeApproachFrames={handleChangeApproachFrames}
       showRecordedInputs={showRecordedInputs}
       onChangeShowRecordedInputs={setShowRecordedInputs}
       lowPerfMode={lowPerfMode}

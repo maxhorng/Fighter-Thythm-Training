@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Keyboard, Gamepad2, RotateCcw, X, Globe, Shield } from 'lucide-react';
+import { Keyboard, Gamepad2, RotateCcw, X, Globe, Shield, Gauge } from 'lucide-react';
 import { ActionButtonId, ControlMode, KeyBindingMap } from '../types/combo';
 import {
   BUTTON_META,
@@ -19,8 +19,18 @@ interface KeybindPanelProps {
   onChangeLang: (next: AppLang) => void;
   overlayHotkeys: OverlayHotkeys;
   onChangeOverlayHotkeys: (next: OverlayHotkeys) => void;
+  approachFrames: number;
+  onChangeApproachFrames: (frames: number) => void;
   onClose: () => void;
 }
+
+const AR_PRESETS = [
+  { ar: 'AR 7.5', frames: 54 },
+  { ar: 'AR 8.5', frames: 45 },
+  { ar: 'AR 9.3', frames: 36, isDefault: true },
+  { ar: 'AR 9.8', frames: 28 },
+  { ar: 'AR 10.3', frames: 22 },
+] as const;
 
 type CaptureTarget =
   | { kind: 'action'; buttonId: ActionButtonId; device: 'keyboard' | 'gamepad' }
@@ -34,6 +44,8 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
   onChangeLang,
   overlayHotkeys,
   onChangeOverlayHotkeys,
+  approachFrames,
+  onChangeApproachFrames,
   onClose,
 }) => {
   const t = I18N[lang];
@@ -102,6 +114,7 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
               onClick={() => {
                 onChangeBindings({ ...DEFAULT_BINDINGS });
                 onChangeOverlayHotkeys({ ...DEFAULT_OVERLAY_HOTKEYS });
+                onChangeApproachFrames(36);
               }}
               title={t.resetDefault}
             >
@@ -153,6 +166,50 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
                 </option>
               ))}
             </select>
+          </div>
+
+          <div
+            style={{
+              borderTop: '1px solid rgba(148, 163, 184, 0.16)',
+              paddingTop: 10,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>
+              <Gauge size={15} color="#38bdf8" />
+              <span>{t.approachRateLabel}</span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {AR_PRESETS.map((preset) => {
+                const active = approachFrames === preset.frames;
+                const defaultTag = 'isDefault' in preset && preset.isDefault
+                  ? (lang === 'en' ? ' Default' : lang === 'ja' ? ' 標準' : lang === 'ko' ? ' 기본' : lang === 'zh-CN' ? ' 默认' : ' 預設')
+                  : '';
+                return (
+                  <button
+                    key={preset.frames}
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => onChangeApproachFrames(preset.frames)}
+                    style={{
+                      flex: 1,
+                      minWidth: 96,
+                      justifyContent: 'center',
+                      padding: '5px 8px',
+                      fontSize: 11.5,
+                      fontWeight: active ? 800 : 600,
+                      borderColor: active ? '#38bdf8' : 'rgba(148, 163, 184, 0.28)',
+                      background: active ? 'rgba(56, 189, 248, 0.24)' : 'rgba(15, 23, 42, 0.7)',
+                      color: active ? '#e0f2fe' : '#cbd5e1',
+                    }}
+                  >
+                    {preset.ar} ({preset.frames}f{defaultTag})
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div
