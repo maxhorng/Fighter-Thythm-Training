@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Keyboard, Gamepad2, RotateCcw, X, Globe, Shield, Gauge } from 'lucide-react';
+import { Keyboard, Gamepad2, RotateCcw, X, Globe, Shield, Gauge, ChevronDown, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { ActionButtonId, ControlMode, KeyBindingMap } from '../types/combo';
 import {
   BUTTON_META,
@@ -21,6 +21,10 @@ interface KeybindPanelProps {
   onChangeOverlayHotkeys: (next: OverlayHotkeys) => void;
   approachFrames: number;
   onChangeApproachFrames: (frames: number) => void;
+  overlayOpacity: number;
+  onChangeOverlayOpacity: (v: number) => void;
+  buttonScale: number;
+  onChangeButtonScale: (v: number) => void;
   onClose: () => void;
 }
 
@@ -46,10 +50,16 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
   onChangeOverlayHotkeys,
   approachFrames,
   onChangeApproachFrames,
+  overlayOpacity,
+  onChangeOverlayOpacity,
+  buttonScale,
+  onChangeButtonScale,
   onClose,
 }) => {
   const t = I18N[lang];
   const [capturing, setCapturing] = useState<CaptureTarget | null>(null);
+  const [showAdvancedDisplay, setShowAdvancedDisplay] = useState(false);
+  const currentArLabel = AR_PRESETS.find((p) => p.frames === approachFrames)?.ar ?? `${approachFrames}f`;
 
   const buttons = getButtonsForMode(mode);
 
@@ -115,6 +125,8 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
                 onChangeBindings({ ...DEFAULT_BINDINGS });
                 onChangeOverlayHotkeys({ ...DEFAULT_OVERLAY_HOTKEYS });
                 onChangeApproachFrames(36);
+                onChangeOverlayOpacity(0.85);
+                onChangeButtonScale(1.0);
               }}
               title={t.resetDefault}
             >
@@ -177,39 +189,115 @@ export const KeybindPanel: React.FC<KeybindPanelProps> = ({
               gap: 8,
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>
-              <Gauge size={15} color="#38bdf8" />
-              <span>{t.approachRateLabel}</span>
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {AR_PRESETS.map((preset) => {
-                const active = approachFrames === preset.frames;
-                const defaultTag = 'isDefault' in preset && preset.isDefault
-                  ? (lang === 'en' ? ' Default' : lang === 'ja' ? ' 標準' : lang === 'ko' ? ' 기본' : lang === 'zh-CN' ? ' 默认' : ' 預設')
-                  : '';
-                return (
-                  <button
-                    key={preset.frames}
-                    type="button"
-                    className="btn-secondary"
-                    onClick={() => onChangeApproachFrames(preset.frames)}
-                    style={{
-                      flex: 1,
-                      minWidth: 96,
-                      justifyContent: 'center',
-                      padding: '5px 8px',
-                      fontSize: 11.5,
-                      fontWeight: active ? 800 : 600,
-                      borderColor: active ? '#38bdf8' : 'rgba(148, 163, 184, 0.28)',
-                      background: active ? 'rgba(56, 189, 248, 0.24)' : 'rgba(15, 23, 42, 0.7)',
-                      color: active ? '#e0f2fe' : '#cbd5e1',
-                    }}
-                  >
-                    {preset.ar} ({preset.frames}f{defaultTag})
-                  </button>
-                );
-              })}
-            </div>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setShowAdvancedDisplay((v) => !v)}
+              style={{
+                width: '100%',
+                justifyContent: 'space-between',
+                padding: '6px 10px',
+                fontSize: 12.5,
+                fontWeight: 700,
+                color: '#e2e8f0',
+                background: 'rgba(15, 23, 42, 0.72)',
+                borderColor: showAdvancedDisplay ? 'rgba(56, 189, 248, 0.55)' : 'rgba(148, 163, 184, 0.25)',
+              }}
+            >
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+                <SlidersHorizontal size={14} color="#38bdf8" />
+                {t.advancedDisplayLabel}
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11.5, color: '#94a3b8' }}>
+                {currentArLabel} · {Math.round(buttonScale * 100)}% · {Math.round(overlayOpacity * 100)}%
+                {showAdvancedDisplay ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+              </span>
+            </button>
+
+            {showAdvancedDisplay && (
+              <div
+                style={{
+                  padding: '10px 12px',
+                  borderRadius: 9,
+                  background: 'rgba(15, 23, 42, 0.75)',
+                  border: '1px solid rgba(148, 163, 184, 0.2)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 12,
+                }}
+              >
+                {/* Approach Rate (AR) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, fontWeight: 700, color: '#e2e8f0' }}>
+                    <Gauge size={14} color="#38bdf8" />
+                    <span>{t.approachRateLabel}</span>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {AR_PRESETS.map((preset) => {
+                      const active = approachFrames === preset.frames;
+                      const defaultTag = 'isDefault' in preset && preset.isDefault
+                        ? (lang === 'en' ? ' Default' : lang === 'ja' ? ' 標準' : lang === 'ko' ? ' 기본' : lang === 'zh-CN' ? ' 默认' : ' 預設')
+                        : '';
+                      return (
+                        <button
+                          key={preset.frames}
+                          type="button"
+                          className="btn-secondary"
+                          onClick={() => onChangeApproachFrames(preset.frames)}
+                          style={{
+                            flex: 1,
+                            minWidth: 96,
+                            justifyContent: 'center',
+                            padding: '5px 8px',
+                            fontSize: 11.5,
+                            fontWeight: active ? 800 : 600,
+                            borderColor: active ? '#38bdf8' : 'rgba(148, 163, 184, 0.28)',
+                            background: active ? 'rgba(56, 189, 248, 0.24)' : 'rgba(15, 23, 42, 0.7)',
+                            color: active ? '#e0f2fe' : '#cbd5e1',
+                          }}
+                        >
+                          {preset.ar} ({preset.frames}f{defaultTag})
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Button Size slider (70% - 140%) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12.5, fontWeight: 700, color: '#e2e8f0' }}>
+                    <span>{t.buttonScaleLabel}</span>
+                    <span style={{ color: '#7dd3fc' }}>{Math.round(buttonScale * 100)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0.7}
+                    max={1.4}
+                    step={0.05}
+                    value={buttonScale}
+                    onChange={(e) => onChangeButtonScale(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#38bdf8', cursor: 'pointer' }}
+                  />
+                </div>
+
+                {/* Overlay Opacity slider (30% - 100%) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12.5, fontWeight: 700, color: '#e2e8f0' }}>
+                    <span>{t.overlayOpacityLabel}</span>
+                    <span style={{ color: '#7dd3fc' }}>{Math.round(overlayOpacity * 100)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0.3}
+                    max={1.0}
+                    step={0.05}
+                    value={overlayOpacity}
+                    onChange={(e) => onChangeOverlayOpacity(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#38bdf8', cursor: 'pointer' }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div

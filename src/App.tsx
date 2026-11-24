@@ -34,7 +34,29 @@ function loadSfxEnabled(): boolean {
 }
 
 const STORAGE_KEY_APPROACH_FRAMES = 'fbt_approach_frames_v1';
+const STORAGE_KEY_OVERLAY_OPACITY = 'fbt_overlay_opacity_v1';
+const STORAGE_KEY_BUTTON_SCALE = 'fbt_button_scale_v1';
 const STORAGE_KEY_LAST_COMBO = 'fbt_last_combo_id_v1';
+
+function loadOverlayOpacity(): number {
+  try {
+    const raw = Number(localStorage.getItem(STORAGE_KEY_OVERLAY_OPACITY));
+    if (Number.isFinite(raw) && raw >= 0.3 && raw <= 1.0) return Math.round(raw * 20) / 20;
+  } catch {
+    // ignore
+  }
+  return 0.85;
+}
+
+function loadButtonScale(): number {
+  try {
+    const raw = Number(localStorage.getItem(STORAGE_KEY_BUTTON_SCALE));
+    if (Number.isFinite(raw) && raw >= 0.7 && raw <= 1.4) return Math.round(raw * 20) / 20;
+  } catch {
+    // ignore
+  }
+  return 1.0;
+}
 
 function getDefaultCombo(): ComboData {
   return (
@@ -150,6 +172,8 @@ export const App: React.FC = () => {
   const [showRecordedInputs, setShowRecordedInputs] = useState(true);
   const [chartLayout, setChartLayout] = useState<ChartLayoutMode>(loadChartLayout);
   const [approachFrames, setApproachFrames] = useState<number>(loadApproachFrames);
+  const [overlayOpacity, setOverlayOpacity] = useState<number>(loadOverlayOpacity);
+  const [buttonScale, setButtonScale] = useState<number>(loadButtonScale);
   const [lowPerfMode, setLowPerfMode] = useState<boolean>(loadLowPerfMode);
   const [sfxEnabled, setSfxEnabled] = useState<boolean>(() => {
     const v = loadSfxEnabled();
@@ -281,6 +305,26 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleChangeOverlayOpacity = (next: number) => {
+    const clamped = Math.max(0.3, Math.min(1.0, Math.round(next * 20) / 20));
+    setOverlayOpacity(clamped);
+    try {
+      localStorage.setItem(STORAGE_KEY_OVERLAY_OPACITY, String(clamped));
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleChangeButtonScale = (next: number) => {
+    const clamped = Math.max(0.7, Math.min(1.4, Math.round(next * 20) / 20));
+    setButtonScale(clamped);
+    try {
+      localStorage.setItem(STORAGE_KEY_BUTTON_SCALE, String(clamped));
+    } catch {
+      // ignore
+    }
+  };
+
   const handleChangeLowPerfMode = (next: boolean) => {
     setLowPerfMode(next);
     try {
@@ -393,6 +437,8 @@ export const App: React.FC = () => {
         lowPerfMode={lowPerfMode}
         chartLayout={chartLayout}
         approachFrames={approachFrames}
+        overlayOpacity={overlayOpacity}
+        buttonScale={buttonScale}
         sfxEnabled={sfxEnabled}
         dynamicResync={dynamicResync}
         isClickThrough={isClickThrough}
@@ -438,6 +484,10 @@ export const App: React.FC = () => {
       onChangeChartLayout={handleChangeChartLayout}
       approachFrames={approachFrames}
       onChangeApproachFrames={handleChangeApproachFrames}
+      overlayOpacity={overlayOpacity}
+      onChangeOverlayOpacity={handleChangeOverlayOpacity}
+      buttonScale={buttonScale}
+      onChangeButtonScale={handleChangeButtonScale}
       showRecordedInputs={showRecordedInputs}
       onChangeShowRecordedInputs={setShowRecordedInputs}
       lowPerfMode={lowPerfMode}

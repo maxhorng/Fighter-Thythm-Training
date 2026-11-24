@@ -1,6 +1,6 @@
 {
   "name": "fighter-music-combo",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "author": "maxhorng / 92anini",
   "license": "UNLICENSED",
   "description": "Street Fighter 6 osu!-style Rhythm Combo Trainer Overlay",
@@ -12,6 +12,7 @@
     "build:electron": "esbuild electron/main.ts --bundle --platform=node --external:electron --external:uiohook-napi --external:koffi --external:electron-updater --outfile=dist-electron/main.js && esbuild electron/preload.ts --bundle --platform=node --external:electron --outfile=dist-electron/preload.js",
     "build": "vite build && npm run build:electron",
     "dist:win": "npm run build && electron-builder --win portable",
+    "dist:win:setup": "npm run build && electron-builder --win nsis",
     "dist:win:all": "npm run build && electron-builder --win nsis portable",
     "start": "npm run build && electron .",
     "add-combo": "node scripts/add-combo.mjs",

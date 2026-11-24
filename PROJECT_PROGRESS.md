@@ -48,6 +48,9 @@
 3. **No Emojis in README / Release Notes**: User prefers clean text without emojis in `README.md` and release notes.
 4. **Preserve `combos.ts` Schema**: Do not change the existing `ComboData` JSON format in `combos.ts` (optional fields only).
 5. **Update Progress File**: After completing major features or releases, update `PROJECT_PROGRESS.md` so all agents/models stay in sync.
+6. **Release Packaging Policy**:
+   - **Normal / minor releases (e.g. `v0.3.6`, `v0.3.7`)**: Build ONLY the NSIS installer (`npm run dist:win:setup` -> `Frame-Beat-Trainer-Setup-${version}.exe` + `latest.yml` + `.blockmap`) to cut build/upload time in half and keep users on 1-click auto-update.
+   - **Major milestones (e.g. `v0.4.0`, `v1.0.0`)**: Build BOTH NSIS + Portable (`npm run dist:win:all`). Keep the `portable` target in `package.json` intact.
 
 ---
 

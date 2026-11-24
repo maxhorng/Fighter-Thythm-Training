@@ -69,6 +69,10 @@ interface MenuViewProps {
   onChangeChartLayout: (m: ChartLayoutMode) => void;
   approachFrames: number;
   onChangeApproachFrames: (frames: number) => void;
+  overlayOpacity: number;
+  onChangeOverlayOpacity: (v: number) => void;
+  buttonScale: number;
+  onChangeButtonScale: (v: number) => void;
   showRecordedInputs: boolean;
   onChangeShowRecordedInputs: (v: boolean) => void;
   lowPerfMode: boolean;
@@ -106,6 +110,10 @@ export const MenuView: React.FC<MenuViewProps> = ({
   onChangeChartLayout,
   approachFrames,
   onChangeApproachFrames,
+  overlayOpacity,
+  onChangeOverlayOpacity,
+  buttonScale,
+  onChangeButtonScale,
   showRecordedInputs,
   onChangeShowRecordedInputs,
   lowPerfMode,
@@ -1401,6 +1409,10 @@ export const MenuView: React.FC<MenuViewProps> = ({
           onChangeOverlayHotkeys={onChangeOverlayHotkeys}
           approachFrames={approachFrames}
           onChangeApproachFrames={onChangeApproachFrames}
+          overlayOpacity={overlayOpacity}
+          onChangeOverlayOpacity={onChangeOverlayOpacity}
+          buttonScale={buttonScale}
+          onChangeButtonScale={onChangeButtonScale}
           onClose={() => setShowKeybinds(false)}
         />
       )}

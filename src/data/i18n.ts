@@ -215,6 +215,9 @@ export const I18N = {
     autoUpdateInstallBtn: '立即重啟並安裝',
     autoUpdateError: '更新失敗，改開網頁下載',
     advancedOptionsLabel: '進階選項',
+    advancedDisplayLabel: '進階外觀與速度設定',
+    overlayOpacityLabel: '疊層透明度',
+    buttonScaleLabel: '按鈕大小',
   },
   'zh-CN': {
     appSubtitle: 'Street Fighter 6 · 透明覆盖节奏连段训练器',
@@ -329,6 +332,9 @@ export const I18N = {
     autoUpdateInstallBtn: '立即重启并安装',
     autoUpdateError: '更新失败，改开网页下载',
     advancedOptionsLabel: '高级选项',
+    advancedDisplayLabel: '高级外观与速度设置',
+    overlayOpacityLabel: '叠层透明度',
+    buttonScaleLabel: '按钮大小',
   },
   en: {
     appSubtitle: 'Street Fighter 6 · Transparent Rhythm Combo Trainer',
@@ -443,6 +449,9 @@ export const I18N = {
     autoUpdateInstallBtn: 'Restart & Install',
     autoUpdateError: 'Update failed, open download page',
     advancedOptionsLabel: 'Advanced Options',
+    advancedDisplayLabel: 'Advanced Display & AR',
+    overlayOpacityLabel: 'Overlay Opacity',
+    buttonScaleLabel: 'Button Size',
   },
   ja: {
     appSubtitle: 'Street Fighter 6 · 透過オーバーレイ コンボリズム練習ツール',
@@ -557,6 +566,9 @@ export const I18N = {
     autoUpdateInstallBtn: '再起動してインストール',
     autoUpdateError: '更新失敗、ダウンロードページを開く',
     advancedOptionsLabel: '詳細オプション',
+    advancedDisplayLabel: '表示・速度の詳細設定',
+    overlayOpacityLabel: 'オーバーレイ不透明度',
+    buttonScaleLabel: 'ボタンサイズ',
   },
   ko: {
     appSubtitle: 'Street Fighter 6 · 투명 오버레이 리듬 콤보 트레이너',
@@ -671,6 +683,9 @@ export const I18N = {
     autoUpdateInstallBtn: '재시작 및 설치',
     autoUpdateError: '업데이트 실패, 다운로드 페이지 열기',
     advancedOptionsLabel: '고급 옵션',
+    advancedDisplayLabel: '고급 표시 및 속도 설정',
+    overlayOpacityLabel: '오버레이 투명도',
+    buttonScaleLabel: '버튼 크기',
   },
 } as const;
 
