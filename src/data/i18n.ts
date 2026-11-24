@@ -213,6 +213,7 @@ export const I18N = {
     autoUpdateDownloading: '下載更新中',
     autoUpdateInstallBtn: '立即重啟並安裝',
     autoUpdateError: '更新失敗，改開網頁下載',
+    advancedOptionsLabel: '進階選項',
   },
   'zh-CN': {
     appSubtitle: 'Street Fighter 6 · 透明覆盖节奏连段训练器',
@@ -325,6 +326,7 @@ export const I18N = {
     autoUpdateDownloading: '下载更新中',
     autoUpdateInstallBtn: '立即重启并安装',
     autoUpdateError: '更新失败，改开网页下载',
+    advancedOptionsLabel: '高级选项',
   },
   en: {
     appSubtitle: 'Street Fighter 6 · Transparent Rhythm Combo Trainer',
@@ -437,6 +439,7 @@ export const I18N = {
     autoUpdateDownloading: 'Downloading',
     autoUpdateInstallBtn: 'Restart & Install',
     autoUpdateError: 'Update failed, open download page',
+    advancedOptionsLabel: 'Advanced Options',
   },
   ja: {
     appSubtitle: 'Street Fighter 6 · 透過オーバーレイ コンボリズム練習ツール',
@@ -549,6 +552,7 @@ export const I18N = {
     autoUpdateDownloading: 'ダウンロード中',
     autoUpdateInstallBtn: '再起動してインストール',
     autoUpdateError: '更新失敗、ダウンロードページを開く',
+    advancedOptionsLabel: '詳細オプション',
   },
   ko: {
     appSubtitle: 'Street Fighter 6 · 투명 오버레이 리듬 콤보 트레이너',
@@ -661,6 +665,7 @@ export const I18N = {
     autoUpdateDownloading: '다운로드 중',
     autoUpdateInstallBtn: '재시작 및 설치',
     autoUpdateError: '업데이트 실패, 다운로드 페이지 열기',
+    advancedOptionsLabel: '고급 옵션',
   },
 } as const;
 

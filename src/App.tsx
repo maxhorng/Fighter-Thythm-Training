@@ -34,6 +34,27 @@ function loadSfxEnabled(): boolean {
 }
 
 const STORAGE_KEY_APPROACH_FRAMES = 'fbt_approach_frames_v1';
+const STORAGE_KEY_LAST_COMBO = 'fbt_last_combo_id_v1';
+
+function getDefaultCombo(): ComboData {
+  return (
+    BUILTIN_COMBOS.find((c) => c.characterId === 'ryu' && c.mode === 'classic') ??
+    BUILTIN_COMBOS[0]
+  );
+}
+
+function loadInitialCombo(custom: ComboData[]): ComboData {
+  try {
+    const savedId = localStorage.getItem(STORAGE_KEY_LAST_COMBO);
+    if (savedId) {
+      const found = [...BUILTIN_COMBOS, ...custom].find((c) => c.id === savedId);
+      if (found) return found;
+    }
+  } catch {
+    // ignore
+  }
+  return getDefaultCombo();
+}
 
 function loadApproachFrames(): number {
   try {
@@ -56,9 +77,9 @@ function loadChartLayout(): ChartLayoutMode {
 
 function loadLowPerfMode(): boolean {
   try {
-    return localStorage.getItem(STORAGE_KEY_LOW_PERF) === '1';
+    return localStorage.getItem(STORAGE_KEY_LOW_PERF) !== '0';
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -108,10 +129,18 @@ function loadCustomCombos(): ComboData[] {
 
 export const App: React.FC = () => {
   const [selectedGame, setSelectedGame] = useState<'sf6' | null>(null);
-  const [mode, setMode] = useState<ControlMode>('classic');
   const [customCombos, setCustomCombos] = useState<ComboData[]>(loadCustomCombos);
   const allCombos = [...BUILTIN_COMBOS, ...customCombos];
-  const [selectedCombo, setSelectedCombo] = useState<ComboData>(BUILTIN_COMBOS[0]);
+  const [selectedCombo, setSelectedCombo] = useState<ComboData>(() => loadInitialCombo(customCombos));
+  const [mode, setMode] = useState<ControlMode>(() => selectedCombo.mode);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_LAST_COMBO, selectedCombo.id);
+    } catch {
+      // ignore
+    }
+  }, [selectedCombo.id]);
   const [bindings, setBindings] = useState<KeyBindingMap>(loadBindings);
   const [lang, setLang] = useState<AppLang>(loadLang);
   const [overlayHotkeys, setOverlayHotkeys] = useState<OverlayHotkeys>(loadHotkeys);
@@ -159,7 +188,7 @@ export const App: React.FC = () => {
       }
       return next;
     });
-    setSelectedCombo((curr) => (curr.id === comboId ? BUILTIN_COMBOS[0] : curr));
+    setSelectedCombo((curr) => (curr.id === comboId ? getDefaultCombo() : curr));
   }, []);
 
   const handleUpdateCombo = useCallback((updated: ComboData) => {

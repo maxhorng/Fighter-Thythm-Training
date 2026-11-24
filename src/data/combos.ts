@@ -334,33 +334,6 @@ export const BUILTIN_COMBOS: ComboData[] = [
       { startFrame: 111.6, durationFrames: 0.1, dir: '6', buttons: ['MK'] },
     ],
   },
-  {
-    id: 'ed-classic-shin-dream',
-    characterId: 'ed',
-    characterName: 'Ed',
-    mode: 'classic',
-    title: '🚧 施工中... Ed 新夢幻連段 (Shin Dream)',
-    difficulty: 'Advanced',
-    description:
-      '🚧 施工中（尚未完全校準完畢，可手動解鎖練習但後果自負）：214EX → 最晚延遲取消 SA2 → 微走 6214HP → 微走步 623HP ×2 → 66 → 6HP → 623HP → 66 → 66 → 623HP。',
-    tags: ['Classic', 'Ed', '施工中', 'Shin Dream'],
-    locked: true,
-    lockReason: '施工中，解鎖練習後果自負 ⚠️',
-    notes: [
-      { id: 'n1', frame: 0, buttons: ['LEFT', 'MP', 'HP'], motion: '214', windowType: 'link', notation: '214EX', moveName: 'OD 精神閃擊 (多段打肉)', x: 0.54, y: 0.50 },
-      { id: 'n2', frame: 95.4, buttons: ['LEFT', 'LP'], motion: '214', windowType: 'cancel', notation: 'SA2', moveName: '最晚延遲取消 SA2 (+95.4f)', x: 0.62, y: 0.50 },
-      { id: 'n3', frame: 242, buttons: ['LEFT', 'HP'], motion: '6214', windowType: 'link', notation: '6214HP', moveName: '微走3f → 6214HP 半圈', x: 0.70, y: 0.50 },
-      { id: 'n4', frame: 304, buttons: ['RIGHT', 'HP'], motion: '623', windowType: 'link', notation: '623HP', moveName: '微走步 昇龍 1 (+62f)', x: 0.78, y: 0.50 },
-      { id: 'n5', frame: 390, buttons: ['RIGHT', 'HP'], motion: '623', windowType: 'link', notation: '623HP', moveName: '微走步 昇龍 2 (+86f)', x: 0.86, y: 0.50 },
-      { id: 'n6', frame: 434, buttons: ['RIGHT'], motion: '66', windowType: 'link', notation: '66', moveName: '前衝 Dash (+44f)', x: 0.54, y: 0.50 },
-      { id: 'n7', frame: 450, buttons: ['RIGHT', 'HP'], windowType: 'link', notation: '6HP', moveName: '前重拳 6HP (+16f)', x: 0.62, y: 0.50 },
-      { id: 'n8', frame: 512, buttons: ['RIGHT', 'HP'], motion: '623', windowType: 'link', notation: '623HP', moveName: '快速昇龍 Quick DP (+62f)', x: 0.70, y: 0.50 },
-      { id: 'n9', frame: 560, buttons: ['RIGHT'], motion: '66', windowType: 'link', notation: '66', moveName: '前衝 1 (+48f)', x: 0.78, y: 0.50 },
-      { id: 'n10', frame: 578, buttons: ['RIGHT'], motion: '66', windowType: 'link', notation: '66', moveName: '前衝 2 (+18f)', x: 0.86, y: 0.50 },
-      { id: 'n11', frame: 600, buttons: ['RIGHT', 'HP'], motion: '623', windowType: 'cancel', notation: '623HP', moveName: '昇龍收尾 Final DP (+22f)', x: 0.54, y: 0.50 },
-    ],
-  },
-
   // ================= JP MODERN =================
   {
     id: 'jp-modern-5hp-sa2-demo',

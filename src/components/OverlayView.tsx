@@ -283,23 +283,17 @@ function drawFixedBoard(
     ctx.save();
     ctx.globalAlpha = e.alpha;
     ctx.beginPath();
-    ctx.arc(c.x, c.y, btnR * e.scale, 0, Math.PI * 2);
-    ctx.strokeStyle = ring;
-    ctx.lineWidth = e.gold ? 4.5 : 3.5;
+    ctx.arc(c.x, c.y, btnR, 0, Math.PI * 2);
+    ctx.fillStyle = e.gold ? 'rgba(250, 204, 21, 0.42)' : e.color + '55';
+    ctx.fill();
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = e.isActive ? '#ffffff' : ring;
     if (!lowPerfMode) {
       ctx.shadowColor = ring;
       ctx.shadowBlur = e.gold ? 18 : 10;
     }
     ctx.stroke();
     ctx.shadowBlur = 0;
-
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, btnR, 0, Math.PI * 2);
-    ctx.fillStyle = e.gold ? 'rgba(250, 204, 21, 0.42)' : e.color + '55';
-    ctx.fill();
-    ctx.lineWidth = 3.5;
-    ctx.strokeStyle = e.isActive ? '#ffffff' : ring;
-    ctx.stroke();
 
     ctx.fillStyle = '#ffffff';
     ctx.font = '900 22px system-ui, sans-serif';
@@ -319,15 +313,17 @@ function drawFixedBoard(
   if (motionIdx !== undefined) {
     const lNote = notes[motionIdx];
     const lUntil = lNote.frame - currentFrame;
+    // Use a one-way sawtooth loop in waiting-first so 214/236 never oscillate backwards
     const lProg =
       phase === 'waiting-first' && motionIdx === activeIdx
-        ? 0.5 + ((Math.sin(now / 220) + 1) / 2) * 0.5
+        ? (now % 1100) / 1100
         : 1 - Math.max(0, Math.min(approachFrames, lUntil)) / approachFrames;
     const lGold = phase === 'playing' && lUntil <= 9 && lUntil >= -2;
     const lAttacks = lNote.buttons.filter((b) => !DIRECTION_IDS.has(b));
     const lPrimary = lAttacks[lAttacks.length - 1] ?? lNote.buttons[lNote.buttons.length - 1];
     const lRingColor = lGold ? '#facc15' : (BUTTON_META[lPrimary]?.color ?? '#38bdf8');
     const lAlpha = motionIdx === activeIdx ? 1 : Math.min(0.9, lProg * 2 + 0.2);
+    const isDouble = /236236|214214/.test(lNote.notation);
 
     ctx.save();
     ctx.globalAlpha = lAlpha;
@@ -341,7 +337,8 @@ function drawFixedBoard(
       lRingColor,
       motionIdx + 1,
       lowPerfMode,
-      isRight
+      isRight,
+      isDouble
     );
     ctx.restore();
   }
@@ -517,7 +514,8 @@ function drawMotionSlider(
   color: string,
   seqNum: number,
   lowPerfMode: boolean,
-  mirrored = false
+  mirrored = false,
+  isDoubleMotion = false
 ) {
   ctx.save();
 
@@ -526,7 +524,7 @@ function drawMotionSlider(
 
   if (motion === '236' || motion === '214') {
     const isRight = mirrored ? motion === '214' : motion === '236';
-    // Arc centered at (centerX, centerY - radius * 0.2):
+    // Arc centered at (centerX, centerY - radius * 0.15):
     // 236: starts at Bottom (PI/2) -> curves counter-clockwise to Right (0)
     // 214: starts at Bottom (PI/2) -> curves clockwise to Left (PI)
     const arcCx = centerX;
@@ -565,8 +563,9 @@ function drawMotionSlider(
     ctx.stroke();
 
     // 4. Shrinking Approach Circle at start point (↓) before slide begins
-    if (progress < 0.6) {
-      const appScale = 1 + (1 - progress / 0.6) * 1.4;
+    const appCutoff = isDoubleMotion ? 0.45 : 0.6;
+    if (progress < appCutoff) {
+      const appScale = 1 + (1 - progress / appCutoff) * 1.4;
       ctx.beginPath();
       ctx.arc(startX, startY, 26 * appScale, 0, Math.PI * 2);
       ctx.strokeStyle = color;
@@ -587,10 +586,15 @@ function drawMotionSlider(
     ctx.fillText('↓', startX, startY);
     ctx.fillText(isRight ? '→' : '←', endX, endY);
 
-    // 6. Gliding Osu! Slider Ball along the quarter-circle arc
+    // 6. Gliding Osu! Slider Ball along the quarter-circle arc (2 full passes for 236236 / 214214)
+    let passT = slideT;
+    if (isDoubleMotion) {
+      const rawT = Math.max(0, Math.min(1, (progress - 0.45) / 0.55));
+      passT = rawT >= 1 ? 1 : (rawT * 2) % 1;
+    }
     const ballAngle = isRight
-      ? startAngle - slideT * (Math.PI / 2)
-      : startAngle + slideT * (Math.PI / 2);
+      ? startAngle - passT * (Math.PI / 2)
+      : startAngle + passT * (Math.PI / 2);
     const ballX = arcCx + Math.cos(ballAngle) * radius;
     const ballY = arcCy + Math.sin(ballAngle) * radius;
 
@@ -613,19 +617,24 @@ function drawMotionSlider(
     ctx.fillText(String(seqNum), ballX, ballY);
 
     // Motion text badge
+    const badgeText = isDoubleMotion
+      ? (isRight ? '236×2 雙右四分之一圈' : '214×2 雙左四分之一圈')
+      : (isRight ? '236 往右四分之一圈' : '214 往左四分之一圈');
     ctx.fillStyle = 'rgba(10, 14, 24, 0.8)';
     ctx.beginPath();
-    ctx.roundRect(arcCx - 58, arcCy + radius + 34, 116, 24, 12);
+    ctx.roundRect(arcCx - 64, arcCy + radius + 34, 128, 24, 12);
     ctx.fill();
     ctx.fillStyle = color;
     ctx.font = '800 12px system-ui, sans-serif';
-    ctx.fillText(isRight ? '236 往右四分之一圈' : '214 往左四分之一圈', arcCx, arcCy + radius + 46);
+    ctx.fillText(badgeText, arcCx, arcCy + radius + 46);
   } else if (motion === '623') {
-    // Z-shaped DP slider: Right (6) -> Down (2) -> Down-Right (3) (mirrored on 2P side)
+    // Z-shaped DP slider pixel-aligned to the 8-way compass ring:
+    // p1 = 6 (→), p2 = 2 (↓), p3 = 3 (↘) (mirrored on 2P side)
+    const arcCy = centerY - radius * 0.15;
     const sign = mirrored ? -1 : 1;
-    const p1 = { x: centerX + sign * radius * 0.6, y: centerY - radius * 0.4 };
-    const p2 = { x: centerX - sign * radius * 0.2, y: centerY + radius * 0.45 };
-    const p3 = { x: centerX + sign * radius * 0.65, y: centerY + radius * 0.45 };
+    const p1 = { x: centerX + sign * radius, y: arcCy };
+    const p2 = { x: centerX, y: arcCy + radius };
+    const p3 = { x: centerX + sign * radius * Math.SQRT1_2, y: arcCy + radius * Math.SQRT1_2 };
 
     // Track border
     ctx.beginPath();
@@ -1876,6 +1885,9 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
 
         // === MOTION SLIDER DIRECTLY BELOW THE ATTACK BUTTON ===
         if (note.motion) {
+          const sliderProgress =
+            phaseRef.current === 'waiting-first' ? (now % 1100) / 1100 : progress;
+          const isDouble = /236236|214214/.test(note.notation);
           ctx.save();
           ctx.globalAlpha = alpha;
           drawMotionSlider(
@@ -1884,11 +1896,12 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
             centerX,
             centerY + CIRCLE_RADIUS + 112,
             72,
-            progress,
+            sliderProgress,
             ringColor,
             activeIdx + 1,
             lowPerfMode,
-            isRightSide
+            isRightSide,
+            isDouble
           );
           ctx.restore();
         } else if (dirButtons.length > 0) {

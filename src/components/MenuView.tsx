@@ -16,6 +16,9 @@ import {
   Wrench,
   Cloud,
   Upload,
+  ChevronDown,
+  ChevronRight,
+  SlidersHorizontal,
 } from 'lucide-react';
 import {
   ComboData,
@@ -142,6 +145,7 @@ export const MenuView: React.FC<MenuViewProps> = ({
   const [positionFilter, setPositionFilter] = useState<'ALL' | 'midscreen' | 'corner'>('ALL');
   const [showKeybinds, setShowKeybinds] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [showTutorial, setShowTutorial] = useState<boolean>(() => {
     try {
       return localStorage.getItem(STORAGE_KEY_SEEN_TUTORIAL) !== '1';
@@ -1187,73 +1191,6 @@ export const MenuView: React.FC<MenuViewProps> = ({
               </button>
             </div>
 
-            <label
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                fontSize: 12.5,
-                color: '#cbd5e1',
-                cursor: 'pointer',
-                marginBottom: 4,
-                userSelect: 'none',
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={showRecordedInputs}
-                onChange={(e) => onChangeShowRecordedInputs(e.target.checked)}
-                style={{ accentColor: '#38bdf8', width: 15, height: 15 }}
-              />
-              <span>{t.showRecordedInputs}</span>
-            </label>
-
-            <label
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                fontSize: 12.5,
-                color: lowPerfMode ? '#4ade80' : '#cbd5e1',
-                cursor: 'pointer',
-                marginBottom: 8,
-                userSelect: 'none',
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={lowPerfMode}
-                onChange={(e) => onChangeLowPerfMode(e.target.checked)}
-                style={{ accentColor: '#4ade80', width: 15, height: 15 }}
-              />
-              <span>{t.lowPerfMode}</span>
-            </label>
-
-            <label
-              style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: sfxEnabled ? '#4ade80' : '#cbd5e1', cursor: 'pointer', marginBottom: 8, userSelect: 'none' }}
-            >
-              <input
-                type="checkbox"
-                checked={sfxEnabled}
-                onChange={(e) => onChangeSfxEnabled(e.target.checked)}
-                style={{ accentColor: '#4ade80', width: 15, height: 15 }}
-              />
-              <span>{t.sfxEnabled}</span>
-            </label>
-
-            <label
-              title={t.dynamicResyncHint}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: dynamicResync ? '#4ade80' : '#cbd5e1', cursor: 'pointer', marginBottom: 8, userSelect: 'none' }}
-            >
-              <input
-                type="checkbox"
-                checked={dynamicResync}
-                onChange={(e) => onChangeDynamicResync(e.target.checked)}
-                style={{ accentColor: '#4ade80', width: 15, height: 15 }}
-              />
-              <span>{t.dynamicResync}</span>
-            </label>
-
             <div
               style={{
                 display: 'flex',
@@ -1307,6 +1244,126 @@ export const MenuView: React.FC<MenuViewProps> = ({
               >
                 <span style={{ fontSize: 12.5, fontWeight: 800 }}>{t.chartLayoutFocused}</span>
               </button>
+            </div>
+
+            {/* Collapsible Advanced Options */}
+            <div style={{ marginBottom: 8 }}>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setShowAdvancedOptions((v) => !v)}
+                style={{
+                  width: '100%',
+                  justifyContent: 'space-between',
+                  padding: '6px 10px',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#cbd5e1',
+                  background: 'rgba(15, 23, 42, 0.7)',
+                  borderColor: showAdvancedOptions ? 'rgba(56, 189, 248, 0.5)' : 'rgba(148, 163, 184, 0.25)',
+                }}
+              >
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <SlidersHorizontal size={13} color="#38bdf8" />
+                  {t.advancedOptionsLabel}
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#94a3b8', fontSize: 11 }}>
+                  {[showRecordedInputs, lowPerfMode, sfxEnabled, dynamicResync].filter(Boolean).length}/4
+                  {showAdvancedOptions ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                </span>
+              </button>
+              {showAdvancedOptions && (
+                <div
+                  style={{
+                    marginTop: 6,
+                    padding: '9px 11px',
+                    borderRadius: 9,
+                    background: 'rgba(15, 23, 42, 0.78)',
+                    border: '1px solid rgba(148, 163, 184, 0.22)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 6,
+                  }}
+                >
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      fontSize: 12.5,
+                      color: '#cbd5e1',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={showRecordedInputs}
+                      onChange={(e) => onChangeShowRecordedInputs(e.target.checked)}
+                      style={{ accentColor: '#38bdf8', width: 15, height: 15 }}
+                    />
+                    <span>{t.showRecordedInputs}</span>
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      fontSize: 12.5,
+                      color: lowPerfMode ? '#4ade80' : '#cbd5e1',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={lowPerfMode}
+                      onChange={(e) => onChangeLowPerfMode(e.target.checked)}
+                      style={{ accentColor: '#4ade80', width: 15, height: 15 }}
+                    />
+                    <span>{t.lowPerfMode}</span>
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      fontSize: 12.5,
+                      color: sfxEnabled ? '#4ade80' : '#cbd5e1',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={sfxEnabled}
+                      onChange={(e) => onChangeSfxEnabled(e.target.checked)}
+                      style={{ accentColor: '#4ade80', width: 15, height: 15 }}
+                    />
+                    <span>{t.sfxEnabled}</span>
+                  </label>
+                  <label
+                    title={t.dynamicResyncHint}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      fontSize: 12.5,
+                      color: dynamicResync ? '#4ade80' : '#cbd5e1',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={dynamicResync}
+                      onChange={(e) => onChangeDynamicResync(e.target.checked)}
+                      style={{ accentColor: '#4ade80', width: 15, height: 15 }}
+                    />
+                    <span>{t.dynamicResync}</span>
+                  </label>
+                </div>
+              )}
             </div>
 
             <button className="btn-start-overlay" onClick={onStartOverlay}>
