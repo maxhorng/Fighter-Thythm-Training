@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  AlertTriangle,
   Check,
   Cloud,
   Download,
@@ -60,14 +61,38 @@ function formatRetryTime(sec: number | undefined, t: OnlineI18n): string {
   return `${m} ${t.minutes}`;
 }
 
+const LIMIT_ERROR_CODES = new Set([
+  'rate_limit_upload',
+  'rate_limit_download',
+  'quota_exceeded',
+  'service_busy',
+  'upload_limit_hour',
+  'upload_limit_day',
+  'upload_limit_ip',
+  'rate_limited',
+]);
+
+function isLimitError(err: unknown): err is OnlineApiError {
+  return err instanceof OnlineApiError && LIMIT_ERROR_CODES.has(err.code);
+}
+
 function formatOnlineError(err: unknown, t: OnlineI18n): string {
   if (err instanceof OnlineApiError) {
     switch (err.code) {
+      case 'rate_limit_upload':
       case 'upload_limit_hour':
       case 'upload_limit_day':
       case 'upload_limit_ip':
-      case 'rate_limited':
         return t.errRateLimited.replace('{time}', formatRetryTime(err.retryAfterSec, t));
+      case 'rate_limit_download':
+      case 'rate_limited':
+        return err.retryAfterSec
+          ? t.errRateLimitDownloadWait.replace('{time}', formatRetryTime(err.retryAfterSec, t))
+          : t.errRateLimitDownload;
+      case 'quota_exceeded':
+        return t.errQuotaExceeded;
+      case 'service_busy':
+        return t.errServiceBusy;
       case 'duplicate':
         return t.errDuplicate;
       case 'invalid_format':
@@ -126,6 +151,22 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
   const [user, setUser] = useState<OnlineUser | null>(null);
   const [loggingIn, setLoggingIn] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [limitBanner, setLimitBanner] = useState<{ severity: 'amber' | 'red'; message: string } | null>(null);
+
+  const reportLimitIfAny = useCallback(
+    (err: unknown): boolean => {
+      if (!isLimitError(err)) return false;
+      const msg = formatOnlineError(err, t);
+      if (msg) {
+        setLimitBanner({
+          severity: err.code === 'quota_exceeded' ? 'red' : 'amber',
+          message: msg,
+        });
+      }
+      return true;
+    },
+    [t]
+  );
 
   // Browse filters
   const [charFilter, setCharFilter] = useState('');
@@ -218,14 +259,17 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
         setItems((prev) => (append ? [...prev, ...res.items] : res.items));
         setPage(res.page);
         setHasMore(res.hasMore);
+        setLimitBanner(null);
       } catch (err) {
-        const msg = formatOnlineError(err, t);
-        if (msg) setListError(msg);
+        if (!reportLimitIfAny(err)) {
+          const msg = formatOnlineError(err, t);
+          if (msg) setListError(msg);
+        }
       } finally {
         setLoadingList(false);
       }
     },
-    [configured, charFilter, diffFilter, modeFilter, posFilter, sort, appliedSearch, t]
+    [configured, charFilter, diffFilter, modeFilter, posFilter, sort, appliedSearch, t, reportLimitIfAny]
   );
 
   useEffect(() => {
@@ -241,17 +285,20 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
     try {
       const list = await fetchMyCombos();
       setMyItems(list);
+      setLimitBanner(null);
     } catch (err) {
       if (err instanceof OnlineApiError && err.status === 401) {
         setUser(null);
         setLikedIds(new Set());
       }
-      const msg = formatOnlineError(err, t);
-      if (msg) setMineError(msg);
+      if (!reportLimitIfAny(err)) {
+        const msg = formatOnlineError(err, t);
+        if (msg) setMineError(msg);
+      }
     } finally {
       setLoadingMine(false);
     }
-  }, [configured, user, t]);
+  }, [configured, user, t, reportLimitIfAny]);
 
   useEffect(() => {
     if (tab === 'mine' && user) {
@@ -311,13 +358,16 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
       setItems((prev) =>
         prev.map((c) => (c.id === item.id ? { ...c, likes: res.likes } : c))
       );
+      setLimitBanner(null);
     } catch (err) {
       if (err instanceof OnlineApiError && err.status === 401) {
         setUser(null);
         setLikedIds(new Set());
       }
-      const msg = formatOnlineError(err, t);
-      if (msg) setListError(msg);
+      if (!reportLimitIfAny(err)) {
+        const msg = formatOnlineError(err, t);
+        if (msg) setListError(msg);
+      }
     } finally {
       setLikingId(null);
     }
@@ -334,9 +384,12 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
       setItems((prev) =>
         prev.map((c) => (c.id === item.id ? { ...c, downloads: c.downloads + 1 } : c))
       );
+      setLimitBanner(null);
     } catch (err) {
-      const msg = formatOnlineError(err, t);
-      if (msg) setListError(msg);
+      if (!reportLimitIfAny(err)) {
+        const msg = formatOnlineError(err, t);
+        if (msg) setListError(msg);
+      }
     } finally {
       setDownloadingId(null);
     }
@@ -356,6 +409,7 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
     setUploadResult(null);
     try {
       const res = await uploadCombo(selectedUploadCombo);
+      setLimitBanner(null);
       setUploadResult({
         ok: true,
         text: res.status === 'approved' ? t.uploadApproved : t.uploadPending,
@@ -365,6 +419,7 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
         setUser(null);
         setLikedIds(new Set());
       }
+      reportLimitIfAny(err);
       const msg = formatOnlineError(err, t);
       if (msg) setUploadResult({ ok: false, text: msg });
     } finally {
@@ -380,9 +435,12 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
       await deleteMyCombo(id);
       setMyItems((prev) => prev.filter((c) => c.id !== id));
       setConfirmDeleteId(null);
+      setLimitBanner(null);
     } catch (err) {
-      const msg = formatOnlineError(err, t);
-      if (msg) setMineError(msg);
+      if (!reportLimitIfAny(err)) {
+        const msg = formatOnlineError(err, t);
+        if (msg) setMineError(msg);
+      }
     } finally {
       setDeletingId(null);
     }
@@ -544,6 +602,50 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
             }}
           >
             {t.errNotConfigured}
+          </div>
+        )}
+
+        {limitBanner && (
+          <div
+            role="alert"
+            style={{
+              padding: '10px 14px',
+              borderRadius: 9,
+              background:
+                limitBanner.severity === 'red'
+                  ? 'rgba(244, 63, 94, 0.2)'
+                  : 'rgba(245, 158, 11, 0.18)',
+              border:
+                limitBanner.severity === 'red'
+                  ? '1px solid rgba(251, 113, 133, 0.7)'
+                  : '1px solid rgba(251, 191, 36, 0.7)',
+              color: limitBanner.severity === 'red' ? '#fecdd3' : '#fef08a',
+              fontSize: 12.5,
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'space-between',
+              gap: 10,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9 }}>
+              <AlertTriangle
+                size={16}
+                color={limitBanner.severity === 'red' ? '#fb7185' : '#fbbf24'}
+                style={{ flexShrink: 0, marginTop: 2 }}
+              />
+              <div>
+                <div style={{ fontWeight: 800, marginBottom: 2 }}>{t.limitBannerTitle}</div>
+                <div style={{ lineHeight: 1.45 }}>{limitBanner.message}</div>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="btn-icon"
+              style={{ width: 22, height: 22, flexShrink: 0 }}
+              onClick={() => setLimitBanner(null)}
+            >
+              <X size={13} />
+            </button>
           </div>
         )}
 

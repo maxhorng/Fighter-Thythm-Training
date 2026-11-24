@@ -71,32 +71,98 @@ export function setStoredToken(token: string | null) {
   }
 }
 
-async function request<T>(path: string, init: RequestInit & { auth?: boolean } = {}): Promise<T> {
-  const headers = new Headers(init.headers);
-  if (init.auth) {
+type RequestKind = 'upload' | 'download' | 'browse';
+
+function parseRetryAfter(res: Response, data: Record<string, unknown>): number | undefined {
+  if (typeof data.retryAfterSec === 'number' && Number.isFinite(data.retryAfterSec) && data.retryAfterSec > 0) {
+    return Math.ceil(data.retryAfterSec);
+  }
+  const header = res.headers.get('Retry-After');
+  if (!header) return undefined;
+  const asNum = Number(header);
+  if (Number.isFinite(asNum) && asNum > 0) return Math.ceil(asNum);
+  const asDate = Date.parse(header);
+  if (Number.isFinite(asDate)) {
+    const diff = Math.ceil((asDate - Date.now()) / 1000);
+    if (diff > 0) return diff;
+  }
+  return undefined;
+}
+
+function classifyLimitError(
+  res: Response,
+  data: Record<string, unknown>,
+  rawText: string,
+  kind: RequestKind
+): OnlineApiError | null {
+  const errCode = String(data.error ?? '');
+  const msg = String(data.message ?? '');
+  const combined = `${errCode} ${msg} ${rawText}`;
+  const retryAfterSec = parseRetryAfter(res, data);
+
+  if (
+    res.status === 507 ||
+    errCode === 'quota_exceeded' ||
+    /1027|daily\s+limit|quota\s+exceeded|exceeded\s+.*(limit|quota)|d1.*limit|storage\s+limit/i.test(combined)
+  ) {
+    return new OnlineApiError(res.status, 'quota_exceeded', msg || 'Server daily quota exceeded', [], retryAfterSec);
+  }
+
+  if (res.status === 429) {
+    const isUploadLimit =
+      kind === 'upload' ||
+      errCode === 'upload_limit_hour' ||
+      errCode === 'upload_limit_day' ||
+      errCode === 'upload_limit_ip';
+    return new OnlineApiError(
+      429,
+      isUploadLimit ? 'rate_limit_upload' : 'rate_limit_download',
+      msg || 'Rate limit reached',
+      [],
+      retryAfterSec
+    );
+  }
+
+  if (res.status === 503) {
+    return new OnlineApiError(503, 'service_busy', msg || 'Service temporarily busy', [], retryAfterSec);
+  }
+
+  return null;
+}
+
+async function request<T>(path: string, init: RequestInit & { auth?: boolean; kind?: RequestKind } = {}): Promise<T> {
+  const { auth, kind = 'browse', ...fetchInit } = init;
+  const headers = new Headers(fetchInit.headers);
+  if (auth) {
     const token = getStoredToken();
     if (token) headers.set('Authorization', `Bearer ${token}`);
   }
   let res: Response;
   try {
-    res = await fetch(`${getOnlineApiBase()}${path}`, { ...init, headers });
+    res = await fetch(`${getOnlineApiBase()}${path}`, { ...fetchInit, headers });
   } catch {
     throw new OnlineApiError(0, 'network', 'Network error');
   }
+  const rawText = await res.text().catch(() => '');
   let data: Record<string, unknown> = {};
-  try {
-    data = (await res.json()) as Record<string, unknown>;
-  } catch {
-    // non-JSON
+  if (rawText) {
+    try {
+      const parsed = JSON.parse(rawText);
+      if (parsed && typeof parsed === 'object') data = parsed as Record<string, unknown>;
+    } catch {
+      // non-JSON (e.g. Cloudflare HTML/text error page)
+    }
   }
   if (!res.ok) {
-    if (res.status === 401 && init.auth) setStoredToken(null);
+    if (res.status === 401 && auth) setStoredToken(null);
+    const limitErr = classifyLimitError(res, data, rawText, kind);
+    if (limitErr) throw limitErr;
     throw new OnlineApiError(
       res.status,
       String(data.error ?? 'http_error'),
       String(data.message ?? `HTTP ${res.status}`),
       Array.isArray(data.details) ? (data.details as string[]) : [],
-      typeof data.retryAfterSec === 'number' ? data.retryAfterSec : undefined
+      parseRetryAfter(res, data)
     );
   }
   return data as T;
@@ -166,13 +232,14 @@ export async function uploadCombo(combo: ComboData): Promise<{ id: string; statu
   return request('/api/combos', {
     method: 'POST',
     auth: true,
+    kind: 'upload',
     headers: { 'Content-Type': 'application/json' },
     body,
   });
 }
 
 /**
- * Downloads an approved combo's static JSON from the CDN, re-validates it, and returns a
+ * Downloads an approved combo's JSON from the Worker, re-validates it, and returns a
  * ComboData ready to be stored as a local custom combo (only optional fields are added).
  */
 export async function downloadOnlineCombo(item: OnlineComboItem): Promise<ComboData> {
@@ -182,8 +249,19 @@ export async function downloadOnlineCombo(item: OnlineComboItem): Promise<ComboD
   } catch {
     throw new OnlineApiError(0, 'network', 'Network error');
   }
-  if (!res.ok) throw new OnlineApiError(res.status, 'not_found', 'Combo not found');
-  const text = await res.text();
+  const text = await res.text().catch(() => '');
+  if (!res.ok) {
+    let data: Record<string, unknown> = {};
+    try {
+      const p = JSON.parse(text);
+      if (p && typeof p === 'object') data = p as Record<string, unknown>;
+    } catch {
+      // non-JSON
+    }
+    const limitErr = classifyLimitError(res, data, text, 'download');
+    if (limitErr) throw limitErr;
+    throw new OnlineApiError(res.status, 'not_found', 'Combo not found');
+  }
   if (utf8Bytes(text) > COMBO_LIMITS.maxJsonBytes) throw new OnlineApiError(413, 'too_large', 'Combo too large');
   let parsed: unknown;
   try {
