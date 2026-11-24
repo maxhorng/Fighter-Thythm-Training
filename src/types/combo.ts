@@ -81,6 +81,12 @@ export interface ComboData {
   /** Optional WIP lock flag (user can click to unlock at their own risk) */
   locked?: boolean;
   lockReason?: string;
+  /** Optional: set when the combo was downloaded from the online combo library */
+  source?: 'online';
+  /** Optional: server-side ID of the downloaded online combo */
+  onlineId?: string;
+  /** Optional: display name of the online uploader */
+  author?: string;
 }
 
 export type StartTriggerMode = 'trigger-first' | 'countdown';
@@ -102,6 +108,8 @@ export interface ElectronAPI {
   setHotkeys?: (hotkeys: { clickThrough?: string; exitOverlay?: string; toggleReview?: string; restart?: string }) => Promise<void>;
   minimizeWindow: () => Promise<void>;
   closeWindow: () => Promise<void>;
+  discordLogin?: (apiBase: string) => Promise<{ ok: boolean; token?: string; error?: string }>;
+  cancelDiscordLogin?: () => Promise<void>;
   resizeWindow?: (width: number, height: number) => void;
   onGlobalKeyDown: (cb: (code: string) => void) => () => void;
   onGlobalKeyUp: (cb: (code: string) => void) => () => void;

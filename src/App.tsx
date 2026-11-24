@@ -114,7 +114,8 @@ export const App: React.FC = () => {
 
   const handleAddCombo = useCallback((combo: ComboData) => {
     setCustomCombos((prev) => {
-      const next = [...prev, combo];
+      const idx = prev.findIndex((c) => c.id === combo.id);
+      const next = idx >= 0 ? prev.map((c, i) => (i === idx ? combo : c)) : [...prev, combo];
       try {
         localStorage.setItem(STORAGE_KEY_CUSTOM_COMBOS, JSON.stringify(next));
       } catch {

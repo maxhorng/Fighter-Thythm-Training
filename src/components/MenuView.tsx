@@ -14,6 +14,8 @@ import {
   HelpCircle,
   Download,
   Wrench,
+  Cloud,
+  Upload,
 } from 'lucide-react';
 import {
   ComboData,
@@ -25,9 +27,11 @@ import {
 import { CHARACTERS } from '../data/combos';
 import { BUTTON_META, formatKeyCode } from '../data/bindings';
 import { AppLang, getCharacterSubName, getComboTitle, I18N, OverlayHotkeys, translateTag } from '../data/i18n';
+import { ONLINE_I18N } from '../data/onlineI18n';
 import { KeybindPanel } from './KeybindPanel';
 import { ImportComboModal } from './ImportComboModal';
 import { TutorialModal } from './TutorialModal';
+import { OnlineCombosModal } from './OnlineCombosModal';
 import { useInputEngine } from '../hooks/useInputEngine';
 import pkg from '../../package.json';
 
@@ -102,7 +106,19 @@ export const MenuView: React.FC<MenuViewProps> = ({
   onStartRecording,
 }) => {
   const t = I18N[lang];
+  const onlineT = ONLINE_I18N[lang];
   const [selectedCharId, setSelectedCharId] = useState<string>(selectedCombo.characterId);
+  const [showOnlineModal, setShowOnlineModal] = useState(false);
+  const [uploadTargetCombo, setUploadTargetCombo] = useState<ComboData | null>(null);
+
+  const customCombosList = useMemo(
+    () => combos.filter((c) => customComboIds.has(c.id)),
+    [combos, customComboIds]
+  );
+  const downloadedOnlineIds = useMemo(
+    () => new Set(customCombosList.map((c) => c.onlineId).filter((id): id is string => Boolean(id))),
+    [customCombosList]
+  );
   const [charSearch, setCharSearch] = useState('');
   const [pinnedChars, setPinnedChars] = useState<Set<string>>(() => {
     try {
@@ -707,6 +723,20 @@ export const MenuView: React.FC<MenuViewProps> = ({
             <div style={{ display: 'flex', gap: 6 }}>
               <button
                 className="btn-secondary"
+                style={{
+                  borderColor: 'rgba(129, 140, 248, 0.55)',
+                  background: 'rgba(88, 101, 242, 0.16)',
+                  color: '#c7d2fe',
+                }}
+                onClick={() => {
+                  setUploadTargetCombo(null);
+                  setShowOnlineModal(true);
+                }}
+              >
+                <Cloud size={14} /> {onlineT.onlineBtn}
+              </button>
+              <button
+                className="btn-secondary"
                 style={{ borderColor: 'rgba(244, 63, 94, 0.5)', color: '#fda4af' }}
                 onClick={() => onStartRecording(selectedCharId)}
               >
@@ -842,6 +872,21 @@ export const MenuView: React.FC<MenuViewProps> = ({
                         : '非角落'}
                     </span>
                     <div className="combo-title">{getComboTitle(combo, lang)}</div>
+                    {combo.source === 'online' && combo.author && (
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: '1px 6px',
+                          borderRadius: 999,
+                          background: 'rgba(88, 101, 242, 0.18)',
+                          color: '#c7d2fe',
+                          border: '1px solid rgba(129, 140, 248, 0.45)',
+                        }}
+                      >
+                        {onlineT.author}: {combo.author}
+                      </span>
+                    )}
                     {combo.tags
                       .filter((tg) => !/^(角落|角落限定|非角落|實機錄製|60fps原味)$/i.test(tg))
                       .slice(0, 3)
@@ -902,6 +947,25 @@ export const MenuView: React.FC<MenuViewProps> = ({
                     )}
                     {customComboIds.has(combo.id) && (
                       <>
+                        {combo.source !== 'online' && (
+                          <button
+                            className="btn-secondary"
+                            style={{
+                              padding: '2px 7px',
+                              fontSize: 11,
+                              borderColor: 'rgba(129, 140, 248, 0.55)',
+                              color: '#c7d2fe',
+                            }}
+                            title={onlineT.uploadBtnTitle}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setUploadTargetCombo(combo);
+                              setShowOnlineModal(true);
+                            }}
+                          >
+                            <Upload size={12} />
+                          </button>
+                        )}
                         <button
                           className="btn-secondary"
                           style={{
@@ -1257,6 +1321,24 @@ export const MenuView: React.FC<MenuViewProps> = ({
           characterId={selectedCharId}
           onImport={onAddCombo}
           onClose={() => setShowImport(false)}
+        />
+      )}
+
+      {showOnlineModal && (
+        <OnlineCombosModal
+          lang={lang}
+          customCombos={customCombosList}
+          downloadedOnlineIds={downloadedOnlineIds}
+          initialUploadCombo={uploadTargetCombo}
+          onDownloaded={(combo) => {
+            onAddCombo(combo);
+            if (combo.mode !== mode) onChangeMode(combo.mode);
+            setSelectedCharId(combo.characterId);
+          }}
+          onClose={() => {
+            setShowOnlineModal(false);
+            setUploadTargetCombo(null);
+          }}
         />
       )}
 

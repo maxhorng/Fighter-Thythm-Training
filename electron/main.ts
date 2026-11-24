@@ -1,5 +1,7 @@
 import { app, BrowserWindow, globalShortcut, ipcMain, screen, shell } from 'electron';
+import crypto from 'crypto';
 import fs from 'fs';
+import http from 'http';
 import path from 'path';
 
 let mainWindow: BrowserWindow | null = null;
@@ -422,7 +424,105 @@ ipcMain.handle('window-close', () => {
   app.quit();
 });
 
+// ---------------------------------------------------------------------------
+// Discord login for the Online Combo Library (loopback OAuth redirect)
+// The system browser handles Discord login on the Worker; the Worker then redirects the
+// browser to http://127.0.0.1:<port>/callback?token=...&state=... which we capture here.
+// No client secret ever lives in the app.
+// ---------------------------------------------------------------------------
+let activeLoginServer: http.Server | null = null;
+let cancelActiveLogin: ((error?: string) => void) | null = null;
+
+function isAllowedApiBase(apiBase: string): boolean {
+  try {
+    const u = new URL(apiBase);
+    if (u.protocol === 'https:') return true;
+    // Allow local `wrangler dev` during development only
+    return u.protocol === 'http:' && (u.hostname === '127.0.0.1' || u.hostname === 'localhost');
+  } catch {
+    return false;
+  }
+}
+
+ipcMain.handle('discord-login', async (_event, apiBase: string) => {
+  if (typeof apiBase !== 'string' || !isAllowedApiBase(apiBase)) {
+    return { ok: false, error: 'invalid_api_base' };
+  }
+  if (cancelActiveLogin) {
+    cancelActiveLogin('superseded');
+  }
+  const state = crypto.randomBytes(24).toString('base64url');
+
+  return new Promise<{ ok: boolean; token?: string; error?: string }>((resolve) => {
+    let settled = false;
+    const finish = (result: { ok: boolean; token?: string; error?: string }) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (activeLoginServer === server) activeLoginServer = null;
+      if (cancelActiveLogin === cancelFn) cancelActiveLogin = null;
+      try {
+        server.close();
+      } catch {
+        // ignore
+      }
+      resolve(result);
+    };
+    const cancelFn = (err = 'cancelled') => finish({ ok: false, error: err });
+    cancelActiveLogin = cancelFn;
+
+    const server = http.createServer((req, res) => {
+      const reqUrl = new URL(req.url ?? '/', 'http://127.0.0.1');
+      if (reqUrl.pathname !== '/callback') {
+        res.writeHead(404).end();
+        return;
+      }
+      const okState = reqUrl.searchParams.get('state') === state;
+      const token = reqUrl.searchParams.get('token') ?? '';
+      const error = reqUrl.searchParams.get('error') ?? (okState ? '' : 'bad_state');
+      const success = okState && !error && /^[A-Za-z0-9_-]{20,128}$/.test(token);
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(
+        `<!doctype html><meta charset="utf-8"><title>Frame Beat Trainer</title>` +
+          `<body style="font-family:system-ui;background:#0b1020;color:#e2e8f0;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">` +
+          `<div style="text-align:center"><h2>${success ? 'Login successful / 登入成功' : 'Login failed / 登入失敗'}</h2>` +
+          `<p>${success ? 'You can close this tab and return to Frame Beat Trainer. / 可以關閉此分頁回到程式。' : 'Please return to the app and try again. / 請回到程式重試。'}</p></div></body>`
+      );
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.focus();
+      }
+      finish(success ? { ok: true, token } : { ok: false, error: error || 'invalid_token' });
+    });
+    const timer = setTimeout(() => {
+      finish({ ok: false, error: 'timeout' });
+    }, 5 * 60 * 1000);
+    server.on('error', () => {
+      finish({ ok: false, error: 'loopback_failed' });
+    });
+    server.listen(0, '127.0.0.1', () => {
+      activeLoginServer = server;
+      const addr = server.address();
+      const port = typeof addr === 'object' && addr ? addr.port : 0;
+      const start = new URL('/auth/discord/start', apiBase);
+      start.searchParams.set('port', String(port));
+      start.searchParams.set('state', state);
+      shell.openExternal(start.toString());
+    });
+  });
+});
+
+ipcMain.handle('discord-login-cancel', () => {
+  if (cancelActiveLogin) {
+    cancelActiveLogin('cancelled');
+  } else if (activeLoginServer) {
+    activeLoginServer.close();
+    activeLoginServer = null;
+  }
+});
+
 app.on('will-quit', () => {
+  if (cancelActiveLogin) cancelActiveLogin('app_quit');
   globalShortcut.unregisterAll();
   if (uiohookStarted) {
     try {

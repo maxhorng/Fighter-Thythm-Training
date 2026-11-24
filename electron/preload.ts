@@ -14,6 +14,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('set-hotkeys', hotkeys),
   minimizeWindow: (): Promise<void> => ipcRenderer.invoke('window-minimize'),
   closeWindow: (): Promise<void> => ipcRenderer.invoke('window-close'),
+  discordLogin: (apiBase: string): Promise<{ ok: boolean; token?: string; error?: string }> =>
+    ipcRenderer.invoke('discord-login', apiBase),
+  cancelDiscordLogin: (): Promise<void> => ipcRenderer.invoke('discord-login-cancel'),
   resizeWindow: (width: number, height: number): void =>
     ipcRenderer.send('window-resize', { width, height }),
   onGlobalKeyDown: (callback: (code: string) => void) => {

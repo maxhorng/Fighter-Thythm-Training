@@ -1,0 +1,37 @@
+name = "fbt-combos"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# Public, non-secret configuration
+[vars]
+# Discord OAuth application client ID (Developer Portal -> OAuth2)
+DISCORD_CLIENT_ID = "REPLACE_WITH_DISCORD_CLIENT_ID"
+# Must exactly match a Redirect URI registered in the Discord app, e.g.
+# https://fbt-combos.<your-subdomain>.workers.dev/auth/discord/callback
+DISCORD_REDIRECT_URI = "https://fbt-combos.REPLACE.workers.dev/auth/discord/callback"
+# "true" = uploads are published immediately; "false" = admin approval required
+AUTO_APPROVE = "false"
+# Discord accounts younger than this many days cannot log in (anti-alt / anti-spam)
+MIN_ACCOUNT_AGE_DAYS = "7"
+
+# Secrets (set with `npx wrangler secret put <NAME>`, never commit):
+#   DISCORD_CLIENT_SECRET  - Discord OAuth client secret
+#   SESSION_SECRET         - random 32+ char string (HMAC for OAuth state + IP hashing)
+#   ADMIN_TOKEN            - random 32+ char string for /api/admin/* endpoints
+#   DISCORD_WEBHOOK_URL    - (optional) Discord channel webhook notified on new pending uploads
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fbt-combos"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+# Per-IP burst limits for read / like / download endpoints (period must be 10 or 60 seconds)
+[[ratelimits]]
+name = "READ_LIMITER"
+namespace_id = "1001"
+simple = { limit = 60, period = 60 }
+
+[[ratelimits]]
+name = "WRITE_LIMITER"
+namespace_id = "1002"
+simple = { limit = 20, period = 60 }
