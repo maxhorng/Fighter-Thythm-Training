@@ -43,6 +43,38 @@ interface OverlayViewProps {
 
 const FPS = 60;
 const FRAME_MS = 1000 / FPS;
+
+type DragBlockKey = 'leftPad' | 'rightBoard' | 'recBar';
+type OverlayOffsets = Record<DragBlockKey, { x: number; y: number }>;
+type DragBox = { x: number; y: number; w: number; h: number };
+
+const STORAGE_KEY_OVERLAY_OFFSETS = 'fbt_overlay_offsets_v1';
+
+function createDefaultOverlayOffsets(): OverlayOffsets {
+  return {
+    leftPad: { x: 0, y: 0 },
+    rightBoard: { x: 0, y: 0 },
+    recBar: { x: 0, y: 0 },
+  };
+}
+
+function loadOverlayOffsets(): OverlayOffsets {
+  const fallback = createDefaultOverlayOffsets();
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_OVERLAY_OFFSETS);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw) as Partial<Record<DragBlockKey, { x?: unknown; y?: unknown }>>;
+    (['leftPad', 'rightBoard', 'recBar'] as DragBlockKey[]).forEach((k) => {
+      const entry = parsed?.[k];
+      if (entry && typeof entry.x === 'number' && typeof entry.y === 'number' && Number.isFinite(entry.x) && Number.isFinite(entry.y)) {
+        fallback[k] = { x: entry.x, y: entry.y };
+      }
+    });
+  } catch {
+    // ignore storage errors
+  }
+  return fallback;
+}
 const DEFAULT_APPROACH_FRAMES = 36; // 600ms approach circle shrink time (AR 9.3 default)
 const CIRCLE_RADIUS = 64; // 1.5x larger centered osu! button
 
@@ -60,16 +92,16 @@ function getNoteWindows(
     windowType ?? (buttons?.includes('PARRY') ? 'dr-cancel' : undefined);
 
   if (effectiveType === 'dr-cancel') {
-    return { earlyPerfect: 0.35, latePerfect: 0.35, earlyGood: 12.0, lateGood: 16.0, maxMiss: 24.0 };
+    return { earlyPerfect: 0.35, latePerfect: 0.35, earlyGood: 4.0, lateGood: 5.0, earlyOk: 14.0, lateOk: 16.0, maxMiss: 24.0 };
   }
   if (effectiveType === 'juggle') {
-    return { earlyPerfect: 0.35, latePerfect: 0.35, earlyGood: 7.0, lateGood: 13.0, maxMiss: 18.0 };
+    return { earlyPerfect: 0.35, latePerfect: 0.35, earlyGood: 3.0, lateGood: 4.0, earlyOk: 10.0, lateOk: 13.0, maxMiss: 18.0 };
   }
   if (effectiveType === 'cancel') {
-    return { earlyPerfect: 0.35, latePerfect: 0.35, earlyGood: 6.0, lateGood: 10.0, maxMiss: 14.0 };
+    return { earlyPerfect: 0.35, latePerfect: 0.35, earlyGood: 2.5, lateGood: 3.0, earlyOk: 8.0, lateOk: 10.0, maxMiss: 14.0 };
   }
-  // Default / 'link' (exact sub-frame Perfect ±0.35f; Good covers SF6 4f buffer + tight late)
-  return { earlyPerfect: 0.35, latePerfect: 0.35, earlyGood: 4.5, lateGood: 3.5, maxMiss: 10.0 };
+  // Default / 'link' (exact sub-frame Perfect ±0.35f; tight Good; remaining playable window -> OK)
+  return { earlyPerfect: 0.35, latePerfect: 0.35, earlyGood: 2.0, lateGood: 1.8, earlyOk: 6.0, lateOk: 3.5, maxMiss: 10.0 };
 }
 
 const DIRECTION_IDS = new Set<ActionButtonId>(['UP', 'DOWN', 'LEFT', 'RIGHT']);
@@ -77,6 +109,7 @@ const DIRECTION_IDS = new Set<ActionButtonId>(['UP', 'DOWN', 'LEFT', 'RIGHT']);
 const RANK_COLORS: Record<JudgmentRank, string> = {
   PERFECT: '#38bdf8',
   GOOD: '#4ade80',
+  OK: '#facc15',
   EARLY: '#a78bfa',
   LATE: '#fb923c',
   MISS: '#f43f5e',
@@ -358,14 +391,18 @@ function drawOsuChartBoard(
   isRight: boolean,
   lowPerfMode: boolean,
   approachFrames: number,
-  buttonScale = 1.0
+  buttonScale = 1.0,
+  offsets?: OverlayOffsets,
+  outBoxes?: Partial<Record<DragBlockKey, DragBox>>
 ) {
   // 1.5x larger osu! note circles scaled by user buttonScale and clamped cleanly for 1080px+ widths
   const baseR = Math.max(42, Math.min(54, w * 0.038));
   const R = Math.max(28, Math.min(64, baseR * buttonScale));
   const gap = Math.max(30, Math.min(42, w * 0.026)) * 2.35 * buttonScale;
-  const padX = Math.max(Math.round(135 * buttonScale), w * 0.16);
-  const padY = h * 0.44;
+  const basePadX = Math.max(Math.round(135 * buttonScale), w * 0.16);
+  const basePadY = h * 0.44;
+  const padX = basePadX + (offsets?.leftPad.x ?? 0);
+  const padY = basePadY + (offsets?.leftPad.y ?? 0);
 
   const visible: number[] = [];
   for (let i = activeIdx; i < notes.length && visible.length < 8; i++) {
@@ -393,14 +430,28 @@ function drawOsuChartBoard(
   const bottomBlock = 1 + Math.floor(activeRow / 4) * 2;
   const rows = Math.min(4, Math.max(1, Math.ceil(notes.length / COLS)));
 
-  const rightAreaLeft = padX + (82 + 30) * buttonScale + R + 24;
+  const rightAreaLeft = basePadX + (82 + 30) * buttonScale + R + 24;
   const rightEdgeMargin = Math.max(36, R + 8);
   const maxAvailSpan = Math.max(R * 6.4, w - rightAreaLeft - R - rightEdgeMargin);
   const gapX = Math.min(R * 2.75, maxAvailSpan / 3);
   const gapY = Math.min(R * 2.9, Math.max(R * 2.45, (h * 0.58) / Math.max(1, rows)));
   const gridSpanW = (COLS - 1) * gapX;
-  const gx = Math.max(rightAreaLeft, w - gridSpanW - R - rightEdgeMargin);
-  const gy = Math.max(h * 0.16 + R, h * 0.45 - ((rows - 1) * gapY) / 2);
+  const baseGx = Math.max(rightAreaLeft, w - gridSpanW - R - rightEdgeMargin);
+  const baseGy = Math.max(h * 0.16 + R, h * 0.45 - ((rows - 1) * gapY) / 2);
+  const gx = baseGx + (offsets?.rightBoard.x ?? 0);
+  const gy = baseGy + (offsets?.rightBoard.y ?? 0);
+
+  if (outBoxes) {
+    const padHalf = Math.round((82 + 30) * buttonScale) + 14;
+    outBoxes.leftPad = { x: padX - padHalf, y: padY - padHalf, w: padHalf * 2, h: padHalf * 2 };
+    const colsUsed = Math.min(COLS, Math.max(1, notes.length));
+    outBoxes.rightBoard = {
+      x: gx - R - 14,
+      y: gy - R - 14,
+      w: (colsUsed - 1) * gapX + (R + 14) * 2,
+      h: (rows - 1) * gapY + (R + 14) * 2,
+    };
+  }
 
   const slotPos = (slot: number) => ({
     x: gx + (slot % COLS) * gapX,
@@ -607,20 +658,37 @@ function drawFixedBoard(
   isRight: boolean,
   lowPerfMode: boolean,
   approachFrames: number,
-  buttonScale = 1.0
+  buttonScale = 1.0,
+  offsets?: OverlayOffsets,
+  outBoxes?: Partial<Record<DragBlockKey, DragBox>>
 ) {
   const baseR = Math.max(30, Math.min(42, w * 0.026));
   const R = Math.max(22, Math.min(56, baseR * buttonScale));
   const gap = R * 2.35;
   // Left direction / motion cue center (nudged left so screen center stays wide open)
-  const padX = Math.max(Math.round(135 * buttonScale), w * 0.16);
-  const padY = h * 0.44;
+  const basePadX = Math.max(Math.round(135 * buttonScale), w * 0.16);
+  const basePadY = h * 0.44;
+  const padX = basePadX + (offsets?.leftPad.x ?? 0);
+  const padY = basePadY + (offsets?.leftPad.y ?? 0);
   // Right fixed attack button grid (anchored near right edge so SF6 characters in center stay clear)
-  const rightAreaLeft = padX + (82 + 30) * buttonScale + R + 24;
+  const rightAreaLeft = basePadX + (82 + 30) * buttonScale + R + 24;
   const gapX = Math.min(R * 2.5, Math.max(R * 2.2, (w - rightAreaLeft - R - 48) / 3));
   const gapY = R * 2.5;
-  const gx = Math.max(rightAreaLeft, w - (gapX * 3 + R + 48));
-  const gy = h * 0.34;
+  const baseGx = Math.max(rightAreaLeft, w - (gapX * 3 + R + 48));
+  const baseGy = h * 0.34;
+  const gx = baseGx + (offsets?.rightBoard.x ?? 0);
+  const gy = baseGy + (offsets?.rightBoard.y ?? 0);
+
+  if (outBoxes) {
+    const padHalf = Math.round((82 + 30) * buttonScale) + 14;
+    outBoxes.leftPad = { x: padX - padHalf, y: padY - padHalf, w: padHalf * 2, h: padHalf * 2 };
+    outBoxes.rightBoard = {
+      x: gx - R - 14,
+      y: gy - R - 14,
+      w: gapX * 3 + (R + 14) * 2,
+      h: gapY + (R + 14) * 2,
+    };
+  }
   const pos: Partial<Record<ActionButtonId, { x: number; y: number; r: number }>> = {};
   const top: ActionButtonId[] = mode === 'modern' ? ['L', 'M', 'H', 'DI'] : ['LP', 'MP', 'HP', 'DI'];
   const bottom: ActionButtonId[] = mode === 'modern' ? ['SP', 'AUTO', 'PARRY'] : ['LK', 'MK', 'HK', 'PARRY'];
@@ -1690,7 +1758,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   const [stats, setStats] = useState({
     perfect: 0,
     good: 0,
-    early: 0,
+    ok: 0,
     late: 0,
     miss: 0,
     streak: 0,
@@ -1773,6 +1841,77 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
+  };
+
+  const overlayOffsetsRef = useRef<OverlayOffsets>(loadOverlayOffsets());
+  const dragBoxesRef = useRef<Partial<Record<DragBlockKey, DragBox>>>({});
+  const draggingBlockRef = useRef<DragBlockKey | null>(null);
+  const isClickThroughRef = useRef<boolean>(isClickThrough);
+  isClickThroughRef.current = isClickThrough;
+
+  const hitTestDragBox = (x: number, y: number): DragBlockKey | null => {
+    const boxes = dragBoxesRef.current;
+    const order: DragBlockKey[] = ['recBar', 'rightBoard', 'leftPad'];
+    for (const key of order) {
+      const b = boxes[key];
+      if (b && x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        return key;
+      }
+    }
+    return null;
+  };
+
+  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (isClickThrough || draggingBlockRef.current) return;
+    const hit = hitTestDragBox(e.clientX, e.clientY);
+    e.currentTarget.style.cursor = hit ? 'grab' : 'default';
+  };
+
+  const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (isClickThrough || e.button !== 0) return;
+    const hit = hitTestDragBox(e.clientX, e.clientY);
+    if (!hit) return;
+    e.preventDefault();
+    draggingBlockRef.current = hit;
+    const canvasEl = canvasRef.current;
+    if (canvasEl) canvasEl.style.cursor = 'grabbing';
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startOff = { ...overlayOffsetsRef.current[hit] };
+
+    const onMove = (ev: MouseEvent) => {
+      overlayOffsetsRef.current = {
+        ...overlayOffsetsRef.current,
+        [hit]: {
+          x: Math.round(startOff.x + (ev.clientX - startX)),
+          y: Math.round(startOff.y + (ev.clientY - startY)),
+        },
+      };
+    };
+    const onUp = () => {
+      draggingBlockRef.current = null;
+      if (canvasEl) canvasEl.style.cursor = 'grab';
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      try {
+        localStorage.setItem(STORAGE_KEY_OVERLAY_OFFSETS, JSON.stringify(overlayOffsetsRef.current));
+      } catch {
+        // ignore storage failure
+      }
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
+  const handleResetPositions = () => {
+    overlayOffsetsRef.current = createDefaultOverlayOffsets();
+    setReviewPos(null);
+    try {
+      localStorage.removeItem(STORAGE_KEY_OVERLAY_OFFSETS);
+      localStorage.removeItem('fbt_review_pos_v1');
+    } catch {
+      // ignore storage failure
+    }
   };
 
   const dirHistoryRef = useRef<{ dir: string; t: number }[]>([]);
@@ -1892,8 +2031,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       if (result.rank === 'GOOD') {
         return { ...prev, good: prev.good + 1, streak: prev.streak + 1 };
       }
-      if (result.rank === 'EARLY') {
-        return { ...prev, early: prev.early + 1, streak: prev.streak + 1 };
+      if (result.rank === 'OK' || result.rank === 'EARLY') {
+        return { ...prev, ok: prev.ok + 1, streak: prev.streak + 1 };
       }
       if (result.rank === 'LATE') {
         return { ...prev, late: prev.late + 1, streak: prev.streak + 1 };
@@ -1924,9 +2063,37 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         isModernSaNote &&
         (pressedBtn === 'SP' || pressedBtn === 'H') &&
         (activeSet.has('SP') || activeSet.has('H'));
-      if (pressedBtn !== primaryBtn && !isModernSaShortcutPress) return;
+      const isRawDrShortcutPress =
+        (targetNote.buttons.includes('PARRY') && pressedBtn === 'RIGHT' && activeSet.has('PARRY')) ||
+        (targetNote.motion === '66' &&
+          idx > 0 &&
+          notes[idx - 1].buttons.includes('PARRY') &&
+          pressedBtn === 'PARRY' &&
+          activeSet.has('RIGHT'));
+      if (pressedBtn !== primaryBtn && !isModernSaShortcutPress && !isRawDrShortcutPress) return;
+
+      // Pure directional double-tap notes (66 / 44 / 22): never trigger on the 1st tap!
+      // Require an actual double-tap (e.g. 6 -> 5 -> 6) within the last 320ms in mirrored dirHistoryRef.
+      if (
+        (targetNote.motion === '66' || targetNote.motion === '44' || targetNote.motion === '22') &&
+        targetNote.buttons.every((b) => DIRECTION_IDS.has(b))
+      ) {
+        const tapNow = performance.now();
+        const wantDir = targetNote.motion[0];
+        const recentSeq = dirHistoryRef.current
+          .filter((d) => d.t >= tapNow - 320)
+          .map((d) => d.dir)
+          .join('');
+        const hasDoubleTap = new RegExp(`${wantDir}.*5.*${wantDir}`).test(recentSeq);
+        if (!hasDoubleTap) return;
+      }
 
       if (phaseRef.current === 'waiting-first' && idx === 0) {
+        // For non-motion directional normals (e.g. 2MK), require all required directions to be held before starting
+        if (!targetNote.motion) {
+          const reqDirs = targetNote.buttons.filter((b) => DIRECTION_IDS.has(b));
+          if (reqDirs.length > 0 && !reqDirs.every((d) => activeSet.has(d))) return;
+        }
         const now = performance.now();
         phaseRef.current = 'playing';
         startTimeRef.current = now;
@@ -1945,7 +2112,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         recordHit(
           {
             noteId: targetNote.id,
-            rank: 'PERFECT',
+            rank: diagHint ? 'GOOD' : 'PERFECT',
             deltaFrames: 0,
             timestamp: now,
             x: targetNote.x,
@@ -1958,7 +2125,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
 
       if (phaseRef.current !== 'playing') return;
 
-      const elapsedFrames = (performance.now() - startTimeRef.current) / FRAME_MS;
+      const hitNow = performance.now();
+      const elapsedFrames = (hitNow - startTimeRef.current) / FRAME_MS;
       const deltaFrames = elapsedFrames - targetNote.frame;
       const win = getNoteWindows(targetNote.windowType, targetNote.buttons);
 
@@ -1968,12 +2136,28 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           rank = 'PERFECT';
         } else if (deltaFrames >= -win.earlyGood && deltaFrames <= win.lateGood) {
           rank = 'GOOD';
+        } else if (deltaFrames <= win.lateOk) {
+          rank = 'OK';
         } else {
-          rank = deltaFrames < 0 ? 'EARLY' : 'LATE';
+          rank = 'LATE';
         }
 
         const allHeld = targetNote.buttons.every((b) => activeSet.has(b));
         if (!allHeld && rank === 'PERFECT') {
+          rank = 'GOOD';
+        }
+
+        // If directional/motion/modifier diagnostic warning is present, cap PERFECT down to GOOD
+        // (never force MISS) while keeping diagHint visible in F7 Review.
+        const diagHint = diagnoseExecution(
+          targetNote,
+          activeSet,
+          dirHistoryRef.current,
+          hitNow,
+          getCurrentChargeMs(hitNow),
+          lang
+        );
+        if (diagHint && rank === 'PERFECT') {
           rank = 'GOOD';
         }
 
@@ -2000,21 +2184,12 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
           activeHoldRef.current = {
             noteId: targetNote.id,
             primaryBtn,
-            pressTime: performance.now(),
+            pressTime: hitNow,
             targetHoldFrames: targetNote.holdFrames,
             x: targetNote.x,
             y: targetNote.y,
           };
         }
-        const hitNow = performance.now();
-        const diagHint = diagnoseExecution(
-          targetNote,
-          activeSet,
-          dirHistoryRef.current,
-          hitNow,
-          getCurrentChargeMs(hitNow),
-          lang
-        );
         recordHit(
           {
             noteId: targetNote.id,
@@ -2161,9 +2336,13 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         }
       }
 
+      const offsets = overlayOffsetsRef.current;
+      const frameBoxes: Partial<Record<DragBlockKey, DragBox>> = {};
+      const isCustomLayout = chartLayout === 'fixed' || chartLayout === 'osu';
+
       // Centered Layout: Current Active Note in the middle, Motion directly below, Next Note preview on the right
-      const centerX = w * 0.50;
-      const centerY = h * 0.42;
+      const centerX = w * 0.50 + (!isCustomLayout ? offsets.rightBoard.x : 0);
+      const centerY = h * 0.42 + (!isCustomLayout ? offsets.rightBoard.y : 0);
       const activeIdx = nextNoteIndexRef.current;
 
       // 1. Render OSU!-STYLE CONNECTED CHAIN of upcoming notes on the right:
@@ -2184,12 +2363,22 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         }
       }
 
-      const isCustomLayout = chartLayout === 'fixed' || chartLayout === 'osu';
       const focusedR = Math.round(CIRCLE_RADIUS * buttonScale);
       if (chartLayout === 'fixed') {
-        drawFixedBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, mode, isRightSide, lowPerfMode, approachFrames, buttonScale);
+        drawFixedBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, mode, isRightSide, lowPerfMode, approachFrames, buttonScale, offsets, frameBoxes);
       } else if (chartLayout === 'osu') {
-        drawOsuChartBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, isRightSide, lowPerfMode, approachFrames, buttonScale);
+        drawOsuChartBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, isRightSide, lowPerfMode, approachFrames, buttonScale, offsets, frameBoxes);
+      } else {
+        const boxPadL = focusedR + Math.round(90 * buttonScale);
+        const boxPadR = focusedR + Math.round(170 * buttonScale);
+        const boxPadT = focusedR + 24;
+        const boxPadB = focusedR + Math.round(95 * buttonScale);
+        frameBoxes.rightBoard = {
+          x: centerX - boxPadL,
+          y: centerY - boxPadT,
+          w: boxPadL + boxPadR,
+          h: boxPadT + boxPadB,
+        };
       }
 
       if (!isCustomLayout && chainIndices.length > 0) {
@@ -2621,8 +2810,9 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
 
         const barW = 420;
         const barH = 74;
-        const barX = w * 0.5 - barW / 2;
-        const barY = h - barH - 22;
+        const barX = w * 0.5 - barW / 2 + offsets.recBar.x;
+        const barY = h - barH - 22 + offsets.recBar.y;
+        frameBoxes.recBar = { x: barX - 6, y: barY - 6, w: barW + 12, h: barH + 12 };
 
         ctx.save();
         ctx.fillStyle = 'rgba(10, 14, 24, 0.86)';
@@ -2755,6 +2945,55 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         ctx.restore();
       }
 
+      dragBoxesRef.current = frameBoxes;
+
+      // 6. Interactive drag outlines when click-through is OFF (!isClickThrough)
+      if (!isClickThroughRef.current) {
+        const dragLabel =
+          lang === 'en'
+            ? '✥ Drag'
+            : lang === 'ja'
+            ? '✥ ドラッグ'
+            : lang === 'ko'
+            ? '✥ 드래그'
+            : lang === 'zh-CN'
+            ? '✥ 拖动移动'
+            : '✥ 拖曳移動';
+        ctx.save();
+        ctx.font = '700 11px system-ui, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        const labelW = ctx.measureText(dragLabel).width + 14;
+        (['leftPad', 'rightBoard', 'recBar'] as DragBlockKey[]).forEach((key) => {
+          const box = frameBoxes[key];
+          if (!box) return;
+          const isDragging = draggingBlockRef.current === key;
+          ctx.save();
+          ctx.beginPath();
+          ctx.setLineDash([6, 5]);
+          ctx.strokeStyle = isDragging ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.52)';
+          ctx.lineWidth = isDragging ? 2 : 1.5;
+          ctx.roundRect(box.x, box.y, box.w, box.h, 14);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Corner label pill
+          const pillX = box.x + 8;
+          const pillY = Math.max(4, box.y - 11);
+          ctx.fillStyle = isDragging ? 'rgba(14, 116, 144, 0.92)' : 'rgba(15, 23, 42, 0.86)';
+          ctx.beginPath();
+          ctx.roundRect(pillX, pillY, labelW, 20, 999);
+          ctx.fill();
+          ctx.strokeStyle = isDragging ? '#38bdf8' : 'rgba(56, 189, 248, 0.55)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.fillStyle = '#bae6fd';
+          ctx.fillText(dragLabel, pillX + 7, pillY + 10);
+          ctx.restore();
+        });
+        ctx.restore();
+      }
+
       rafId = requestAnimationFrame(render);
     };
 
@@ -2765,11 +3004,11 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     };
   }, [effectiveNotes, combo.inputHistory, mode, showRecordedInputs, lowPerfMode, chartLayout, approachFrames, buttonScale, sfxEnabled, recordHit, resetRun, activeButtonsRef, getCurrentChargeMs, isRightSide, lang]);
 
-  const totalHits = stats.perfect + stats.good + stats.early + stats.late + stats.miss;
+  const totalHits = stats.perfect + stats.good + stats.ok + stats.late + stats.miss;
   const accuracy =
     totalHits === 0
       ? 100
-      : Math.round((stats.perfect * 100 + stats.good * 70 + (stats.early + stats.late) * 40) / totalHits);
+      : Math.round((stats.perfect * 100 + stats.good * 80 + stats.ok * 60 + stats.late * 40) / totalHits);
 
   const hasIssueInRun = runLog.some(
     (item) =>
@@ -2782,7 +3021,13 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
 
   return (
     <div className="overlay-root">
-      <canvas ref={canvasRef} className="overlay-canvas" style={{ opacity: overlayOpacity }} />
+      <canvas
+        ref={canvasRef}
+        className="overlay-canvas"
+        style={{ opacity: overlayOpacity, pointerEvents: isClickThrough ? 'none' : 'auto' }}
+        onMouseDown={handleCanvasMouseDown}
+        onMouseMove={handleCanvasMouseMove}
+      />
 
       {/* Minimal Floating Top HUD */}
       <div className={`overlay-hud ${lowPerfMode ? 'low-perf' : ''}`}>
@@ -2802,8 +3047,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         <div className="hud-stats">
           <span className="stat-item perfect">P {stats.perfect}</span>
           <span className="stat-item good">G {stats.good}</span>
-          <span className="stat-item" style={{ color: '#fb923c', fontWeight: 800 }}>{t.earlyShort} {stats.early}</span>
-          <span className="stat-item" style={{ color: '#f472b6', fontWeight: 800 }}>{t.lateShort} {stats.late}</span>
+          <span className="stat-item" style={{ color: '#facc15', fontWeight: 800 }}>OK {stats.ok}</span>
+          <span className="stat-item" style={{ color: '#fb923c', fontWeight: 800 }}>{t.lateShort} {stats.late}</span>
           <span className="stat-item miss">M {stats.miss}</span>
           <span className="stat-item acc">{accuracy}%</span>
         </div>
@@ -2822,6 +3067,9 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
                 title={t.reviewTitle}
               >
                 {t.reviewBtn} {showReview ? '▲' : '▼'}
+              </button>
+              <button className="hud-btn" onClick={handleResetPositions} title={lang === 'en' ? 'Reset overlay block positions' : lang === 'ja' ? 'オーバーレイ配置をリセット' : lang === 'ko' ? '오버레이 위치 초기화' : lang === 'zh-CN' ? '重置所有面板位置' : '重置所有面板位置'}>
+                {lang === 'en' ? 'Reset Pos' : lang === 'ja' ? '位置リセット' : lang === 'ko' ? '위치 초기화' : '重置位置'}
               </button>
               <button className="hud-btn" onClick={() => resetRun(true)} title={`${t.restartBtn} (F8)`}>
                 <RotateCcw size={13} /> {t.restartBtn}
@@ -2961,6 +3209,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
                   ? 'PERFECT'
                   : res.rank === 'GOOD'
                   ? `GOOD ${res.deltaFrames >= 0 ? '+' : ''}${res.deltaFrames.toFixed(1)}f`
+                  : res.rank === 'OK'
+                  ? `OK ${res.deltaFrames >= 0 ? '+' : ''}${res.deltaFrames.toFixed(1)}f`
                   : res.rank === 'EARLY'
                   ? `${t.earlyWord} ${res.deltaFrames.toFixed(1)}f`
                   : res.rank === 'LATE'
@@ -2970,13 +3220,15 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
                 const statusColor = !res
                   ? '#94a3b8'
                   : res.rank === 'PERFECT'
-                  ? '#facc15'
-                  : res.rank === 'GOOD'
                   ? '#38bdf8'
+                  : res.rank === 'GOOD'
+                  ? '#4ade80'
+                  : res.rank === 'OK'
+                  ? '#facc15'
                   : res.rank === 'EARLY'
-                  ? '#fb923c'
+                  ? '#a78bfa'
                   : res.rank === 'LATE'
-                  ? '#f472b6'
+                  ? '#fb923c'
                   : '#f43f5e';
 
                 return (
@@ -3085,6 +3337,8 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
                   ? 'PERFECT'
                   : res.rank === 'GOOD'
                   ? `GOOD ${res.deltaFrames >= 0 ? '+' : ''}${res.deltaFrames.toFixed(1)}f`
+                  : res.rank === 'OK'
+                  ? `OK ${res.deltaFrames >= 0 ? '+' : ''}${res.deltaFrames.toFixed(1)}f`
                   : res.rank === 'EARLY'
                   ? `${t.earlyWord} ${res.deltaFrames.toFixed(1)}f`
                   : res.rank === 'LATE'
@@ -3094,13 +3348,15 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
                 const statusColor = !res
                   ? '#cbd5e1'
                   : res.rank === 'PERFECT'
-                  ? '#facc15'
-                  : res.rank === 'GOOD'
                   ? '#38bdf8'
+                  : res.rank === 'GOOD'
+                  ? '#4ade80'
+                  : res.rank === 'OK'
+                  ? '#facc15'
                   : res.rank === 'EARLY'
-                  ? '#fb923c'
+                  ? '#a78bfa'
                   : res.rank === 'LATE'
-                  ? '#f472b6'
+                  ? '#fb923c'
                   : '#f43f5e';
 
                 return (

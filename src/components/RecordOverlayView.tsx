@@ -244,6 +244,19 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
             setRecordedNotes((prev) => {
               const last = prev[prev.length - 1];
               if (last && last.motion === '66' && frame - last.frame <= 12) return prev;
+              // 6 -> PARRY + 6 (1f Raw Drive Rush shortcut): if PARRY was just recorded within <= 3f,
+              // absorb this duplicate 66 into a single clean DR (PARRY) note!
+              if (last && last.buttons.includes('PARRY') && Math.abs(frame - last.frame) <= 3) {
+                const updated: ComboNote = {
+                  ...last,
+                  buttons: ['PARRY'],
+                  motion: undefined,
+                  notation: 'DR',
+                  moveName: `DR (PARRY) (${last.frame}f)`,
+                  windowType: 'dr-cancel',
+                };
+                return [...prev.slice(0, -1), updated];
+              }
               const idx = prev.length;
               return [
                 ...prev,
@@ -487,13 +500,21 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
             frame - prevLast.frame >= 0 &&
             frame - prevLast.frame <= 10
         );
-        if (absorbedTkJump) {
+        // 6 -> PARRY + 6 (1f Raw Drive Rush shortcut): if PARRY arrives within <= 3f of a 66 dash note,
+        // absorb the duplicate 66 so it records cleanly as a single DR (PARRY) note!
+        const absorbedRawDr66 = Boolean(
+          pressedBtn === 'PARRY' &&
+            prevLast &&
+            prevLast.motion === '66' &&
+            Math.abs(frame - prevLast.frame) <= 3
+        );
+        if (absorbedTkJump || absorbedRawDr66) {
           base = prev.slice(0, -1);
         }
 
         // Merge simultaneous chord presses within <= 2 frames (e.g. SP+H for Super Arts, or 2147LK+HP!)
         const last = base[base.length - 1];
-        if (!absorbedTkJump && last && Math.abs(frame - last.frame) <= 2 && !last.buttons.includes(pressedBtn)) {
+        if (!absorbedTkJump && !absorbedRawDr66 && last && Math.abs(frame - last.frame) <= 2 && !last.buttons.includes(pressedBtn)) {
           const mergedButtons = Array.from(new Set([...last.buttons, ...buttons]));
           const mergedNotation = `${last.notation}+${btnShort}`;
           const updated: ComboNote = {
@@ -508,16 +529,27 @@ export const RecordOverlayView: React.FC<RecordOverlayViewProps> = ({
         const idx = base.length;
         const noteId = `rec-${idx + 1}`;
         holdStartRef.current.set(pressedBtn, { noteId, pressTime: now });
-        const note: ComboNote = {
-          id: noteId,
-          frame,
-          buttons,
-          ...(detectedMotion ? { motion: detectedMotion } : {}),
-          notation,
-          moveName: `${notation} (${frame}f)`,
-          x: SLOTS_X[idx % SLOTS_X.length],
-          y: 0.50,
-        };
+        const note: ComboNote = absorbedRawDr66
+          ? {
+              id: noteId,
+              frame,
+              buttons: ['PARRY'],
+              notation: 'DR',
+              moveName: `DR (PARRY) (${frame}f)`,
+              windowType: 'dr-cancel',
+              x: SLOTS_X[idx % SLOTS_X.length],
+              y: 0.50,
+            }
+          : {
+              id: noteId,
+              frame,
+              buttons,
+              ...(detectedMotion ? { motion: detectedMotion } : {}),
+              notation,
+              moveName: `${notation} (${frame}f)`,
+              x: SLOTS_X[idx % SLOTS_X.length],
+              y: 0.50,
+            };
         return [...base, note];
       });
     },

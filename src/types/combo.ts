@@ -93,7 +93,7 @@ export interface ComboData {
 
 export type StartTriggerMode = 'trigger-first' | 'countdown';
 
-export type JudgmentRank = 'PERFECT' | 'GOOD' | 'EARLY' | 'LATE' | 'MISS';
+export type JudgmentRank = 'PERFECT' | 'GOOD' | 'OK' | 'EARLY' | 'LATE' | 'MISS';
 
 export interface HitResult {
   noteId: string;
