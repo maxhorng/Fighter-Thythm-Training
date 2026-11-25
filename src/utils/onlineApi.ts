@@ -19,6 +19,7 @@ export interface OnlineComboItem {
   likes: number;
   downloads: number;
   author: string;
+  authorId?: string;
   createdAt: number;
   approvedAt?: number;
   status: 'pending' | 'approved' | 'rejected';
@@ -37,6 +38,7 @@ export interface OnlineListQuery {
   difficulty?: string;
   mode?: string;
   position?: string;
+  author?: string;
   sort: OnlineSort;
   q?: string;
   page: number;
@@ -238,6 +240,7 @@ export function listOnlineCombos(q: OnlineListQuery): Promise<{ items: OnlineCom
   if (q.difficulty) params.set('difficulty', q.difficulty);
   if (q.mode) params.set('mode', q.mode);
   if (q.position) params.set('position', q.position);
+  if (q.author) params.set('author', q.author);
   if (q.q) params.set('q', q.q);
   if (q.includePending) params.set('includePending', '1');
   params.set('sort', q.sort);

@@ -1574,6 +1574,59 @@ function diagnoseExecution(
   return undefined;
 }
 
+function formatNoteDirectionArrows(note: ComboNote, isRightSide: boolean): string {
+  if (note.motion) {
+    switch (note.motion) {
+      case '236':
+        if (/236236/.test(note.notation)) return isRightSide ? '↓ ↙ ← ×2' : '↓ ↘ → ×2';
+        if (/2369/.test(note.notation)) return isRightSide ? '↓ ↙ ← ↖' : '↓ ↘ → ↗';
+        return isRightSide ? '↓ ↙ ←' : '↓ ↘ →';
+      case '214':
+        if (/214214/.test(note.notation)) return isRightSide ? '↓ ↘ → ×2' : '↓ ↙ ← ×2';
+        if (/2147/.test(note.notation)) return isRightSide ? '↓ ↘ → ↗' : '↓ ↙ ← ↖';
+        return isRightSide ? '↓ ↘ →' : '↓ ↙ ←';
+      case '623':
+        if (/62369/.test(note.notation)) return isRightSide ? '← ↓ ↙ ← ↖' : '→ ↓ ↘ → ↗';
+        return isRightSide ? '← ↓ ↙' : '→ ↓ ↘';
+      case '6214':
+        return isRightSide ? '← ↙ ↓ ↘ →' : '→ ↘ ↓ ↙ ←';
+      case '66':
+        return isRightSide ? '← ←' : '→ →';
+      case '44':
+        return isRightSide ? '→ →' : '← ←';
+      case '22':
+        return '↓ ↓';
+      case '46':
+        return isRightSide ? '[→] ←' : '[←] →';
+      case '28':
+        return '[↓] ↑';
+      case '4646':
+        return isRightSide ? '[→] ← → ←' : '[←] → ← →';
+      case '360':
+        return '↻ 360';
+      case '720':
+        return '↻ 720';
+    }
+  }
+  const dirs = note.buttons
+    .filter((b) => DIRECTION_IDS.has(b))
+    .map((b) => mirrorBtn(b, isRightSide));
+  if (dirs.length === 0) return '';
+  const hasUp = dirs.includes('UP');
+  const hasDown = dirs.includes('DOWN');
+  const hasLeft = dirs.includes('LEFT');
+  const hasRight = dirs.includes('RIGHT');
+  if (hasDown && hasRight) return '↘';
+  if (hasDown && hasLeft) return '↙';
+  if (hasUp && hasRight) return '↗';
+  if (hasUp && hasLeft) return '↖';
+  return BUTTON_META[dirs[0]]?.shortLabel ?? '';
+}
+
+function isLightButtonColor(hex: string): boolean {
+  return hex === '#facc15' || hex === '#fde047' || hex === '#34d399';
+}
+
 export const OverlayView: React.FC<OverlayViewProps> = ({
   mode,
   combo,
@@ -1654,6 +1707,73 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
     }[]
   >([]);
   const [showReview, setShowReview] = useState(false);
+  const [reviewLayout, setReviewLayout] = useState<'vertical' | 'horizontal'>(() => {
+    try {
+      return localStorage.getItem('fbt_review_layout_v1') === 'horizontal' ? 'horizontal' : 'vertical';
+    } catch {
+      return 'vertical';
+    }
+  });
+  const [reviewPos, setReviewPos] = useState<{ x: number; y: number } | null>(() => {
+    try {
+      const raw = localStorage.getItem('fbt_review_pos_v1');
+      if (raw) {
+        const p = JSON.parse(raw) as { x?: unknown; y?: unknown };
+        if (typeof p.x === 'number' && typeof p.y === 'number' && Number.isFinite(p.x) && Number.isFinite(p.y)) {
+          return { x: p.x, y: p.y };
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  });
+  const reviewPanelRef = useRef<HTMLDivElement | null>(null);
+
+  const toggleReviewLayout = () => {
+    setReviewLayout((prev) => {
+      const next = prev === 'vertical' ? 'horizontal' : 'vertical';
+      try {
+        localStorage.setItem('fbt_review_layout_v1', next);
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  const handleReviewHeaderMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isClickThrough || e.button !== 0) return;
+    if ((e.target as HTMLElement).closest('button')) return;
+    const panelEl = reviewPanelRef.current;
+    if (!panelEl) return;
+    e.preventDefault();
+    const rect = panelEl.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    let latest = { x: Math.round(rect.left), y: Math.round(rect.top) };
+
+    const onMove = (ev: MouseEvent) => {
+      const maxX = Math.max(8, window.innerWidth - rect.width - 8);
+      const maxY = Math.max(8, window.innerHeight - rect.height - 8);
+      latest = {
+        x: Math.round(Math.max(8, Math.min(maxX, ev.clientX - offsetX))),
+        y: Math.round(Math.max(8, Math.min(maxY, ev.clientY - offsetY))),
+      };
+      setReviewPos(latest);
+    };
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      try {
+        localStorage.setItem('fbt_review_pos_v1', JSON.stringify(latest));
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
 
   const dirHistoryRef = useRef<{ dir: string; t: number }[]>([]);
   const chargeRef = useRef<{
@@ -2719,147 +2839,319 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         </div>
       </div>
 
-      {/* Collapsible Per-Run Combo Review Dropdown (auto-clears on RESET) */}
+      {/* Draggable Per-Run Combo Review Panel (F7): Vertical SF6 Command List or Classic Horizontal Grid */}
       {showReview && (
         <div
+          ref={reviewPanelRef}
           style={{
             position: 'fixed',
-            top: 58,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: 'min(760px, 92vw)',
-            maxHeight: '45vh',
+            ...(reviewPos
+              ? {
+                  left: Math.max(8, Math.min(window.innerWidth - (reviewLayout === 'vertical' ? 290 : 320) - 8, reviewPos.x)),
+                  top: Math.max(8, Math.min(window.innerHeight - 120, reviewPos.y)),
+                }
+              : reviewLayout === 'vertical'
+              ? { left: 14, top: 64 }
+              : { top: 58, left: '50%', transform: 'translateX(-50%)' }),
+            width: reviewLayout === 'vertical' ? 290 : 'min(760px, 92vw)',
+            maxHeight: reviewLayout === 'vertical' ? 'calc(100vh - 96px)' : '45vh',
             overflowY: 'auto',
-            padding: '12px 16px',
+            padding: reviewLayout === 'vertical' ? '10px 12px' : '12px 16px',
             borderRadius: 12,
-            background: 'rgba(10, 14, 24, 0.92)',
-            border: '1px solid rgba(148, 163, 184, 0.32)',
+            background: 'rgba(10, 14, 24, 0.90)',
+            border: '1px solid rgba(148, 163, 184, 0.30)',
             boxShadow: '0 12px 32px rgba(0, 0, 0, 0.55)',
             zIndex: 25,
           }}
         >
           <div
+            onMouseDown={handleReviewHeaderMouseDown}
             style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: 10,
-              fontSize: 12.5,
+              gap: 6,
+              marginBottom: 8,
+              paddingBottom: 6,
+              borderBottom: '1px solid rgba(148, 163, 184, 0.18)',
+              fontSize: 12,
               fontWeight: 800,
               color: '#e2e8f0',
+              cursor: isClickThrough ? 'default' : 'grab',
+              userSelect: 'none',
             }}
           >
-            <span>
-              {t.reviewTitle} ({effectiveNotes.length} {t.hitsUnit})
-              {firstIssue
-                ? ` · ${t.firstIssuePrefix}${firstIssue.step} ${firstIssue.notation} (${
-                    firstIssue.diagHint
-                      ? firstIssue.diagHint
-                      : firstIssue.rank === 'EARLY'
-                      ? `${t.earlyWord} ${firstIssue.deltaFrames.toFixed(1)}f`
-                      : firstIssue.rank === 'LATE'
-                      ? `${t.lateWord} +${firstIssue.deltaFrames.toFixed(1)}f`
-                      : 'MISS'
-                  })`
-                : runLog.length > 0
-                ? ` · ${t.allGoodText}`
-                : ` · ${t.notStartedText}`}
-            </span>
+            <div style={{ minWidth: 0 }}>
+              <div>
+                {t.reviewTitle} ({effectiveNotes.length} {t.hitsUnit})
+              </div>
+              <div style={{ fontSize: 10.5, fontWeight: 700, color: firstIssue ? '#fbbf24' : '#94a3b8', marginTop: 2 }}>
+                {firstIssue
+                  ? `${t.firstIssuePrefix}${firstIssue.step} ${firstIssue.notation} (${
+                      firstIssue.diagHint
+                        ? firstIssue.diagHint
+                        : firstIssue.rank === 'EARLY'
+                        ? `${t.earlyWord} ${firstIssue.deltaFrames.toFixed(1)}f`
+                        : firstIssue.rank === 'LATE'
+                        ? `${t.lateWord} +${firstIssue.deltaFrames.toFixed(1)}f`
+                        : 'MISS'
+                    })`
+                  : runLog.length > 0
+                  ? t.allGoodText
+                  : t.notStartedText}
+              </div>
+            </div>
             {!isClickThrough && (
-              <button
-                className="hud-btn"
-                style={{ padding: '2px 8px', fontSize: 11 }}
-                onClick={() => setShowReview(false)}
-              >
-                {t.collapseBtn}
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
+                <button
+                  type="button"
+                  className="hud-btn"
+                  style={{ padding: '2px 8px', fontSize: 11 }}
+                  onClick={toggleReviewLayout}
+                >
+                  {reviewLayout === 'vertical'
+                    ? lang === 'en'
+                      ? 'Horizontal'
+                      : lang === 'ja'
+                      ? '横並び'
+                      : lang === 'ko'
+                      ? '가로 카드'
+                      : lang === 'zh-CN'
+                      ? '旧版横排'
+                      : '舊版橫排'
+                    : lang === 'en'
+                    ? 'Vertical List'
+                    : lang === 'ja'
+                    ? '縦コマンド'
+                    : lang === 'ko'
+                    ? '세로 커맨드'
+                    : lang === 'zh-CN'
+                    ? '直式指令表'
+                    : '直式指令表'}
+                </button>
+                <button
+                  type="button"
+                  className="hud-btn"
+                  style={{ padding: '2px 8px', fontSize: 11 }}
+                  onClick={() => setShowReview(false)}
+                >
+                  {t.collapseBtn}
+                </button>
+              </div>
             )}
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {effectiveNotes.map((note, idx) => {
-              const res = runLog.find((r) => r.noteId === note.id);
-              const isProblem =
-                res &&
-                (res.rank === 'EARLY' ||
-                  res.rank === 'LATE' ||
-                  res.rank === 'MISS' ||
-                  Boolean(res.diagHint));
-              const primaryBtn = note.buttons[note.buttons.length - 1];
-              const normalColor = BUTTON_META[primaryBtn]?.color ?? '#38bdf8';
+          {reviewLayout === 'vertical' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              {effectiveNotes.map((note, idx) => {
+                const res = runLog.find((r) => r.noteId === note.id);
+                const isActiveStep = idx === nextNoteIndexRef.current;
+                const isProblem =
+                  res &&
+                  (res.rank === 'EARLY' ||
+                    res.rank === 'LATE' ||
+                    res.rank === 'MISS' ||
+                    Boolean(res.diagHint));
+                const attackBtns = note.buttons.filter((b) => !DIRECTION_IDS.has(b));
+                const dirArrows = formatNoteDirectionArrows(note, isRightSide);
 
-              const statusText = !res
-                ? `${note.frame}f`
-                : res.rank === 'PERFECT'
-                ? 'PERFECT'
-                : res.rank === 'GOOD'
-                ? `GOOD ${res.deltaFrames >= 0 ? '+' : ''}${res.deltaFrames.toFixed(1)}f`
-                : res.rank === 'EARLY'
-                ? `${t.earlyWord} ${res.deltaFrames.toFixed(1)}f`
-                : res.rank === 'LATE'
-                ? `${t.lateWord} +${res.deltaFrames.toFixed(1)}f`
-                : 'MISS';
+                const statusText = !res
+                  ? `${note.frame}f`
+                  : res.rank === 'PERFECT'
+                  ? 'PERFECT'
+                  : res.rank === 'GOOD'
+                  ? `GOOD ${res.deltaFrames >= 0 ? '+' : ''}${res.deltaFrames.toFixed(1)}f`
+                  : res.rank === 'EARLY'
+                  ? `${t.earlyWord} ${res.deltaFrames.toFixed(1)}f`
+                  : res.rank === 'LATE'
+                  ? `${t.lateWord} +${res.deltaFrames.toFixed(1)}f`
+                  : 'MISS';
 
-              const statusColor = !res
-                ? '#cbd5e1'
-                : res.rank === 'PERFECT'
-                ? '#facc15'
-                : res.rank === 'GOOD'
-                ? '#38bdf8'
-                : res.rank === 'EARLY'
-                ? '#fb923c'
-                : res.rank === 'LATE'
-                ? '#f472b6'
-                : '#f43f5e';
+                const statusColor = !res
+                  ? '#94a3b8'
+                  : res.rank === 'PERFECT'
+                  ? '#facc15'
+                  : res.rank === 'GOOD'
+                  ? '#38bdf8'
+                  : res.rank === 'EARLY'
+                  ? '#fb923c'
+                  : res.rank === 'LATE'
+                  ? '#f472b6'
+                  : '#f43f5e';
 
-              return (
-                <div
-                  key={note.id}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 2,
-                    padding: '6px 10px',
-                    borderRadius: 8,
-                    minWidth: 86,
-                    background: isProblem
-                      ? 'rgba(100, 116, 139, 0.22)'
-                      : `${normalColor}22`,
-                    border: isProblem
-                      ? '1px solid rgba(148, 163, 184, 0.45)'
-                      : `1px solid ${normalColor}99`,
-                    opacity: isProblem ? 0.72 : 1,
-                  }}
-                >
+                return (
                   <div
+                    key={note.id}
                     style={{
-                      fontSize: 12,
-                      fontWeight: 800,
-                      color: isProblem ? '#94a3b8' : '#f8fafc',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 3,
+                      padding: '6px 8px',
+                      borderRadius: 8,
+                      background: isProblem
+                        ? 'rgba(244, 63, 94, 0.16)'
+                        : isActiveStep
+                        ? 'rgba(56, 189, 248, 0.18)'
+                        : res
+                        ? 'rgba(30, 41, 59, 0.55)'
+                        : 'rgba(15, 23, 42, 0.65)',
+                      border: isProblem
+                        ? '1px solid rgba(251, 113, 133, 0.65)'
+                        : isActiveStep
+                        ? '1px solid rgba(56, 189, 248, 0.8)'
+                        : '1px solid rgba(148, 163, 184, 0.2)',
                     }}
                   >
-                    #{idx + 1} {note.notation}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4, minWidth: 0 }}>
+                        <span style={{ fontSize: 10.5, fontWeight: 800, color: isActiveStep ? '#7dd3fc' : '#64748b', minWidth: 18 }}>
+                          #{idx + 1}
+                        </span>
+                        {dirArrows && (
+                          <span style={{ fontSize: 12.5, fontWeight: 900, color: '#f8fafc', letterSpacing: '0.02em' }}>
+                            {dirArrows}
+                          </span>
+                        )}
+                        {attackBtns.map((btn, bi) => {
+                          const meta = BUTTON_META[btn];
+                          const bg = meta?.color ?? '#38bdf8';
+                          const fg = isLightButtonColor(bg) ? '#090d16' : '#ffffff';
+                          const label = meta?.shortLabel ?? btn;
+                          return (
+                            <React.Fragment key={`${btn}-${bi}`}>
+                              {bi > 0 && (
+                                <span style={{ fontSize: 10.5, fontWeight: 900, color: '#94a3b8' }}>+</span>
+                              )}
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  minWidth: label.length > 2 ? 32 : 22,
+                                  height: 22,
+                                  padding: label.length > 2 ? '0 6px' : '0 4px',
+                                  borderRadius: 999,
+                                  background: bg,
+                                  color: fg,
+                                  fontSize: label.length > 3 ? 9.5 : 10.5,
+                                  fontWeight: 900,
+                                  border: '1.5px solid rgba(255, 255, 255, 0.85)',
+                                  lineHeight: 1,
+                                }}
+                              >
+                                {label}
+                              </span>
+                            </React.Fragment>
+                          );
+                        })}
+                      </div>
+                      <span style={{ fontSize: 10.5, fontWeight: 800, color: statusColor, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                        {statusText}
+                      </span>
+                    </div>
+                    {res?.diagHint && (
+                      <div
+                        style={{
+                          fontSize: 10.5,
+                          fontWeight: 700,
+                          color: '#fbbf24',
+                          lineHeight: 1.3,
+                          paddingLeft: 22,
+                        }}
+                      >
+                        ⚠ {res.diagHint}
+                      </div>
+                    )}
                   </div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: statusColor }}>
-                    {statusText}
-                  </div>
-                  {res?.diagHint && (
+                );
+              })}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {effectiveNotes.map((note, idx) => {
+                const res = runLog.find((r) => r.noteId === note.id);
+                const isProblem =
+                  res &&
+                  (res.rank === 'EARLY' ||
+                    res.rank === 'LATE' ||
+                    res.rank === 'MISS' ||
+                    Boolean(res.diagHint));
+                const primaryBtn = note.buttons[note.buttons.length - 1];
+                const normalColor = BUTTON_META[primaryBtn]?.color ?? '#38bdf8';
+
+                const statusText = !res
+                  ? `${note.frame}f`
+                  : res.rank === 'PERFECT'
+                  ? 'PERFECT'
+                  : res.rank === 'GOOD'
+                  ? `GOOD ${res.deltaFrames >= 0 ? '+' : ''}${res.deltaFrames.toFixed(1)}f`
+                  : res.rank === 'EARLY'
+                  ? `${t.earlyWord} ${res.deltaFrames.toFixed(1)}f`
+                  : res.rank === 'LATE'
+                  ? `${t.lateWord} +${res.deltaFrames.toFixed(1)}f`
+                  : 'MISS';
+
+                const statusColor = !res
+                  ? '#cbd5e1'
+                  : res.rank === 'PERFECT'
+                  ? '#facc15'
+                  : res.rank === 'GOOD'
+                  ? '#38bdf8'
+                  : res.rank === 'EARLY'
+                  ? '#fb923c'
+                  : res.rank === 'LATE'
+                  ? '#f472b6'
+                  : '#f43f5e';
+
+                return (
+                  <div
+                    key={note.id}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 2,
+                      padding: '6px 10px',
+                      borderRadius: 8,
+                      minWidth: 86,
+                      background: isProblem
+                        ? 'rgba(100, 116, 139, 0.22)'
+                        : `${normalColor}22`,
+                      border: isProblem
+                        ? '1px solid rgba(148, 163, 184, 0.45)'
+                        : `1px solid ${normalColor}99`,
+                      opacity: isProblem ? 0.72 : 1,
+                    }}
+                  >
                     <div
                       style={{
-                        fontSize: 10.5,
-                        fontWeight: 700,
-                        color: '#fbbf24',
-                        marginTop: 2,
-                        lineHeight: 1.3,
+                        fontSize: 12,
+                        fontWeight: 800,
+                        color: isProblem ? '#94a3b8' : '#f8fafc',
                       }}
                     >
-                      ⚠ {res.diagHint}
+                      #{idx + 1} {note.notation}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: statusColor }}>
+                      {statusText}
+                    </div>
+                    {res?.diagHint && (
+                      <div
+                        style={{
+                          fontSize: 10.5,
+                          fontWeight: 700,
+                          color: '#fbbf24',
+                          marginTop: 2,
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        ⚠ {res.diagHint}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

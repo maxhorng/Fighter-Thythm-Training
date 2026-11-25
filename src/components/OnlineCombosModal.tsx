@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   Check,
   Cloud,
+  Copy,
   Download,
   Heart,
   LogIn,
@@ -177,6 +178,20 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
   const [showUnverified, setShowUnverified] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
+  const [authorFilter, setAuthorFilter] = useState<{ id: string; name: string } | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopyCode = (id: string) => {
+    try {
+      navigator.clipboard?.writeText(id).catch(() => undefined);
+    } catch {
+      // ignore clipboard error
+    }
+    setCopiedId(id);
+    window.setTimeout(() => {
+      setCopiedId((cur) => (cur === id ? null : cur));
+    }, 1500);
+  };
 
   // Browse data
   const [items, setItems] = useState<OnlineComboItem[]>([]);
@@ -255,6 +270,7 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
           difficulty: diffFilter || undefined,
           mode: modeFilter || undefined,
           position: posFilter || undefined,
+          author: authorFilter?.id || undefined,
           sort,
           q: appliedSearch || undefined,
           page: targetPage,
@@ -273,7 +289,7 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
         setLoadingList(false);
       }
     },
-    [configured, charFilter, diffFilter, modeFilter, posFilter, sort, appliedSearch, showUnverified, t, reportLimitIfAny]
+    [configured, charFilter, diffFilter, modeFilter, posFilter, authorFilter, sort, appliedSearch, showUnverified, t, reportLimitIfAny]
   );
 
   useEffect(() => {
@@ -838,6 +854,46 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
               </form>
             </div>
 
+            {authorFilter && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '3px 10px',
+                    borderRadius: 999,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    background: 'rgba(56, 189, 248, 0.16)',
+                    border: '1px solid rgba(56, 189, 248, 0.55)',
+                    color: '#bae6fd',
+                  }}
+                >
+                  <span>
+                    {t.author}: <strong>{authorFilter.name}</strong>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setAuthorFilter(null)}
+                    aria-label={t.cancel}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 0,
+                      border: 'none',
+                      background: 'transparent',
+                      color: '#e0f2fe',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <X size={13} />
+                  </button>
+                </span>
+              </div>
+            )}
+
             {listError && (
               <div
                 style={{
@@ -985,7 +1041,69 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
                           }}
                         >
                           <span>
-                            {t.author}: <strong style={{ color: '#cbd5e1' }}>{item.author}</strong>
+                            {t.author}:{' '}
+                            <button
+                              type="button"
+                              title={t.filterByAuthor}
+                              onClick={() => {
+                                if (item.authorId) {
+                                  setAuthorFilter({ id: item.authorId, name: item.author });
+                                } else {
+                                  setSearchInput(item.author);
+                                  setAppliedSearch(item.author);
+                                }
+                              }}
+                              style={{
+                                padding: 0,
+                                border: 'none',
+                                background: 'transparent',
+                                color: '#7dd3fc',
+                                fontWeight: 700,
+                                fontSize: 'inherit',
+                                cursor: 'pointer',
+                                textDecoration: 'underline',
+                                textDecorationStyle: 'dotted',
+                                textUnderlineOffset: 2,
+                              }}
+                            >
+                              {item.author}
+                            </button>
+                          </span>
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              padding: '1px 6px',
+                              borderRadius: 6,
+                              background: 'rgba(30, 41, 59, 0.9)',
+                              border: '1px solid rgba(148, 163, 184, 0.25)',
+                              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+                              fontSize: 10.5,
+                              color: '#cbd5e1',
+                            }}
+                          >
+                            <span>{item.id}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyCode(item.id)}
+                              title={t.copyCode}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 3,
+                                padding: '0 3px',
+                                border: 'none',
+                                background: 'transparent',
+                                color: copiedId === item.id ? '#86efac' : '#7dd3fc',
+                                fontSize: 10.5,
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {copiedId === item.id ? <Check size={11} /> : <Copy size={11} />}
+                              <span>{copiedId === item.id ? t.copiedCode : t.copyCode}</span>
+                            </button>
                           </span>
                           <span>
                             {item.noteCount} {t.hits} · {item.totalFrames}f
@@ -1149,8 +1267,56 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
                             {item.title}
                           </span>
                         </div>
-                        <div style={{ fontSize: 11.5, color: '#94a3b8', marginTop: 4 }}>
-                          {item.noteCount} {t.hits} · {item.totalFrames}f · {item.likes} ♥ · {item.downloads} {t.downloadsLabel}
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: 8,
+                            fontSize: 11.5,
+                            color: '#94a3b8',
+                            marginTop: 4,
+                          }}
+                        >
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              padding: '1px 6px',
+                              borderRadius: 6,
+                              background: 'rgba(30, 41, 59, 0.9)',
+                              border: '1px solid rgba(148, 163, 184, 0.25)',
+                              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+                              fontSize: 10.5,
+                              color: '#cbd5e1',
+                            }}
+                          >
+                            <span>{item.id}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyCode(item.id)}
+                              title={t.copyCode}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 3,
+                                padding: '0 3px',
+                                border: 'none',
+                                background: 'transparent',
+                                color: copiedId === item.id ? '#86efac' : '#7dd3fc',
+                                fontSize: 10.5,
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {copiedId === item.id ? <Check size={11} /> : <Copy size={11} />}
+                              <span>{copiedId === item.id ? t.copiedCode : t.copyCode}</span>
+                            </button>
+                          </span>
+                          <span>
+                            {item.noteCount} {t.hits} · {item.totalFrames}f · {item.likes} ♥ · {item.downloads} {t.downloadsLabel}
+                          </span>
                         </div>
                         {item.status === 'rejected' && item.rejectReason && (
                           <div style={{ fontSize: 12, color: '#fda4af', marginTop: 4 }}>

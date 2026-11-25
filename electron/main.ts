@@ -298,8 +298,13 @@ function startGlobalXInputPoller() {
     const stateBuf = Buffer.alloc(16); // XINPUT_STATE = DWORD(4) + XINPUT_GAMEPAD(12)
     let lastKey = '';
 
-    xinputTimer = setInterval(() => {
-      if (!mainWindow || mainWindow.isDestroyed()) return;
+    let stopped = false;
+    const poll = () => {
+      if (stopped) return;
+      if (!mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isDestroyed()) {
+        xinputTimer = setTimeout(poll, 500);
+        return;
+      }
       let anyConnected = false;
       const btns = new Set<number>();
 
@@ -366,14 +371,24 @@ function startGlobalXInputPoller() {
 
       const arr = Array.from(btns).sort((a, b) => a - b);
       const key = `${anyConnected ? 1 : 0}|${arr.join(',')}`;
-      if (key !== lastKey) {
+      if (key !== lastKey && !mainWindow.webContents.isDestroyed()) {
         lastKey = key;
         mainWindow.webContents.send('global-gamepad-state', {
           connected: anyConnected,
           buttons: arr,
         });
       }
-    }, 8);
+      // 120Hz (8ms) when a controller is connected; 2Hz (500ms) idle probe when disconnected
+      xinputTimer = setTimeout(poll, anyConnected ? 8 : 500);
+    };
+    app.once('will-quit', () => {
+      stopped = true;
+      if (xinputTimer) {
+        clearTimeout(xinputTimer);
+        xinputTimer = null;
+      }
+    });
+    xinputTimer = setTimeout(poll, 500);
   } catch (err) {
     console.warn('Global XInput poller unavailable:', err);
   }

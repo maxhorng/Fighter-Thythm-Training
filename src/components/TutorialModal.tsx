@@ -11,7 +11,7 @@ import {
   Sparkles,
   Cloud,
 } from 'lucide-react';
-import { AppLang, OverlayHotkeys } from '../data/i18n';
+import { AppLang, I18N, OverlayHotkeys } from '../data/i18n';
 import { formatKeyCode } from '../data/bindings';
 
 interface TutorialModalProps {
@@ -31,6 +31,22 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({
 }) => {
   const [step, setStep] = useState(0);
   const [dontShowAgain, setDontShowAgain] = useState(true);
+  const [reviewLayout, setReviewLayout] = useState<'vertical' | 'horizontal'>(() => {
+    try {
+      return localStorage.getItem('fbt_review_layout_v1') === 'horizontal' ? 'horizontal' : 'vertical';
+    } catch {
+      return 'vertical';
+    }
+  });
+  const handleChangeReviewLayout = (next: 'vertical' | 'horizontal') => {
+    setReviewLayout(next);
+    try {
+      localStorage.setItem('fbt_review_layout_v1', next);
+    } catch {
+      // ignore storage failure
+    }
+  };
+  const t = I18N[lang];
   const isEn = lang === 'en';
 
   const kReset = formatKeyCode(resetKeyCode || 'F8');
@@ -126,53 +142,100 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({
         ? 'Click "Settings / Keys & Lang" in the top-right to match your SF6 buttons (Classic 6-btn or Modern 4-btn). You can also customize Click-Through and Return-to-Menu hotkeys.'
         : '點右上角「設定 / 按鍵與語言」，把方向鍵、攻擊鍵與你的 SF6 訓練場設成一致（支援鍵盤、大搖、Hitbox、Xbox/PS 手把），也能自訂滑鼠穿透與返回選單快捷鍵。',
       visual: (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: 10,
-            padding: '14px',
-            borderRadius: 12,
-            background: 'rgba(15, 23, 42, 0.85)',
-            border: '1px solid rgba(168, 85, 247, 0.35)',
-          }}
-        >
-          {[
-            { key: kReset, label: isEn ? 'Restart Combo' : '同步重來 / 清空', color: '#38bdf8' },
-            { key: kReview, label: isEn ? 'Toggle Combo Review' : '開啟/收合檢討紀錄', color: '#a855f7' },
-            { key: kClick, label: isEn ? 'Mouse Click-Through' : '切換滑鼠穿透', color: '#f59e0b' },
-            { key: kExit, label: isEn ? 'Return to Menu' : '返回主選單', color: '#f43f5e' },
-          ].map((item) => (
-            <div
-              key={item.label}
-              style={{
-                padding: '10px 8px',
-                borderRadius: 10,
-                background: 'rgba(30, 41, 59, 0.85)',
-                border: `1px solid ${item.color}55`,
-                textAlign: 'center',
-              }}
-            >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: 10,
+              padding: '14px',
+              borderRadius: 12,
+              background: 'rgba(15, 23, 42, 0.85)',
+              border: '1px solid rgba(168, 85, 247, 0.35)',
+            }}
+          >
+            {[
+              { key: kReset, label: isEn ? 'Restart Combo' : '同步重來 / 清空', color: '#38bdf8' },
+              { key: kReview, label: isEn ? 'Toggle Combo Review' : '開啟/收合檢討紀錄', color: '#a855f7' },
+              { key: kClick, label: isEn ? 'Mouse Click-Through' : '切換滑鼠穿透', color: '#f59e0b' },
+              { key: kExit, label: isEn ? 'Return to Menu' : '返回主選單', color: '#f43f5e' },
+            ].map((item) => (
               <div
+                key={item.label}
                 style={{
-                  display: 'inline-block',
-                  padding: '3px 10px',
-                  borderRadius: 6,
-                  background: `${item.color}22`,
-                  border: `1px solid ${item.color}`,
-                  color: '#fff',
-                  fontWeight: 900,
-                  fontSize: 13,
-                  marginBottom: 6,
+                  padding: '10px 8px',
+                  borderRadius: 10,
+                  background: 'rgba(30, 41, 59, 0.85)',
+                  border: `1px solid ${item.color}55`,
+                  textAlign: 'center',
                 }}
               >
-                {item.key}
+                <div
+                  style={{
+                    display: 'inline-block',
+                    padding: '3px 10px',
+                    borderRadius: 6,
+                    background: `${item.color}22`,
+                    border: `1px solid ${item.color}`,
+                    color: '#fff',
+                    fontWeight: 900,
+                    fontSize: 13,
+                    marginBottom: 6,
+                  }}
+                >
+                  {item.key}
+                </div>
+                <div style={{ fontSize: 11.5, color: '#cbd5e1', fontWeight: 600 }}>
+                  {item.label}
+                </div>
               </div>
-              <div style={{ fontSize: 11.5, color: '#cbd5e1', fontWeight: 600 }}>
-                {item.label}
-              </div>
+            ))}
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 10,
+              padding: '8px 12px',
+              borderRadius: 10,
+              background: 'rgba(15, 23, 42, 0.85)',
+              border: '1px solid rgba(168, 85, 247, 0.3)',
+            }}
+          >
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#e9d5ff', whiteSpace: 'nowrap' }}>
+              {t.reviewLayoutLabel}
+            </span>
+            <div style={{ display: 'flex', gap: 6, flex: 1, justifyContent: 'flex-end' }}>
+              {(
+                [
+                  { id: 'vertical', label: t.reviewLayoutVertical },
+                  { id: 'horizontal', label: t.reviewLayoutHorizontal },
+                ] as const
+              ).map((opt) => {
+                const active = reviewLayout === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => handleChangeReviewLayout(opt.id)}
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: 11.5,
+                      fontWeight: active ? 800 : 600,
+                      borderColor: active ? '#a855f7' : 'rgba(148, 163, 184, 0.28)',
+                      background: active ? 'rgba(168, 85, 247, 0.28)' : 'rgba(30, 41, 59, 0.75)',
+                      color: active ? '#f3e8ff' : '#cbd5e1',
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
             </div>
-          ))}
+          </div>
         </div>
       ),
     },

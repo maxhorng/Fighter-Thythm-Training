@@ -343,6 +343,7 @@ async function authLogout(req: Request, env: Env): Promise<Response> {
 
 interface ComboRow {
   id: string;
+  user_id: string;
   character_id: string;
   mode: string;
   difficulty: string;
@@ -377,6 +378,7 @@ function toListItem(r: ComboRow) {
     likes: r.likes,
     downloads: r.downloads,
     author: r.author,
+    authorId: r.user_id,
     createdAt: r.created_at,
     approvedAt: r.approved_at ?? undefined,
     status: r.status,
@@ -384,7 +386,7 @@ function toListItem(r: ComboRow) {
   };
 }
 
-const LIST_COLUMNS = `c.id, c.character_id, c.mode, c.difficulty, c.position, c.title, c.title_en, c.tags_json,
+const LIST_COLUMNS = `c.id, c.user_id, c.character_id, c.mode, c.difficulty, c.position, c.title, c.title_en, c.tags_json,
   c.note_count, c.total_frames, c.likes, c.downloads, c.created_at, c.approved_at, c.status, c.reject_reason,
   u.display_name AS author`;
 
@@ -396,6 +398,7 @@ async function listCombos(req: Request, url: URL, env: Env, ctx: ExecutionContex
   const difficulty = url.searchParams.get('difficulty') ?? '';
   const mode = url.searchParams.get('mode') ?? '';
   const position = url.searchParams.get('position') ?? '';
+  const author = (url.searchParams.get('author') ?? '').trim();
   const sort = url.searchParams.get('sort') ?? 'likes';
   const q = (url.searchParams.get('q') ?? '').trim().slice(0, 40);
   const page = Math.max(0, Math.min(500, Number(url.searchParams.get('page') ?? '0') || 0));
@@ -407,6 +410,7 @@ async function listCombos(req: Request, url: URL, env: Env, ctx: ExecutionContex
   }
   if (mode && !['classic', 'modern'].includes(mode)) throw new HttpError(400, 'bad_request', 'Unknown mode.');
   if (position && !['midscreen', 'corner'].includes(position)) throw new HttpError(400, 'bad_request', 'Unknown position.');
+  if (author && !/^\d{5,25}$/.test(author)) throw new HttpError(400, 'bad_request', 'Invalid author id.');
   if (!['likes', 'downloads', 'new'].includes(sort)) throw new HttpError(400, 'bad_request', 'Unknown sort.');
 
   const canonical = new URL(url.origin + '/api/combos');
@@ -415,6 +419,7 @@ async function listCombos(req: Request, url: URL, env: Env, ctx: ExecutionContex
     difficulty,
     mode,
     position,
+    author,
     sort,
     q,
     page: String(page),
@@ -433,10 +438,13 @@ async function listCombos(req: Request, url: URL, env: Env, ctx: ExecutionContex
   if (difficulty) (where.push('c.difficulty = ?'), binds.push(difficulty));
   if (mode) (where.push('c.mode = ?'), binds.push(mode));
   if (position) (where.push('c.position = ?'), binds.push(position));
+  if (author) (where.push('c.user_id = ?'), binds.push(author));
   if (q) {
-    where.push(`(c.title LIKE ? ESCAPE '\\' OR c.title_en LIKE ? ESCAPE '\\' OR c.tags_json LIKE ? ESCAPE '\\')`);
+    where.push(
+      `(c.id LIKE ? ESCAPE '\\' OR c.user_id = ? OR u.display_name LIKE ? ESCAPE '\\' OR u.username LIKE ? ESCAPE '\\' OR c.title LIKE ? ESCAPE '\\' OR c.title_en LIKE ? ESCAPE '\\' OR c.tags_json LIKE ? ESCAPE '\\')`
+    );
     const like = `%${q.replace(/[\\%_]/g, (ch) => `\\${ch}`)}%`;
-    binds.push(like, like, like);
+    binds.push(like, q, like, like, like, like, like);
   }
   const orderBy =
     sort === 'downloads'

@@ -5,7 +5,14 @@ import { DEFAULT_BINDINGS } from './data/bindings';
 import { AppLang, DEFAULT_OVERLAY_HOTKEYS, OverlayHotkeys } from './data/i18n';
 import { MenuView } from './components/MenuView';
 import { GameHubView } from './components/GameHubView';
-import { setEnabled as setSoundEnabled } from './utils/soundEngine';
+import {
+  clearCustomSfx,
+  loadCustomSfxFromDataUrl,
+  setEnabled as setSoundEnabled,
+  setSfxPreset as setSoundPreset,
+  setVolume as setSoundVolume,
+  SfxPresetId,
+} from './utils/soundEngine';
 import { OverlayView } from './components/OverlayView';
 import { RecordOverlayView } from './components/RecordOverlayView';
 
@@ -36,7 +43,44 @@ function loadSfxEnabled(): boolean {
 const STORAGE_KEY_APPROACH_FRAMES = 'fbt_approach_frames_v1';
 const STORAGE_KEY_OVERLAY_OPACITY = 'fbt_overlay_opacity_v1';
 const STORAGE_KEY_BUTTON_SCALE = 'fbt_button_scale_v1';
+const STORAGE_KEY_SFX_VOLUME = 'fbt_sfx_volume_v1';
+const STORAGE_KEY_SFX_PRESET = 'fbt_sfx_preset_v1';
+const STORAGE_KEY_CUSTOM_SFX_NAME = 'fbt_custom_sfx_name_v1';
+const STORAGE_KEY_CUSTOM_SFX_DATA = 'fbt_custom_sfx_data_v1';
 const STORAGE_KEY_LAST_COMBO = 'fbt_last_combo_id_v1';
+
+function loadSfxVolume(): number {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_SFX_VOLUME);
+    if (raw !== null) {
+      const n = Number(raw);
+      if (Number.isFinite(n) && n >= 0 && n <= 1) return Math.round(n * 20) / 20;
+    }
+  } catch {
+    // ignore
+  }
+  return 0.7;
+}
+
+function loadSfxPreset(): SfxPresetId {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_SFX_PRESET);
+    if (raw === 'default' || raw === 'woodblock' || raw === 'drum' || raw === 'bell' || raw === 'custom') {
+      return raw;
+    }
+  } catch {
+    // ignore
+  }
+  return 'default';
+}
+
+function loadCustomSfxName(): string | null {
+  try {
+    return localStorage.getItem(STORAGE_KEY_CUSTOM_SFX_NAME);
+  } catch {
+    return null;
+  }
+}
 
 function loadOverlayOpacity(): number {
   try {
@@ -180,6 +224,29 @@ export const App: React.FC = () => {
     setSoundEnabled(v);
     return v;
   });
+  const [sfxVolume, setSfxVolume] = useState<number>(() => {
+    const v = loadSfxVolume();
+    setSoundVolume(v);
+    return v;
+  });
+  const [sfxPreset, setSfxPreset] = useState<SfxPresetId>(() => {
+    const p = loadSfxPreset();
+    setSoundPreset(p);
+    return p;
+  });
+  const [customSfxName, setCustomSfxName] = useState<string | null>(loadCustomSfxName);
+
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem(STORAGE_KEY_CUSTOM_SFX_DATA);
+      if (savedData) {
+        loadCustomSfxFromDataUrl(savedData).catch(() => undefined);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const [dynamicResync, setDynamicResync] = useState<boolean>(loadDynamicResync);
   const [isOverlayMode, setIsOverlayMode] = useState(false);
   const [isRecordingMode, setIsRecordingMode] = useState(false);
@@ -273,6 +340,43 @@ export const App: React.FC = () => {
     setSoundEnabled(next);
     try {
       localStorage.setItem(STORAGE_KEY_SFX, next ? '1' : '0');
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleChangeSfxVolume = (next: number) => {
+    const clamped = Math.max(0, Math.min(1, Math.round(next * 20) / 20));
+    setSfxVolume(clamped);
+    setSoundVolume(clamped);
+    try {
+      localStorage.setItem(STORAGE_KEY_SFX_VOLUME, String(clamped));
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleChangeSfxPreset = (next: SfxPresetId) => {
+    setSfxPreset(next);
+    setSoundPreset(next);
+    try {
+      localStorage.setItem(STORAGE_KEY_SFX_PRESET, next);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleSetCustomSfx = (name: string | null, dataUrl: string | null) => {
+    setCustomSfxName(name);
+    try {
+      if (name && dataUrl) {
+        localStorage.setItem(STORAGE_KEY_CUSTOM_SFX_NAME, name);
+        localStorage.setItem(STORAGE_KEY_CUSTOM_SFX_DATA, dataUrl);
+      } else {
+        localStorage.removeItem(STORAGE_KEY_CUSTOM_SFX_NAME);
+        localStorage.removeItem(STORAGE_KEY_CUSTOM_SFX_DATA);
+        clearCustomSfx();
+      }
     } catch {
       // ignore
     }
@@ -494,6 +598,12 @@ export const App: React.FC = () => {
       onChangeLowPerfMode={handleChangeLowPerfMode}
       sfxEnabled={sfxEnabled}
       onChangeSfxEnabled={handleChangeSfxEnabled}
+      sfxVolume={sfxVolume}
+      onChangeSfxVolume={handleChangeSfxVolume}
+      sfxPreset={sfxPreset}
+      onChangeSfxPreset={handleChangeSfxPreset}
+      customSfxName={customSfxName}
+      onSetCustomSfx={handleSetCustomSfx}
       dynamicResync={dynamicResync}
       onChangeDynamicResync={handleChangeDynamicResync}
       onStartOverlay={handleStartOverlay}

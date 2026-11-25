@@ -31,6 +31,7 @@ import {
 import { CHARACTERS } from '../data/combos';
 import { BUTTON_META, formatKeyCode } from '../data/bindings';
 import { AppLang, getCharacterSubName, getComboTitle, I18N, OverlayHotkeys, translateTag } from '../data/i18n';
+import type { SfxPresetId } from '../utils/soundEngine';
 import { ONLINE_I18N } from '../data/onlineI18n';
 import { KeybindPanel } from './KeybindPanel';
 import { ImportComboModal } from './ImportComboModal';
@@ -73,6 +74,12 @@ interface MenuViewProps {
   onChangeOverlayOpacity: (v: number) => void;
   buttonScale: number;
   onChangeButtonScale: (v: number) => void;
+  sfxVolume: number;
+  onChangeSfxVolume: (v: number) => void;
+  sfxPreset: SfxPresetId;
+  onChangeSfxPreset: (p: SfxPresetId) => void;
+  customSfxName: string | null;
+  onSetCustomSfx: (name: string | null, dataUrl: string | null) => void;
   showRecordedInputs: boolean;
   onChangeShowRecordedInputs: (v: boolean) => void;
   lowPerfMode: boolean;
@@ -114,6 +121,12 @@ export const MenuView: React.FC<MenuViewProps> = ({
   onChangeOverlayOpacity,
   buttonScale,
   onChangeButtonScale,
+  sfxVolume,
+  onChangeSfxVolume,
+  sfxPreset,
+  onChangeSfxPreset,
+  customSfxName,
+  onSetCustomSfx,
   showRecordedInputs,
   onChangeShowRecordedInputs,
   lowPerfMode,
@@ -151,16 +164,23 @@ export const MenuView: React.FC<MenuViewProps> = ({
   });
   const [difficultyFilter, setDifficultyFilter] = useState<'ALL' | ComboData['difficulty']>('ALL');
   const [positionFilter, setPositionFilter] = useState<'ALL' | 'midscreen' | 'corner'>('ALL');
-  const [showKeybinds, setShowKeybinds] = useState(false);
-  const [showImport, setShowImport] = useState(false);
-  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-  const [showTutorial, setShowTutorial] = useState<boolean>(() => {
+  const [isFirstTimeKeybind, setIsFirstTimeKeybind] = useState<boolean>(() => {
     try {
       return localStorage.getItem(STORAGE_KEY_SEEN_TUTORIAL) !== '1';
     } catch {
       return true;
     }
   });
+  const [showKeybinds, setShowKeybinds] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY_SEEN_TUTORIAL) !== '1';
+    } catch {
+      return true;
+    }
+  });
+  const [showImport, setShowImport] = useState(false);
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [showTutorial, setShowTutorial] = useState<boolean>(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [editingCombo, setEditingCombo] = useState<ComboData | null>(null);
   const [editName, setEditName] = useState('');
@@ -1413,7 +1433,20 @@ export const MenuView: React.FC<MenuViewProps> = ({
           onChangeOverlayOpacity={onChangeOverlayOpacity}
           buttonScale={buttonScale}
           onChangeButtonScale={onChangeButtonScale}
-          onClose={() => setShowKeybinds(false)}
+          sfxVolume={sfxVolume}
+          onChangeSfxVolume={onChangeSfxVolume}
+          sfxPreset={sfxPreset}
+          onChangeSfxPreset={onChangeSfxPreset}
+          customSfxName={customSfxName}
+          onSetCustomSfx={onSetCustomSfx}
+          isFirstTimeSetup={isFirstTimeKeybind}
+          onClose={() => {
+            setShowKeybinds(false);
+            if (isFirstTimeKeybind) {
+              setIsFirstTimeKeybind(false);
+              setShowTutorial(true);
+            }
+          }}
         />
       )}
 

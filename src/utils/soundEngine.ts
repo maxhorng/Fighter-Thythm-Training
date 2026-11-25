@@ -5,10 +5,14 @@ import type { JudgmentRank } from '../types/combo';
  * AudioContext is created lazily and resumed on first user interaction.
  */
 
+export type SfxPresetId = 'default' | 'woodblock' | 'drum' | 'bell' | 'custom';
+
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
-let volume = 0.5;
+let volume = 0.7;
 let enabled = true;
+let currentPreset: SfxPresetId = 'default';
+let customBuffer: AudioBuffer | null = null;
 let unlockHooked = false;
 
 function getCtx(): AudioContext | null {
@@ -74,6 +78,50 @@ export function setVolume(vol: number): void {
   if (master) master.gain.value = volume;
 }
 
+export function setSfxPreset(preset: SfxPresetId): void {
+  currentPreset = preset;
+}
+
+export function clearCustomSfx(): void {
+  customBuffer = null;
+}
+
+function dataUrlToArrayBuffer(dataUrl: string): ArrayBuffer | null {
+  try {
+    const commaIdx = dataUrl.indexOf(',');
+    if (commaIdx < 0) return null;
+    const base64 = dataUrl.slice(commaIdx + 1);
+    const bin = atob(base64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes.buffer;
+  } catch {
+    return null;
+  }
+}
+
+export async function loadCustomSfxFromDataUrl(
+  dataUrl: string
+): Promise<{ ok: true; durationSec: number } | { ok: false; reason: 'too_long' | 'invalid' }> {
+  const c = getCtx();
+  if (!c) return { ok: false, reason: 'invalid' };
+  const buf = dataUrlToArrayBuffer(dataUrl);
+  if (!buf || buf.byteLength === 0) return { ok: false, reason: 'invalid' };
+  try {
+    const decoded = await c.decodeAudioData(buf.slice(0));
+    if (!Number.isFinite(decoded.duration) || decoded.duration <= 0) {
+      return { ok: false, reason: 'invalid' };
+    }
+    if (decoded.duration > 1.0) {
+      return { ok: false, reason: 'too_long' };
+    }
+    customBuffer = decoded;
+    return { ok: true, durationSec: decoded.duration };
+  } catch {
+    return { ok: false, reason: 'invalid' };
+  }
+}
+
 export function setEnabled(value: boolean): void {
   enabled = value;
 }
@@ -104,9 +152,36 @@ export function playJudgment(rank: JudgmentRank): void {
   }
 }
 
-export function playBeatCue(): void {
-  if (!enabled) return;
+export function playBeatCue(forcePreview = false): void {
+  if (!forcePreview && !enabled) return;
   const c = getCtx();
-  if (!c) return;
-  tone(c, { freq: 2200, dur: 0.03, gain: 0.08, type: 'square' });
+  if (!c || !master) return;
+
+  if (currentPreset === 'custom' && customBuffer) {
+    const src = c.createBufferSource();
+    src.buffer = customBuffer;
+    src.connect(master);
+    src.start(c.currentTime);
+    return;
+  }
+
+  switch (currentPreset) {
+    case 'woodblock':
+      tone(c, { freq: 920, endFreq: 620, dur: 0.045, gain: 0.32, type: 'sine' });
+      tone(c, { freq: 1840, endFreq: 1320, dur: 0.022, gain: 0.14, type: 'triangle' });
+      break;
+    case 'drum':
+      tone(c, { freq: 190, endFreq: 62, dur: 0.095, gain: 0.55, type: 'sine' });
+      tone(c, { freq: 420, endFreq: 160, dur: 0.03, gain: 0.22, type: 'triangle' });
+      break;
+    case 'bell':
+      tone(c, { freq: 1760, dur: 0.18, gain: 0.24, type: 'sine' });
+      tone(c, { freq: 3520, dur: 0.12, gain: 0.11, type: 'sine' });
+      break;
+    case 'default':
+    case 'custom':
+    default:
+      tone(c, { freq: 2200, dur: 0.03, gain: 0.08, type: 'square' });
+      break;
+  }
 }
