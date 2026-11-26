@@ -57,6 +57,11 @@ export function useInputEngine({
         }
       }
 
+      // Classic SF6 chord: MP + MK pressed simultaneously = Drive Parry / Drive Rush
+      if (modeRef.current === 'classic' && nextActive.has('MP') && nextActive.has('MK')) {
+        nextActive.add('PARRY');
+      }
+
       // Detect rising edges
       for (const btnId of nextActive) {
         if (!prevActiveActionsRef.current.has(btnId)) {

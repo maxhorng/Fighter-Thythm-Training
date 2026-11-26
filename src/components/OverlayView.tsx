@@ -146,7 +146,8 @@ function drawFixedLeftPad(
   isRight: boolean,
   lowPerfMode: boolean,
   approachFrames: number,
-  buttonScale = 1.0
+  buttonScale = 1.0,
+  solidFill = false
 ) {
   const baseRingR = 82;
   const ringR = baseRingR * buttonScale;
@@ -269,7 +270,11 @@ function drawFixedLeftPad(
     ctx.globalAlpha = first.isActive ? 1 : Math.max(0.65, first.alpha);
     ctx.beginPath();
     ctx.arc(c.x, c.y, btnR, 0, Math.PI * 2);
-    ctx.fillStyle = first.gold ? 'rgba(250, 204, 21, 0.42)' : first.color + '55';
+    if (solidFill) {
+      ctx.fillStyle = '#0f172a';
+      ctx.fill();
+    }
+    ctx.fillStyle = first.gold ? 'rgba(250, 204, 21, 0.45)' : first.color + (solidFill ? '66' : '55');
     ctx.fill();
     ctx.lineWidth = first.isActive ? 3.5 : 2.5;
     ctx.strokeStyle = first.isActive ? '#ffffff' : ring;
@@ -393,7 +398,8 @@ function drawOsuChartBoard(
   approachFrames: number,
   buttonScale = 1.0,
   offsets?: OverlayOffsets,
-  outBoxes?: Partial<Record<DragBlockKey, DragBox>>
+  outBoxes?: Partial<Record<DragBlockKey, DragBox>>,
+  solidFill = false
 ) {
   // 1.5x larger osu! note circles scaled by user buttonScale and clamped cleanly for 1080px+ widths
   const baseR = Math.max(42, Math.min(54, w * 0.038));
@@ -416,7 +422,7 @@ function drawOsuChartBoard(
   ctx.textBaseline = 'middle';
 
   // Left side: identical to Fixed Layout
-  drawFixedLeftPad(ctx, padX, padY, notes, visible, activeIdx, currentFrame, phase, now, isRight, lowPerfMode, approachFrames, buttonScale);
+  drawFixedLeftPad(ctx, padX, padY, notes, visible, activeIdx, currentFrame, phase, now, isRight, lowPerfMode, approachFrames, buttonScale, solidFill);
 
   // Right side: rolling 2-row half-board refilling (4 columns x up to 4 rows = 16 slots)
   // Top half (slots 0..7):  topBlock    = Math.floor((activeRow + 1) / 4) * 2
@@ -558,7 +564,15 @@ function drawOsuChartBoard(
     // Note body
     ctx.beginPath();
     ctx.arc(p.x, p.y, R, 0, Math.PI * 2);
-    ctx.fillStyle = inApproach ? (gold ? 'rgba(250, 204, 21, 0.42)' : color + '55') : color + '28';
+    if (solidFill && !isPast) {
+      ctx.fillStyle = '#0f172a';
+      ctx.fill();
+    }
+    ctx.fillStyle = inApproach
+      ? gold
+        ? 'rgba(250, 204, 21, 0.48)'
+        : color + (solidFill ? '66' : '55')
+      : color + (solidFill ? '40' : '28');
     ctx.fill();
     ctx.lineWidth = isActive ? 4 : 2.5;
     ctx.strokeStyle = isActive ? '#ffffff' : ring;
@@ -660,7 +674,8 @@ function drawFixedBoard(
   approachFrames: number,
   buttonScale = 1.0,
   offsets?: OverlayOffsets,
-  outBoxes?: Partial<Record<DragBlockKey, DragBox>>
+  outBoxes?: Partial<Record<DragBlockKey, DragBox>>,
+  solidFill = false
 ) {
   const baseR = Math.max(30, Math.min(42, w * 0.026));
   const R = Math.max(22, Math.min(56, baseR * buttonScale));
@@ -739,7 +754,7 @@ function drawFixedBoard(
   ctx.textBaseline = 'middle';
 
   // Left side: shared 8-way compass ring + drawMotionSlider overlay
-  drawFixedLeftPad(ctx, padX, padY, notes, visible, activeIdx, currentFrame, phase, now, isRight, lowPerfMode, approachFrames, buttonScale);
+  drawFixedLeftPad(ctx, padX, padY, notes, visible, activeIdx, currentFrame, phase, now, isRight, lowPerfMode, approachFrames, buttonScale, solidFill);
 
   // Right-side fixed base attack buttons (ghosted when idle)
   (Object.keys(pos) as ActionButtonId[]).forEach((b) => {
@@ -797,7 +812,11 @@ function drawFixedBoard(
     ctx.globalAlpha = first.isActive ? 1 : Math.max(0.65, first.alpha);
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = first.gold ? 'rgba(250, 204, 21, 0.42)' : first.color + '55';
+    if (solidFill) {
+      ctx.fillStyle = '#0f172a';
+      ctx.fill();
+    }
+    ctx.fillStyle = first.gold ? 'rgba(250, 204, 21, 0.48)' : first.color + (solidFill ? '66' : '55');
     ctx.fill();
     ctx.lineWidth = first.isActive ? 4 : 3;
     ctx.strokeStyle = first.isActive ? '#ffffff' : ring;
@@ -1720,7 +1739,7 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
   // so legacy built-in, custom, and online combos play cleanly as ONE motion without blocking the 214/236/623 slider.
   const effectiveNotes = useMemo<ComboNote[]>(() => {
     const raw = combo.notes;
-    return raw.filter((n, idx) => {
+    const filtered = raw.filter((n, idx) => {
       const next = raw[idx + 1];
       if (
         next &&
@@ -1735,6 +1754,51 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       }
       return true;
     });
+
+    // Normalize Raw Drive Rush openers (PARRY -> 66 or single DR/PARRY+66) into a single
+    // "PARRY 66" opening note so holding PARRY to block does not start the rhythm clock early;
+    // the rhythm game starts on the actual 66 dash (with frames shifted relative to 66).
+    if (
+      filtered.length >= 2 &&
+      filtered[0].buttons.includes('PARRY') &&
+      !filtered[0].motion &&
+      filtered[1].motion === '66'
+    ) {
+      const dashFrame = filtered[1].frame;
+      const mergedOpener: ComboNote = {
+        ...filtered[1],
+        id: filtered[0].id,
+        frame: 0,
+        buttons: ['PARRY', 'RIGHT'],
+        motion: '66',
+        notation: 'PARRY 66',
+      };
+      return [
+        mergedOpener,
+        ...filtered.slice(2).map((n) => ({
+          ...n,
+          frame: Math.max(0, n.frame - dashFrame),
+        })),
+      ];
+    }
+
+    if (
+      filtered.length >= 1 &&
+      filtered[0].buttons.includes('PARRY') &&
+      (filtered[0].motion === '66' || /\bDR\b|PARRY\s*66/i.test(filtered[0].notation))
+    ) {
+      return [
+        {
+          ...filtered[0],
+          buttons: ['PARRY', 'RIGHT'],
+          motion: '66',
+          notation: 'PARRY 66',
+        },
+        ...filtered.slice(1),
+      ];
+    }
+
+    return filtered;
   }, [combo.notes]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -2063,20 +2127,28 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
         isModernSaNote &&
         (pressedBtn === 'SP' || pressedBtn === 'H') &&
         (activeSet.has('SP') || activeSet.has('H'));
-      const isRawDrShortcutPress =
-        (targetNote.buttons.includes('PARRY') && pressedBtn === 'RIGHT' && activeSet.has('PARRY')) ||
-        (targetNote.motion === '66' &&
-          idx > 0 &&
-          notes[idx - 1].buttons.includes('PARRY') &&
-          pressedBtn === 'PARRY' &&
-          activeSet.has('RIGHT'));
-      if (pressedBtn !== primaryBtn && !isModernSaShortcutPress && !isRawDrShortcutPress) return;
+      const isParryDashNote =
+        targetNote.motion === '66' && targetNote.buttons.includes('PARRY');
+      const isRawDrShortcutPress = isParryDashNote
+        ? (pressedBtn === 'RIGHT' && activeSet.has('PARRY')) ||
+          (pressedBtn === 'PARRY' && activeSet.has('RIGHT'))
+        : (targetNote.buttons.includes('PARRY') && pressedBtn === 'RIGHT' && activeSet.has('PARRY')) ||
+          (targetNote.motion === '66' &&
+            idx > 0 &&
+            notes[idx - 1].buttons.includes('PARRY') &&
+            pressedBtn === 'PARRY' &&
+            activeSet.has('RIGHT'));
+      if (isParryDashNote) {
+        if (!isRawDrShortcutPress) return;
+      } else if (pressedBtn !== primaryBtn && !isModernSaShortcutPress && !isRawDrShortcutPress) {
+        return;
+      }
 
-      // Pure directional double-tap notes (66 / 44 / 22): never trigger on the 1st tap!
+      // Double-tap notes (66 / 44 / 22) and Raw Drive Rush (PARRY 66): never trigger on the 1st tap!
       // Require an actual double-tap (e.g. 6 -> 5 -> 6) within the last 320ms in mirrored dirHistoryRef.
       if (
         (targetNote.motion === '66' || targetNote.motion === '44' || targetNote.motion === '22') &&
-        targetNote.buttons.every((b) => DIRECTION_IDS.has(b))
+        (targetNote.buttons.every((b) => DIRECTION_IDS.has(b)) || isParryDashNote)
       ) {
         const tapNow = performance.now();
         const wantDir = targetNote.motion[0];
@@ -2364,10 +2436,11 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       }
 
       const focusedR = Math.round(CIRCLE_RADIUS * buttonScale);
+      const solidFill = overlayOpacity >= 0.99;
       if (chartLayout === 'fixed') {
-        drawFixedBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, mode, isRightSide, lowPerfMode, approachFrames, buttonScale, offsets, frameBoxes);
+        drawFixedBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, mode, isRightSide, lowPerfMode, approachFrames, buttonScale, offsets, frameBoxes, solidFill);
       } else if (chartLayout === 'osu') {
-        drawOsuChartBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, isRightSide, lowPerfMode, approachFrames, buttonScale, offsets, frameBoxes);
+        drawOsuChartBoard(ctx, w, h, notes, activeIdx, currentFrame, phaseRef.current, now, isRightSide, lowPerfMode, approachFrames, buttonScale, offsets, frameBoxes, solidFill);
       } else {
         const boxPadL = focusedR + Math.round(90 * buttonScale);
         const boxPadR = focusedR + Math.round(170 * buttonScale);
@@ -3269,30 +3342,96 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
                           const bg = meta?.color ?? '#38bdf8';
                           const fg = isLightButtonColor(bg) ? '#090d16' : '#ffffff';
                           const label = meta?.shortLabel ?? btn;
+                          const isPunch = btn === 'LP' || btn === 'MP' || btn === 'HP';
+                          const isKick = btn === 'LK' || btn === 'MK' || btn === 'HK';
+                          const tier =
+                            btn === 'LP' || btn === 'LK'
+                              ? 'L'
+                              : btn === 'MP' || btn === 'MK'
+                              ? 'M'
+                              : btn === 'HP' || btn === 'HK'
+                              ? 'H'
+                              : null;
+                          const iconBg =
+                            tier === 'L' ? '#0284c7' : tier === 'M' ? '#ca8a04' : tier === 'H' ? '#dc2626' : bg;
+                          const iconBorder =
+                            tier === 'L' ? '#38bdf8' : tier === 'M' ? '#facc15' : tier === 'H' ? '#f87171' : 'rgba(255, 255, 255, 0.85)';
                           return (
                             <React.Fragment key={`${btn}-${bi}`}>
                               {bi > 0 && (
                                 <span style={{ fontSize: 10.5, fontWeight: 900, color: '#94a3b8' }}>+</span>
                               )}
-                              <span
-                                style={{
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  minWidth: label.length > 2 ? 32 : 22,
-                                  height: 22,
-                                  padding: label.length > 2 ? '0 6px' : '0 4px',
-                                  borderRadius: 999,
-                                  background: bg,
-                                  color: fg,
-                                  fontSize: label.length > 3 ? 9.5 : 10.5,
-                                  fontWeight: 900,
-                                  border: '1.5px solid rgba(255, 255, 255, 0.85)',
-                                  lineHeight: 1,
-                                }}
-                              >
-                                {label}
-                              </span>
+                              {isPunch || isKick ? (
+                                <span
+                                  title={label}
+                                  style={{
+                                    position: 'relative',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: 24,
+                                    height: 24,
+                                    borderRadius: 999,
+                                    background: iconBg,
+                                    color: '#ffffff',
+                                    border: `1.5px solid ${iconBorder}`,
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  {isPunch ? (
+                                    <svg viewBox="0 0 24 24" width={18} height={18} fill="currentColor" aria-hidden="true">
+                                      <path d="M3.5 10.2C3.5 8.1 4.9 6.8 6.8 6.8c.5 0 1 .1 1.4.3V6c0-1.3 1-2.4 2.3-2.4.8 0 1.6.4 2 1 .5-.5 1.2-.8 1.9-.8 1.3 0 2.4 1 2.4 2.4v.4c.4-.2.8-.3 1.2-.3 1.4 0 2.5 1.1 2.5 2.5v4.8c0 3.7-2.6 6.4-6.4 6.4h-3.8c-3.8 0-6.8-2.7-6.8-6.5v-3.3zm2.6 2.5v1.1c0 .7.6 1.3 1.3 1.3h5.6c.7 0 1.3-.6 1.3-1.3v-.8H6.1z" />
+                                    </svg>
+                                  ) : (
+                                    <svg viewBox="0 0 24 24" width={19} height={19} fill="currentColor" aria-hidden="true">
+                                      <path d="M12.2 3.2c1 0 1.8.6 2.1 1.6l1.6 6.2 5.1 1.7c1.2.4 1.9 1.6 1.7 2.8-.3 1.3-1.4 2.2-2.8 2.2H7.8c-2 0-3.7-1.5-4-3.5L3 7.5c-.2-1.2.7-2.3 1.9-2.5l6.8-1.7c.2-.1.3-.1.5-.1z" />
+                                    </svg>
+                                  )}
+                                  {tier && (
+                                    <span
+                                      style={{
+                                        position: 'absolute',
+                                        right: -3,
+                                        bottom: -3,
+                                        width: 12,
+                                        height: 12,
+                                        borderRadius: 999,
+                                        background: '#090d16',
+                                        color: '#ffffff',
+                                        fontSize: 8,
+                                        fontWeight: 900,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        border: '1px solid rgba(255, 255, 255, 0.7)',
+                                        lineHeight: 1,
+                                      }}
+                                    >
+                                      {tier}
+                                    </span>
+                                  )}
+                                </span>
+                              ) : (
+                                <span
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    minWidth: label.length > 2 ? 32 : 22,
+                                    height: 22,
+                                    padding: label.length > 2 ? '0 6px' : '0 4px',
+                                    borderRadius: 999,
+                                    background: bg,
+                                    color: fg,
+                                    fontSize: label.length > 3 ? 9.5 : 10.5,
+                                    fontWeight: 900,
+                                    border: '1.5px solid rgba(255, 255, 255, 0.85)',
+                                    lineHeight: 1,
+                                  }}
+                                >
+                                  {label}
+                                </span>
+                              )}
                             </React.Fragment>
                           );
                         })}
