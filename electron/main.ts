@@ -194,7 +194,19 @@ function createWindow() {
   });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https://github.com/') || url.startsWith('https://ko-fi.com/')) {
+    if (
+      url.startsWith('https://github.com/') ||
+      url.startsWith('https://ko-fi.com/') ||
+      url.startsWith('https://discord.gg/') ||
+      url.startsWith('https://youtube.com/') ||
+      url.startsWith('https://www.youtube.com/') ||
+      url.startsWith('https://m.youtube.com/') ||
+      url.startsWith('https://youtu.be/') ||
+      url.startsWith('https://x.com/') ||
+      url.startsWith('https://www.x.com/') ||
+      url.startsWith('https://twitter.com/') ||
+      url.startsWith('https://www.twitter.com/')
+    ) {
       shell.openExternal(url);
     }
     return { action: 'deny' };

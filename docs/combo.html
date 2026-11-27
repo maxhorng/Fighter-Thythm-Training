@@ -170,6 +170,7 @@
       <div class="combo-id" id="combo-id">載入中...</div>
       <div class="combo-title" id="combo-title">正在讀取連段資訊...</div>
       <div class="combo-tags" id="combo-tags"></div>
+      <div id="combo-video" style="margin-top: 14px; display: none;"></div>
     </div>
 
     <a id="open-app-btn" class="btn-primary" href="#">在 FBT 中開啟此連段</a>
@@ -222,12 +223,24 @@
           }
           comboTitleEl.textContent = item.title;
           const tags = [
-            item.character ? `角色：${item.character}` : null,
+            item.characterName || item.character ? `角色：${item.characterName || item.character}` : null,
             item.mode ? `模式：${item.mode}` : null,
             item.difficulty ? `難度：${item.difficulty}` : null,
-            item.author_name ? `作者：${item.author_name}` : null,
+            item.author || item.author_name ? `作者：${item.author || item.author_name}` : null,
           ].filter(Boolean);
           comboTagsEl.innerHTML = tags.map((t) => `<span class="tag">${t}</span>`).join('');
+
+          const videoEl = document.getElementById('combo-video');
+          const vUrl = item.videoUrl || item.video_url;
+          if (vUrl && videoEl) {
+            const ytMatch = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/.exec(vUrl);
+            videoEl.style.display = 'block';
+            if (ytMatch) {
+              videoEl.innerHTML = `<div style="aspect-ratio:16/9;border-radius:10px;overflow:hidden;border:1px solid rgba(148,163,184,0.25);"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}" style="width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+            } else if (/^https:\/\/(www\.)?(x\.com|twitter\.com)\//i.test(vUrl)) {
+              videoEl.innerHTML = `<a href="${vUrl}" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.45);color:#7dd3fc;font-size:13px;font-weight:700;text-decoration:none;">在 X.com 觀看示範影片</a>`;
+            }
+          }
         })
         .catch(() => {
           comboTitleEl.textContent = `連段 ${safeId}`;

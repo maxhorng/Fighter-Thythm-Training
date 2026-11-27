@@ -24,6 +24,7 @@ export interface OnlineComboItem {
   approvedAt?: number;
   status: 'pending' | 'approved' | 'rejected';
   rejectReason?: string;
+  videoUrl?: string;
 }
 
 export interface OnlineUser {
@@ -267,11 +268,12 @@ export function deleteMyCombo(id: string): Promise<{ ok: boolean }> {
 }
 
 /** Validates locally, then uploads only the shareable ComboData fields. */
-export async function uploadCombo(combo: ComboData): Promise<{ id: string; status: 'pending' | 'approved' }> {
+export async function uploadCombo(combo: ComboData, videoUrl?: string): Promise<{ id: string; status: 'pending' | 'approved' }> {
   const clean = sanitizeForUpload(combo);
   const check = validateCombo(clean);
   if (!check.ok) throw new OnlineApiError(422, 'invalid_format', 'Invalid format', check.errors);
-  const body = JSON.stringify(clean);
+  const payload = videoUrl?.trim() ? { ...clean, videoUrl: videoUrl.trim() } : clean;
+  const body = JSON.stringify(payload);
   if (utf8Bytes(body) > COMBO_LIMITS.maxJsonBytes) throw new OnlineApiError(413, 'too_large', 'Combo too large');
   return request('/api/combos', {
     method: 'POST',
@@ -279,6 +281,15 @@ export async function uploadCombo(combo: ComboData): Promise<{ id: string; statu
     kind: 'upload',
     headers: { 'Content-Type': 'application/json' },
     body,
+  });
+}
+
+export async function updateComboVideoUrl(id: string, videoUrl: string): Promise<{ ok: boolean; videoUrl?: string }> {
+  return request(`/api/combos/${encodeURIComponent(id)}/video`, {
+    method: 'PATCH',
+    auth: true,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ videoUrl: videoUrl.trim() }),
   });
 }
 
@@ -326,5 +337,6 @@ export async function downloadOnlineCombo(item: OnlineComboItem): Promise<ComboD
     source: 'online',
     onlineId: item.id,
     author: item.author.slice(0, 64),
+    videoUrl: item.videoUrl,
   };
 }

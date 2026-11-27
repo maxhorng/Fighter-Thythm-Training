@@ -359,7 +359,42 @@ interface ComboRow {
   approved_at: number | null;
   status: string;
   reject_reason: string | null;
+  video_url: string | null;
   author: string;
+}
+
+const ALLOWED_VIDEO_HOSTS = new Set([
+  'youtube.com',
+  'www.youtube.com',
+  'm.youtube.com',
+  'youtu.be',
+  'x.com',
+  'www.x.com',
+  'twitter.com',
+  'www.twitter.com',
+]);
+
+function sanitizeVideoUrl(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  if (trimmed.length > 240) {
+    throw new HttpError(400, 'invalid_video_url', 'Video URL is too long (max 240 characters).');
+  }
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    throw new HttpError(400, 'invalid_video_url', 'Video URL must be a valid https:// link.');
+  }
+  if (parsed.protocol !== 'https:' || !ALLOWED_VIDEO_HOSTS.has(parsed.hostname.toLowerCase())) {
+    throw new HttpError(
+      400,
+      'invalid_video_url',
+      'Only YouTube (youtube.com / youtu.be) and X (x.com / twitter.com) links are allowed.'
+    );
+  }
+  return parsed.toString();
 }
 
 function toListItem(r: ComboRow) {
@@ -383,11 +418,12 @@ function toListItem(r: ComboRow) {
     approvedAt: r.approved_at ?? undefined,
     status: r.status,
     rejectReason: r.reject_reason ?? undefined,
+    videoUrl: r.video_url ?? undefined,
   };
 }
 
 const LIST_COLUMNS = `c.id, c.user_id, c.character_id, c.mode, c.difficulty, c.position, c.title, c.title_en, c.tags_json,
-  c.note_count, c.total_frames, c.likes, c.downloads, c.created_at, c.approved_at, c.status, c.reject_reason,
+  c.note_count, c.total_frames, c.likes, c.downloads, c.created_at, c.approved_at, c.status, c.reject_reason, c.video_url,
   u.display_name AS author`;
 
 async function listCombos(req: Request, url: URL, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -577,9 +613,13 @@ async function uploadCombo(req: Request, url: URL, env: Env, ctx: ExecutionConte
   }
 
   const combo = sanitizeForUpload(result.combo);
+  const videoUrl = sanitizeVideoUrl((parsed as Record<string, unknown>)?.videoUrl);
   const id = randomId();
   combo.id = id;
   combo.characterName = SF6_CHARACTER_NAMES[combo.characterId] ?? combo.characterName;
+  if (videoUrl) {
+    (combo as unknown as Record<string, unknown>).videoUrl = videoUrl;
+  }
   const body = JSON.stringify(combo);
   const contentHash = await sha256Hex(
     JSON.stringify({ c: combo.characterId, m: combo.mode, n: combo.notes.map((n) => [n.frame, n.buttons, n.motion ?? '', n.holdFrames ?? 0]) })
@@ -592,8 +632,8 @@ async function uploadCombo(req: Request, url: URL, env: Env, ctx: ExecutionConte
   const now = Date.now();
   await env.DB.prepare(
     `INSERT INTO combos (id, user_id, character_id, mode, difficulty, position, title, title_en, tags_json,
-       note_count, total_frames, body, content_hash, status, created_at, approved_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       note_count, total_frames, body, content_hash, status, created_at, approved_at, video_url)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       id,
@@ -611,7 +651,8 @@ async function uploadCombo(req: Request, url: URL, env: Env, ctx: ExecutionConte
       contentHash,
       autoApprove ? 'approved' : 'pending',
       now,
-      autoApprove ? now : null
+      autoApprove ? now : null,
+      videoUrl
     )
     .run();
 
@@ -629,6 +670,25 @@ async function uploadCombo(req: Request, url: URL, env: Env, ctx: ExecutionConte
   }
 
   return json({ id, status: autoApprove ? 'approved' : 'pending' }, 201);
+}
+
+async function updateOwnComboVideo(id: string, req: Request, env: Env): Promise<Response> {
+  const user = await requireUser(req, env);
+  if (!isValidComboId(id)) throw new HttpError(400, 'invalid_id', 'Invalid combo ID.');
+  const row = await env.DB.prepare('SELECT user_id FROM combos WHERE id = ?').bind(id).first<{ user_id: string }>();
+  if (!row) throw new HttpError(404, 'not_found', 'Combo not found.');
+  if (row.user_id !== user.id && !isAdminDiscordUser(user.id, env)) {
+    throw new HttpError(403, 'forbidden', 'You can only edit your own combos.');
+  }
+  let body: Record<string, unknown> = {};
+  try {
+    body = (await req.json()) as Record<string, unknown>;
+  } catch {
+    throw new HttpError(400, 'invalid_json', 'Body is not valid JSON.');
+  }
+  const videoUrl = sanitizeVideoUrl(body.videoUrl);
+  await env.DB.prepare('UPDATE combos SET video_url = ? WHERE id = ?').bind(videoUrl, id).run();
+  return json({ ok: true, videoUrl: videoUrl ?? undefined });
 }
 
 async function deleteOwnCombo(id: string, req: Request, url: URL, env: Env): Promise<Response> {
@@ -1097,6 +1157,7 @@ async function route(req: Request, env: Env, ctx: ExecutionContext): Promise<Res
   let m: RegExpExecArray | null;
   if (method === 'GET' && (m = /^\/files\/([A-Za-z0-9_-]+)\.json$/.exec(path))) return serveFile(m[1], req, env, ctx);
   if ((m = /^\/api\/combos\/([A-Za-z0-9_-]+)$/.exec(path)) && method === 'GET') return getComboById(m[1], env);
+  if ((m = /^\/api\/combos\/([A-Za-z0-9_-]+)\/video$/.exec(path)) && method === 'PATCH') return updateOwnComboVideo(m[1], req, env);
   if ((m = /^\/api\/combos\/([A-Za-z0-9_-]+)$/.exec(path)) && method === 'DELETE') return deleteOwnCombo(m[1], req, url, env);
   if ((m = /^\/api\/combos\/([A-Za-z0-9_-]+)\/like$/.exec(path)) && method === 'POST') return toggleLike(m[1], req, env);
   if ((m = /^\/api\/combos\/([A-Za-z0-9_-]+)\/download$/.exec(path)) && method === 'POST') return countDownload(m[1], req, env);

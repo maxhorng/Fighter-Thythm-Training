@@ -36,6 +36,7 @@ import {
   OnlineSort,
   OnlineUser,
   toggleLike,
+  updateComboVideoUrl,
   uploadCombo,
 } from '../utils/onlineApi';
 
@@ -181,6 +182,58 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
   const [authorFilter, setAuthorFilter] = useState<{ id: string; name: string } | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
+  const [uploadVideoUrl, setUploadVideoUrl] = useState('');
+  const [editingVideoId, setEditingVideoId] = useState<string | null>(null);
+  const [editingVideoUrl, setEditingVideoUrl] = useState('');
+  const [savingVideoId, setSavingVideoId] = useState<string | null>(null);
+  const [videoEditError, setVideoEditError] = useState<string | null>(null);
+
+  const isAllowedVideoUrl = (raw: string): boolean => {
+    const tUrl = raw.trim();
+    if (!tUrl) return true;
+    try {
+      const u = new URL(tUrl);
+      if (u.protocol !== 'https:') return false;
+      const host = u.hostname.toLowerCase();
+      return (
+        host === 'youtube.com' ||
+        host === 'www.youtube.com' ||
+        host === 'm.youtube.com' ||
+        host === 'youtu.be' ||
+        host === 'x.com' ||
+        host === 'www.x.com' ||
+        host === 'twitter.com' ||
+        host === 'www.twitter.com'
+      );
+    } catch {
+      return false;
+    }
+  };
+
+  const handleSaveMyVideoUrl = async (id: string) => {
+    if (savingVideoId) return;
+    if (!isAllowedVideoUrl(editingVideoUrl)) {
+      setVideoEditError(
+        lang === 'en'
+          ? 'Only https:// YouTube (youtube.com / youtu.be) or X (x.com / twitter.com) links are allowed.'
+          : '僅允許 https:// 的 YouTube（youtube.com / youtu.be）或 X（x.com / twitter.com）連結！'
+      );
+      return;
+    }
+    setSavingVideoId(id);
+    setVideoEditError(null);
+    try {
+      const res = await updateComboVideoUrl(id, editingVideoUrl);
+      setMyItems((prev) => prev.map((c) => (c.id === id ? { ...c, videoUrl: res.videoUrl } : c)));
+      setItems((prev) => prev.map((c) => (c.id === id ? { ...c, videoUrl: res.videoUrl } : c)));
+      setEditingVideoId(null);
+      setEditingVideoUrl('');
+    } catch (err) {
+      setVideoEditError(err instanceof Error ? err.message : '更新失敗');
+    } finally {
+      setSavingVideoId(null);
+    }
+  };
 
   const handleCopyCode = (id: string) => {
     try {
@@ -439,10 +492,21 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
       setUploadResult({ ok: false, text: t.loginRequired });
       return;
     }
+    if (!isAllowedVideoUrl(uploadVideoUrl)) {
+      setUploadResult({
+        ok: false,
+        text:
+          lang === 'en'
+            ? 'Only https:// YouTube (youtube.com / youtu.be) or X (x.com / twitter.com) links are allowed.'
+            : '示範影片僅允許 https:// 的 YouTube 或 X.com 連結！',
+      });
+      return;
+    }
     setUploading(true);
     setUploadResult(null);
     try {
-      const res = await uploadCombo(selectedUploadCombo);
+      const res = await uploadCombo(selectedUploadCombo, uploadVideoUrl);
+      setUploadVideoUrl('');
       setLimitBanner(null);
       setUploadResult({
         ok: true,
@@ -1147,6 +1211,26 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
                                   : '分享連結'}
                               </span>
                             </button>
+                            {item.videoUrl && (
+                              <a
+                                href={item.videoUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 3,
+                                  padding: '0 6px',
+                                  borderLeft: '1px solid rgba(148, 163, 184, 0.25)',
+                                  color: '#facc15',
+                                  fontSize: 10.5,
+                                  fontWeight: 800,
+                                  textDecoration: 'none',
+                                }}
+                              >
+                                {lang === 'en' ? 'Demo Video' : '示範影片'}
+                              </a>
+                            )}
                           </span>
                           <span>
                             {item.noteCount} {t.hits} · {item.totalFrames}f
@@ -1385,6 +1469,26 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
                                   : '分享連結'}
                               </span>
                             </button>
+                            {item.videoUrl && (
+                              <a
+                                href={item.videoUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 3,
+                                  padding: '0 6px',
+                                  borderLeft: '1px solid rgba(148, 163, 184, 0.25)',
+                                  color: '#facc15',
+                                  fontSize: 10.5,
+                                  fontWeight: 800,
+                                  textDecoration: 'none',
+                                }}
+                              >
+                                {lang === 'en' ? 'Demo Video' : '示範影片'}
+                              </a>
+                            )}
                           </span>
                           <span>
                             {item.noteCount} {t.hits} · {item.totalFrames}f · {item.likes} ♥ · {item.downloads} {t.downloadsLabel}
@@ -1396,9 +1500,65 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
                             {item.rejectReason}
                           </div>
                         )}
+                        {editingVideoId === item.id && (
+                          <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                              <input
+                                type="url"
+                                value={editingVideoUrl}
+                                onChange={(e) => setEditingVideoUrl(e.target.value)}
+                                placeholder="https://youtu.be/... or https://x.com/..."
+                                style={{
+                                  flex: 1,
+                                  padding: '5px 8px',
+                                  borderRadius: 6,
+                                  border: '1px solid rgba(56, 189, 248, 0.45)',
+                                  background: 'rgba(9, 13, 22, 0.85)',
+                                  color: '#f8fafc',
+                                  fontSize: 12,
+                                }}
+                              />
+                              <button
+                                type="button"
+                                className="btn-primary"
+                                disabled={savingVideoId === item.id}
+                                style={{ padding: '5px 10px', fontSize: 11.5 }}
+                                onClick={() => handleSaveMyVideoUrl(item.id)}
+                              >
+                                {savingVideoId === item.id ? '...' : lang === 'en' ? 'Save' : '儲存'}
+                              </button>
+                              <button
+                                type="button"
+                                className="btn-secondary"
+                                style={{ padding: '5px 8px', fontSize: 11.5 }}
+                                onClick={() => {
+                                  setEditingVideoId(null);
+                                  setVideoEditError(null);
+                                }}
+                              >
+                                {lang === 'en' ? 'Cancel' : '取消'}
+                              </button>
+                            </div>
+                            {videoEditError && (
+                              <div style={{ fontSize: 11.5, color: '#fda4af' }}>{videoEditError}</div>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <button
+                          type="button"
+                          className="btn-secondary"
+                          style={{ padding: '4px 9px', fontSize: 11.5 }}
+                          onClick={() => {
+                            setEditingVideoId(item.id);
+                            setEditingVideoUrl(item.videoUrl ?? '');
+                            setVideoEditError(null);
+                          }}
+                        >
+                          {lang === 'en' ? 'Edit Video' : '編輯影片'}
+                        </button>
                         {confirmDeleteId === item.id ? (
                           <>
                             <span style={{ fontSize: 11.5, color: '#fda4af' }}>{t.deleteConfirm}</span>
@@ -1535,6 +1695,29 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
                     </div>
                   </div>
                 )}
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: '#cbd5e1' }}>
+                    {lang === 'en'
+                      ? 'Demo Video URL (optional — YouTube or X.com only)'
+                      : '示範影片連結（選填，僅限 YouTube 或 X.com）'}
+                  </label>
+                  <input
+                    type="url"
+                    value={uploadVideoUrl}
+                    onChange={(e) => setUploadVideoUrl(e.target.value)}
+                    placeholder="https://youtu.be/... or https://x.com/..."
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      borderRadius: 8,
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
+                      background: 'rgba(15, 23, 42, 0.85)',
+                      color: '#f8fafc',
+                      fontSize: 12.5,
+                    }}
+                  />
+                </div>
 
                 {localValidation && !localValidation.ok && (
                   <div

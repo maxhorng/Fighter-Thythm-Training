@@ -89,6 +89,8 @@ export interface ComboData {
   onlineId?: string;
   /** Optional: display name of the online uploader */
   author?: string;
+  /** Optional demo video link (YouTube or X.com) */
+  videoUrl?: string;
 }
 
 export type StartTriggerMode = 'trigger-first' | 'countdown';
