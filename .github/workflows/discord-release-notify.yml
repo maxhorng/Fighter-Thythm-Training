@@ -1,0 +1,60 @@
+name: Notify Discord on Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord Release Notification
+        if: ${{ secrets.DISCORD_RELEASE_WEBHOOK != '' }}
+        env:
+          WEBHOOK_URL: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+        run: |
+          node -e '
+            const body = (process.env.RELEASE_BODY || "").slice(0, 1800);
+            const payload = {
+              username: "Frame Beat Trainer 更新通知",
+              embeds: [
+                {
+                  title: `Frame Beat Trainer ${process.env.TAG_NAME} 正式發布！`,
+                  url: process.env.RELEASE_URL,
+                  color: 0x38bdf8,
+                  description: body || "新版本已上線，已安裝舊版的使用者打開程式即可一鍵自動更新！",
+                  fields: [
+                    {
+                      name: "官方一鍵下載網站",
+                      value: "https://maxhorng.github.io/Frame-Beat-Trainer/",
+                      inline: false
+                    },
+                    {
+                      name: "GitHub Release 與 SHA-256",
+                      value: process.env.RELEASE_URL,
+                      inline: false
+                    }
+                  ],
+                  footer: {
+                    text: "已安裝 Setup.exe 的使用者打開 FBT 即可自動更新"
+                  },
+                  timestamp: new Date().toISOString()
+                }
+              ]
+            };
+            fetch(process.env.WEBHOOK_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            }).then(async (r) => {
+              if (!r.ok) {
+                console.error("Webhook failed:", r.status, await r.text());
+                process.exit(1);
+              }
+              console.log("Discord release notification sent!");
+            });
+          '
