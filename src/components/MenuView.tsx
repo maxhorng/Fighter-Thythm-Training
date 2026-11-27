@@ -182,6 +182,12 @@ export const MenuView: React.FC<MenuViewProps> = ({
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [showTutorial, setShowTutorial] = useState<boolean>(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [videoModal, setVideoModal] = useState<{ title: string; youtubeId: string; url: string } | null>(null);
+
+  const extractYoutubeId = (url: string): string | null => {
+    const m = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/.exec(url);
+    return m ? m[1] : null;
+  };
   const [editingCombo, setEditingCombo] = useState<ComboData | null>(null);
   const [editName, setEditName] = useState('');
   const [editDifficulty, setEditDifficulty] = useState<ComboData['difficulty']>('Intermediate');
@@ -1090,13 +1096,29 @@ export const MenuView: React.FC<MenuViewProps> = ({
                       </button>
                     ) : (
                       <>
-                        <button
-                          className="btn-secondary"
-                          style={{ padding: '2px 8px', fontSize: 11 }}
-                          onClick={(e) => handleCopyJson(e, combo)}
-                        >
-                          {copiedId === combo.id ? t.copiedJson : t.copyJson}
-                        </button>
+                        {combo.videoUrl && (
+                          <button
+                            className="btn-secondary"
+                            style={{
+                              padding: '2px 8px',
+                              fontSize: 11,
+                              borderColor: 'rgba(250, 204, 21, 0.55)',
+                              color: '#fde047',
+                            }}
+                            title={combo.videoUrl}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const ytId = extractYoutubeId(combo.videoUrl!);
+                              if (ytId) {
+                                setVideoModal({ title: combo.title, youtubeId: ytId, url: combo.videoUrl! });
+                              } else {
+                                window.open(combo.videoUrl!, '_blank', 'noopener,noreferrer');
+                              }
+                            }}
+                          >
+                            {lang === 'en' ? 'Demo Video' : '示範影片'}
+                          </button>
+                        )}
                         <button
                           className="btn-secondary"
                           style={{ padding: '2px 8px', fontSize: 11, borderColor: 'rgba(56, 189, 248, 0.45)', color: '#bae6fd' }}
@@ -1712,6 +1734,78 @@ export const MenuView: React.FC<MenuViewProps> = ({
           <path d="M13 11.5L11.5 13" stroke="rgba(56, 189, 248, 0.95)" strokeWidth="1.8" strokeLinecap="round" />
         </svg>
       </div>
+      {videoModal && (
+        <div
+          onClick={() => setVideoModal(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(6, 10, 20, 0.82)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: 24,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: 760,
+              background: '#0f172a',
+              border: '1px solid rgba(250, 204, 21, 0.45)',
+              borderRadius: 14,
+              overflow: 'hidden',
+              boxShadow: '0 24px 64px rgba(0, 0, 0, 0.7)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 16px',
+                borderBottom: '1px solid rgba(148, 163, 184, 0.2)',
+                color: '#f8fafc',
+                fontSize: 14,
+                fontWeight: 800,
+              }}
+            >
+              <span>{videoModal.title}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <a
+                  href={videoModal.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary"
+                  style={{ padding: '4px 10px', fontSize: 12, textDecoration: 'none' }}
+                >
+                  {lang === 'en' ? 'Open in Browser' : '在瀏覽器開啟'}
+                </a>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ padding: '4px 10px', fontSize: 12 }}
+                  onClick={() => setVideoModal(null)}
+                >
+                  {lang === 'en' ? 'Close' : '關閉'}
+                </button>
+              </div>
+            </div>
+            <div style={{ aspectRatio: '16 / 9', background: '#000' }}>
+              <iframe
+                src={`https://www.youtube.com/embed/${videoModal.youtubeId}?autoplay=1`}
+                title={videoModal.title}
+                style={{ width: '100%', height: '100%', border: 0 }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
