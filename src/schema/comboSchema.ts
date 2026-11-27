@@ -47,7 +47,7 @@ const MODES = new Set(['classic', 'modern']);
 
 const COMBO_KEYS = new Set([
   'id', 'characterId', 'characterName', 'mode', 'title', 'titleEn', 'difficulty', 'position',
-  'description', 'tags', 'notes', 'inputHistory',
+  'description', 'tags', 'notes', 'inputHistory', 'videoUrl',
   // Local-only optional fields: allowed in input but always stripped by sanitizeForUpload()
   'locked', 'lockReason', 'source', 'onlineId', 'author',
 ]);
