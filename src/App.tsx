@@ -215,7 +215,20 @@ export const App: React.FC = () => {
   const [overlayHotkeys, setOverlayHotkeys] = useState<OverlayHotkeys>(loadHotkeys);
   const [triggerMode, setTriggerMode] = useState<StartTriggerMode>('trigger-first');
   const [playerSide, setPlayerSide] = useState<PlayerSide>('left');
-  const [showRecordedInputs, setShowRecordedInputs] = useState(true);
+  const [showRecordedInputs, setShowRecordedInputs] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('fbt_show_recorded_inputs_v1') !== '0';
+    } catch {
+      return true;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem('fbt_show_recorded_inputs_v1', showRecordedInputs ? '1' : '0');
+    } catch {
+      // ignore
+    }
+  }, [showRecordedInputs]);
   const [chartLayout, setChartLayout] = useState<ChartLayoutMode>(loadChartLayout);
   const [approachFrames, setApproachFrames] = useState<number>(loadApproachFrames);
   const [overlayOpacity, setOverlayOpacity] = useState<number>(loadOverlayOpacity);
