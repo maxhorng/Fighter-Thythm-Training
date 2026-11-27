@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frame Beat Trainer (FBT) — 快打旋風 6 節奏連段訓練工具</title>
+  <meta name="description" content="專為《快打旋風 6》打造的免費開源透明疊層節奏練段工具。支援 osu! 展開譜面、5 階判定、搓招診斷、F7 拳腳指令表、F9 自由拖曳與線上連段庫。" />
+  <style>
+    :root {
+      --bg: #090d16;
+      --surface: rgba(15, 23, 42, 0.82);
+      --surface-solid: #0f172a;
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --cyan: #38bdf8;
+      --magenta: #ec4899;
+      --emerald: #10b981;
+      --gold: #facc15;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'Microsoft JhengHei', system-ui, -apple-system, sans-serif;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Top Nav */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+      background: rgba(9, 13, 22, 0.78);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      font-size: 18px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      background: rgba(56, 189, 248, 0.16);
+      color: var(--cyan);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      padding: 88px 20px 80px;
+      text-align: center;
+      background:
+        linear-gradient(180deg, rgba(9, 13, 22, 0.62) 0%, rgba(9, 13, 22, 0.78) 65%, #090d16 100%),
+        url('./launcher-bg.jpg') center / cover no-repeat;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .version-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: var(--cyan);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 54px);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(90deg, #38bdf8 0%, #f472b6 55%, #facc15 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 19px);
+      color: #cbd5e1;
+      max-width: 680px;
+      margin: 0 auto 32px;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 18px 34px;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 900;
+      color: #090d16;
+      background: linear-gradient(135deg, #38bdf8 0%, #34d399 100%);
+      box-shadow: 0 12px 32px rgba(56, 189, 248, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(56, 189, 248, 0.5);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 18px 24px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.32);
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--cyan);
+      background: rgba(30, 41, 59, 0.9);
+    }
+
+    .download-meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .trust-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .trust-chip {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #e2e8f0;
+      background: rgba(15, 23, 42, 0.78);
+      border: 1px solid var(--border);
+    }
+
+    /* Sections */
+    .section {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 68px 20px;
+    }
+
+    .section-title {
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      margin-bottom: 32px;
+      font-size: 15px;
+    }
+
+    /* Feature Grid */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+    }
+
+    .card-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--cyan);
+    }
+
+    .card h3 {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* Screenshots */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .shot-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .shot-frame {
+      aspect-ratio: 16 / 9;
+      background: #0b1120;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .shot-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .shot-placeholder {
+      padding: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .shot-caption {
+      padding: 16px 18px;
+    }
+
+    .shot-caption h3 {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .shot-caption p {
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    /* Video */
+    .video-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .video-aspect {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #060913;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-aspect iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .video-placeholder {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+    }
+
+    .video-placeholder code {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(148, 163, 184, 0.14);
+      color: var(--cyan);
+      font-size: 13px;
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 36px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 12px;
+      font-weight: 700;
+      color: #cbd5e1;
+    }
+
+    .footer-links a:hover {
+      color: var(--cyan);
+    }
+
+    @media (max-width: 640px) {
+      .nav-links {
+        display: none;
+      }
+      .btn-download {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#">
+        <span>Frame Beat Trainer</span>
+        <span class="brand-badge" id="nav-version">FBT</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#features">核心功能</a>
+        <a href="#screenshots">圖片介紹</a>
+        <a href="#video">影片教學</a>
+        <a href="https://github.com/maxhorng/Frame-Beat-Trainer" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://ko-fi.com/92liang" target="_blank" rel="noopener">贊助支持</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="version-pill" id="version-pill">正在讀取最新版本...</div>
+      <h1>把《快打旋風 6》連段<br />變成 <span>直覺節奏音遊</span></h1>
+      <p class="hero-sub">
+        專為 SF6 打造的免費開源透明疊層工具。即時顯示搓招軌跡、縮圈節奏、5 階判定與搓招診斷，內建線上連段庫與一鍵自動更新。
+      </p>
+
+      <div class="cta-row">
+        <a
+          id="download-btn"
+          class="btn-download"
+          href="https://github.com/maxhorng/Frame-Beat-Trainer/releases/latest"
+        >
+          <span>立即下載 Windows 安裝版 (Setup.exe)</span>
+        </a>
+        <a
+          class="btn-secondary"
+          href="https://github.com/maxhorng/Frame-Beat-Trainer/releases/latest"
+          target="_blank"
+          rel="noopener"
+        >
+          查看更新日誌與 SHA-256
+        </a>
+      </div>
+
+      <div class="download-meta" id="download-meta">
+        Windows 10 / 11 (64-bit) ・ 安裝一次即可享程式內一鍵自動更新
+      </div>
+
+      <div class="trust-row">
+        <span class="trust-chip">100% 免費開源 (MIT)</span>
+        <span class="trust-chip">純視覺輔助・無巨集無自動出招</span>
+        <span class="trust-chip">不讀寫遊戲記憶體</span>
+        <span class="trust-chip">鍵盤 / 手把 / Hitbox / 大搖全支援</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <h2 class="section-title">核心功能亮點</h2>
+    <p class="section-desc">針對 SF6 實戰手感持續打磨，從新手入門到高階連段練習都適用。</p>
+
+    <div class="grid-3">
+      <div class="card">
+        <span class="card-tag">譜面系統</span>
+        <h3>3 種圖譜模式＋自訂外觀</h3>
+        <p>支援 osu! 動態展開譜面（預設）、固定鍵位與聚焦模式；可自由調整 AR 縮圈速度、按鈕大小、透明度（100% 實心）與自訂打擊音效。</p>
+      </div>
+
+      <div class="card">
+        <span class="card-tag">精準判定</span>
+        <h3>5 階判定與搓招診斷</h3>
+        <p>提供 PERFECT / GOOD / OK / LATE / MISS 五階判定；指令沒轉乾淨時（例如 236P 漏按 6）會直接提示實際輸入，快速抓出失誤原因。</p>
+      </div>
+
+      <div class="card">
+        <span class="card-tag">實戰綠衝</span>
+        <h3>PARRY 66 / MP+MK / 1F 綠衝</h3>
+        <p>長按 PARRY 防禦不會提早開始計時，直到 66 衝出去才開始節奏；完整支援 Classic MP+MK 同時按與高階 6 -> PARRY+6 起手。</p>
+      </div>
+
+      <div class="card">
+        <span class="card-tag">自由排版</span>
+        <h3>F7 拳腳指令表＋F9 全區塊拖曳</h3>
+        <p>F7 直式指令表內建 SF6 拳頭／腳圖示與 L/M/H 角標；按 F9 即可用滑鼠拖曳所有區塊位置並自動記憶，附一鍵重置。</p>
+      </div>
+
+      <div class="card">
+        <span class="card-tag">社群分享</span>
+        <h3>線上連段庫（oc-xxxx 編號）</h3>
+        <p>免登入即可依角色、難度、角落或人氣排行下載連段，支援連段編號搜尋；登入 Discord 即可上傳分享自己錄製的連段。</p>
+      </div>
+
+      <div class="card">
+        <span class="card-tag">輕鬆維護</span>
+        <h3>一鍵自動更新</h3>
+        <p>安裝 Setup.exe 後，每次啟動自動檢查最新版，有更新時在程式內一鍵完成升級，不必每次重新手動下載。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="screenshots">
+    <h2 class="section-title">圖片介紹與使用步驟</h2>
+    <p class="section-desc">只要把截圖放進專案的 <code>docs/screenshots/</code> 資料夾（命名為 <code>step1.png</code> ~ <code>step4.png</code>），這裡就會自動顯示！</p>
+
+    <div class="grid-2">
+      <div class="shot-card">
+        <div class="shot-frame">
+          <img
+            src="./screenshots/step1.png"
+            alt="步驟 1：主選單與線上連段庫"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <div class="shot-placeholder" style="display:none;">
+            請放入截圖：<code>docs/screenshots/step1.png</code><br />（建議：主選單／線上連段庫畫面）
+          </div>
+        </div>
+        <div class="shot-caption">
+          <h3>1. 選擇角色或從線上連段庫下載</h3>
+          <p>免登入即可依角色、難度與人氣排行瀏覽連段，或直接輸入 <code>oc-xxxx</code> 編號下載。</p>
+        </div>
+      </div>
+
+      <div class="shot-card">
+        <div class="shot-frame">
+          <img
+            src="./screenshots/step2.png"
+            alt="步驟 2：訓練疊層與 osu! 節奏譜面"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <div class="shot-placeholder" style="display:none;">
+            請放入截圖：<code>docs/screenshots/step2.png</code><br />（建議：SF6 無邊框視窗＋疊層練習畫面）
+          </div>
+        </div>
+        <div class="shot-caption">
+          <h3>2. 透明疊層覆蓋 SF6 邊看邊練</h3>
+          <p>將 SF6 設為「無邊框視窗」，左側看方向搓招軌跡、右側跟著縮圈節奏按下攻擊鍵。</p>
+        </div>
+      </div>
+
+      <div class="shot-card">
+        <div class="shot-frame">
+          <img
+            src="./screenshots/step3.png"
+            alt="步驟 3：F7 拳腳指令表與 F9 自由拖曳"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <div class="shot-placeholder" style="display:none;">
+            請放入截圖：<code>docs/screenshots/step3.png</code><br />（建議：F7 直式拳腳指令表＋F9 拖曳框線）
+          </div>
+        </div>
+        <div class="shot-caption">
+          <h3>3. F7 拳腳指令表與 F9 全區塊拖曳</h3>
+          <p>按 F7 開關直式指令表檢視每步判定，按 F9 可用滑鼠自由移動每個區塊並自動記憶位置。</p>
+        </div>
+      </div>
+
+      <div class="shot-card">
+        <div class="shot-frame">
+          <img
+            src="./screenshots/step4.png"
+            alt="步驟 4：錄製連段與 Discord 上傳分享"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <div class="shot-placeholder" style="display:none;">
+            請放入截圖：<code>docs/screenshots/step4.png</code><br />（建議：錄製自己的連段或上傳畫面）
+          </div>
+        </div>
+        <div class="shot-caption">
+          <h3>4. 錄製自己的連段並分享給朋友</h3>
+          <p>直接在訓練場錄下精準的逐幀輸入，登入 Discord 即可上傳至線上連段庫取得分享編號。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="video">
+    <h2 class="section-title">影片教學</h2>
+    <p class="section-desc">完整示範安裝設定、按鍵綁定與實戰練段流程。</p>
+
+    <div class="video-box">
+      <div class="video-aspect" id="video-container">
+        <div class="video-placeholder">
+          <p style="font-size:16px; font-weight:800; color:#e2e8f0;">YouTube 教學影片區塊（已預留）</p>
+          <p style="margin-top:6px;">影片上傳後，只要把下方 <code>YOUTUBE_VIDEO_ID</code> 填入你的影片 ID 就會自動嵌入播放！</p>
+          <code>const YOUTUBE_VIDEO_ID = '';</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/maxhorng/Frame-Beat-Trainer" target="_blank" rel="noopener">GitHub 專案頁</a>
+      <a href="https://github.com/maxhorng/Frame-Beat-Trainer/releases/latest" target="_blank" rel="noopener">所有版本與 SHA-256</a>
+      <a href="https://ko-fi.com/92liang" target="_blank" rel="noopener">Ko-fi 贊助一杯咖啡</a>
+    </div>
+    <p>Frame Beat Trainer (FBT) ・ Open Source under MIT License ・ Made for the Fighting Game Community</p>
+  </footer>
+
+  <script>
+    // 1. Auto-fetch latest GitHub Release so the big button ALWAYS downloads the newest Setup.exe!
+    const REPO = 'maxhorng/Frame-Beat-Trainer';
+    const FALLBACK_URL = `https://github.com/${REPO}/releases/latest`;
+
+    async function loadLatestRelease() {
+      const pill = document.getElementById('version-pill');
+      const navVer = document.getElementById('nav-version');
+      const btn = document.getElementById('download-btn');
+      const meta = document.getElementById('download-meta');
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
+          headers: { Accept: 'application/vnd.github+json' },
+        });
+        if (!res.ok) throw new Error('GitHub API error');
+        const data = await res.json();
+        const tag = data.tag_name || 'Latest';
+        const setupAsset = (data.assets || []).find(
+          (a) => /Setup-.*\.exe$/i.test(a.name) && !/\.blockmap$/i.test(a.name)
+        );
+
+        pill.textContent = `最新版本 ${tag} ・ Windows 64-bit`;
+        navVer.textContent = tag;
+
+        if (setupAsset && setupAsset.browser_download_url) {
+          btn.href = setupAsset.browser_download_url;
+          const mb = (setupAsset.size / (1024 * 1024)).toFixed(1);
+          meta.textContent = `檔案：${setupAsset.name} (${mb} MB) ・ 安裝一次即可享程式內一鍵自動更新`;
+        } else {
+          btn.href = data.html_url || FALLBACK_URL;
+        }
+      } catch {
+        pill.textContent = '最新版 ・ Windows 64-bit';
+        btn.href = FALLBACK_URL;
+      }
+    }
+    loadLatestRelease();
+
+    // 2. Paste your YouTube video ID here (e.g. 'dQw4w9WgXcQ') to enable the embedded tutorial video:
+    const YOUTUBE_VIDEO_ID = '';
+    if (YOUTUBE_VIDEO_ID) {
+      document.getElementById('video-container').innerHTML = `
+        <iframe
+          src="https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}"
+          title="Frame Beat Trainer 教學影片"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      `;
+    }
+  </script>
+</body>
+</html>

@@ -56,8 +56,11 @@ body,
 .menu-shell {
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at top right, #1b2440 0%, var(--bg-main) 55%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(135deg, rgba(9, 13, 22, 0.72) 0%, rgba(11, 15, 25, 0.60) 50%, rgba(9, 13, 22, 0.76) 100%),
+    url('./assets/launcher-bg.jpg') center / cover no-repeat,
+    var(--bg-main);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   display: flex;
   flex-direction: column;

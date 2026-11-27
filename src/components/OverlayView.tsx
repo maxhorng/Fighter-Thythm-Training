@@ -1838,7 +1838,20 @@ export const OverlayView: React.FC<OverlayViewProps> = ({
       diagHint?: string;
     }[]
   >([]);
-  const [showReview, setShowReview] = useState(false);
+  const [showReview, setShowReview] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('fbt_show_review_v1') === '1';
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem('fbt_show_review_v1', showReview ? '1' : '0');
+    } catch {
+      // ignore
+    }
+  }, [showReview]);
   const [reviewLayout, setReviewLayout] = useState<'vertical' | 'horizontal'>(() => {
     try {
       return localStorage.getItem('fbt_review_layout_v1') === 'horizontal' ? 'horizontal' : 'vertical';
