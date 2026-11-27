@@ -75,4 +75,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('hotkey', handler);
     return () => ipcRenderer.removeListener('hotkey', handler);
   },
+  consumeDeepLinkCombo: (): Promise<string | null> => ipcRenderer.invoke('deep-link-combo-consume'),
+  onDeepLinkCombo: (callback: (comboId: string) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, comboId: string) => callback(comboId);
+    ipcRenderer.on('deep-link-combo', handler);
+    return () => ipcRenderer.removeListener('deep-link-combo', handler);
+  },
 });

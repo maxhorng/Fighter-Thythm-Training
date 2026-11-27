@@ -133,6 +133,8 @@ export interface ElectronAPI {
   onGlobalGamepadState?: (cb: (state: { connected: boolean; buttons: number[] }) => void) => () => void;
   onOverlayStateChanged: (cb: (state: { isOverlayMode: boolean; isClickThrough: boolean }) => void) => () => void;
   onHotkey: (cb: (action: string) => void) => () => void;
+  consumeDeepLinkCombo?: () => Promise<string | null>;
+  onDeepLinkCombo?: (cb: (comboId: string) => void) => () => void;
 }
 
 declare global {

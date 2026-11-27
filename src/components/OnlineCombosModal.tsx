@@ -180,6 +180,7 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
   const [appliedSearch, setAppliedSearch] = useState('');
   const [authorFilter, setAuthorFilter] = useState<{ id: string; name: string } | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
 
   const handleCopyCode = (id: string) => {
     try {
@@ -191,6 +192,19 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
     window.setTimeout(() => {
       setCopiedId((cur) => (cur === id ? null : cur));
     }, 1500);
+  };
+
+  const handleCopyShareLink = (id: string) => {
+    const url = `https://maxhorng.github.io/Frame-Beat-Trainer/combo.html?id=${encodeURIComponent(id)}`;
+    try {
+      navigator.clipboard?.writeText(url).catch(() => undefined);
+    } catch {
+      // ignore clipboard error
+    }
+    setCopiedLinkId(id);
+    window.setTimeout(() => {
+      setCopiedLinkId((cur) => (cur === id ? null : cur));
+    }, 1800);
   };
 
   // Browse data
@@ -1104,6 +1118,35 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
                               {copiedId === item.id ? <Check size={11} /> : <Copy size={11} />}
                               <span>{copiedId === item.id ? t.copiedCode : t.copyCode}</span>
                             </button>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyShareLink(item.id)}
+                              title="複製分享連結"
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 3,
+                                padding: '0 4px',
+                                border: 'none',
+                                borderLeft: '1px solid rgba(148, 163, 184, 0.25)',
+                                background: 'transparent',
+                                color: copiedLinkId === item.id ? '#86efac' : '#f472b6',
+                                fontSize: 10.5,
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {copiedLinkId === item.id ? <Check size={11} /> : <Copy size={11} />}
+                              <span>
+                                {copiedLinkId === item.id
+                                  ? lang === 'en'
+                                    ? 'Link Copied'
+                                    : '已複製連結'
+                                  : lang === 'en'
+                                  ? 'Share Link'
+                                  : '分享連結'}
+                              </span>
+                            </button>
                           </span>
                           <span>
                             {item.noteCount} {t.hits} · {item.totalFrames}f
@@ -1312,6 +1355,35 @@ export const OnlineCombosModal: React.FC<OnlineCombosModalProps> = ({
                             >
                               {copiedId === item.id ? <Check size={11} /> : <Copy size={11} />}
                               <span>{copiedId === item.id ? t.copiedCode : t.copyCode}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyShareLink(item.id)}
+                              title="複製分享連結"
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 3,
+                                padding: '0 4px',
+                                border: 'none',
+                                borderLeft: '1px solid rgba(148, 163, 184, 0.25)',
+                                background: 'transparent',
+                                color: copiedLinkId === item.id ? '#86efac' : '#f472b6',
+                                fontSize: 10.5,
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {copiedLinkId === item.id ? <Check size={11} /> : <Copy size={11} />}
+                              <span>
+                                {copiedLinkId === item.id
+                                  ? lang === 'en'
+                                    ? 'Link Copied'
+                                    : '已複製連結'
+                                  : lang === 'en'
+                                  ? 'Share Link'
+                                  : '分享連結'}
+                              </span>
                             </button>
                           </span>
                           <span>

@@ -8,6 +8,58 @@ let mainWindow: BrowserWindow | null = null;
 let isOverlayMode = false;
 let isClickThrough = false;
 let uiohookStarted = false;
+let pendingDeepLinkComboId: string | null = null;
+
+function extractDeepLinkComboId(argv: string[]): string | null {
+  for (const arg of argv) {
+    const m = /^fbt:\/\/combo\/([a-zA-Z0-9_-]{3,40})\/?$/i.exec(arg.trim());
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function dispatchDeepLinkCombo(comboId: string) {
+  pendingDeepLinkComboId = comboId;
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+    mainWindow.webContents.send('deep-link-combo', comboId);
+  }
+}
+
+const initialDeepLink = extractDeepLinkComboId(process.argv);
+if (initialDeepLink) {
+  pendingDeepLinkComboId = initialDeepLink;
+}
+
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+if (!gotSingleInstanceLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (_event, commandLine) => {
+    const comboId = extractDeepLinkComboId(commandLine);
+    if (comboId) {
+      dispatchDeepLinkCombo(comboId);
+    } else if (mainWindow && !mainWindow.isDestroyed()) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  });
+}
+
+if (app.isPackaged) {
+  app.setAsDefaultProtocolClient('fbt');
+} else if (process.argv.length >= 2) {
+  app.setAsDefaultProtocolClient('fbt', process.execPath, [path.resolve(process.argv[1])]);
+}
+
+ipcMain.handle('deep-link-combo-consume', () => {
+  const id = pendingDeepLinkComboId;
+  pendingDeepLinkComboId = null;
+  return id;
+});
 
 // Map uiohook keycodes to standard KeyboardEvent.code strings
 const UIOHOOK_TO_CODE: Record<number, string> = {

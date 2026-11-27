@@ -15,6 +15,8 @@ import {
 } from './utils/soundEngine';
 import { OverlayView } from './components/OverlayView';
 import { RecordOverlayView } from './components/RecordOverlayView';
+import { getOnlineApiBase } from './config/online';
+import { downloadOnlineCombo, OnlineComboItem } from './utils/onlineApi';
 
 const STORAGE_KEY_BINDINGS = 'fmc_bindings_v1';
 const STORAGE_KEY_CUSTOM_COMBOS = 'fmc_custom_combos_v1';
@@ -551,6 +553,86 @@ export const App: React.FC = () => {
     );
   }
 
+  const [deepLinkPrompt, setDeepLinkPrompt] = useState<{
+    id: string;
+    loading: boolean;
+    downloading: boolean;
+    error: string | null;
+    item: OnlineComboItem | null;
+  } | null>(null);
+
+  const openDeepLinkCombo = useCallback(async (comboId: string) => {
+    setSelectedGame('sf6');
+    setDeepLinkPrompt({ id: comboId, loading: true, downloading: false, error: null, item: null });
+    try {
+      const base = getOnlineApiBase();
+      const res = await fetch(`${base}/api/combos/${encodeURIComponent(comboId)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const raw = data?.combo ?? data;
+      if (!raw || !raw.id) throw new Error('Combo not found');
+      const item: OnlineComboItem = {
+        id: String(raw.id),
+        characterId: String(raw.characterId ?? raw.character_id ?? 'ryu'),
+        characterName: String(raw.characterName ?? raw.character_name ?? raw.character ?? 'SF6'),
+        mode: raw.mode === 'modern' ? 'modern' : 'classic',
+        difficulty: raw.difficulty ?? 'Intermediate',
+        position: raw.position,
+        title: String(raw.title ?? raw.id),
+        titleEn: raw.titleEn ?? raw.title_en,
+        tags: Array.isArray(raw.tags) ? raw.tags : [],
+        noteCount: Number(raw.noteCount ?? raw.note_count ?? 0),
+        totalFrames: Number(raw.totalFrames ?? raw.total_frames ?? 0),
+        likes: Number(raw.likes ?? 0),
+        downloads: Number(raw.downloads ?? 0),
+        author: String(raw.author ?? raw.author_name ?? 'Community'),
+        authorId: raw.authorId ?? raw.author_id,
+        createdAt: Number(raw.createdAt ?? raw.created_at ?? Date.now()),
+        status: raw.status ?? 'approved',
+      };
+      setDeepLinkPrompt({ id: comboId, loading: false, downloading: false, error: null, item });
+    } catch (err) {
+      setDeepLinkPrompt({
+        id: comboId,
+        loading: false,
+        downloading: false,
+        error: err instanceof Error ? err.message : '無法讀取連段資訊',
+        item: null,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    window.electronAPI?.consumeDeepLinkCombo?.().then((id) => {
+      if (id) openDeepLinkCombo(id);
+    });
+    const unsub = window.electronAPI?.onDeepLinkCombo?.((id) => {
+      if (id) openDeepLinkCombo(id);
+    });
+    return () => unsub?.();
+  }, [openDeepLinkCombo]);
+
+  const handleConfirmDeepLinkDownload = async () => {
+    if (!deepLinkPrompt?.item || deepLinkPrompt.downloading) return;
+    setDeepLinkPrompt((prev) => (prev ? { ...prev, downloading: true, error: null } : null));
+    try {
+      const combo = await downloadOnlineCombo(deepLinkPrompt.item);
+      handleAddCombo(combo);
+      setSelectedCombo(combo);
+      setDeepLinkPrompt(null);
+    } catch (err) {
+      setDeepLinkPrompt((prev) =>
+        prev
+          ? {
+              ...prev,
+              downloading: false,
+              error: err instanceof Error ? err.message : '下載失敗，請稍後再試',
+            }
+          : null
+      );
+    }
+  };
+
   if (selectedGame === null) {
     return (
       <GameHubView
@@ -563,6 +645,7 @@ export const App: React.FC = () => {
   }
 
   return (
+    <>
     <MenuView
       mode={mode}
       onChangeMode={setMode}
@@ -609,6 +692,91 @@ export const App: React.FC = () => {
       onStartOverlay={handleStartOverlay}
       onStartRecording={handleStartRecording}
     />
+    {deepLinkPrompt && (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(6, 10, 20, 0.78)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: 20,
+        }}
+      >
+        <div
+          style={{
+            width: '100%',
+            maxWidth: 440,
+            background: '#0f172a',
+            border: '1px solid rgba(56, 189, 248, 0.45)',
+            borderRadius: 14,
+            padding: '22px 24px',
+            boxShadow: '0 24px 60px rgba(0, 0, 0, 0.65)',
+            color: '#f8fafc',
+          }}
+        >
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#38bdf8', marginBottom: 6 }}>
+            {lang === 'en' ? 'Shared Online Combo' : '收到分享連段'} ({deepLinkPrompt.id})
+          </div>
+          {deepLinkPrompt.loading ? (
+            <div style={{ fontSize: 14, color: '#cbd5e1', padding: '14px 0' }}>
+              {lang === 'en' ? 'Loading combo details...' : '正在讀取連段資訊...'}
+            </div>
+          ) : deepLinkPrompt.item ? (
+            <>
+              <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>
+                {deepLinkPrompt.item.title}
+              </div>
+              <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 14 }}>
+                {deepLinkPrompt.item.characterName} · {deepLinkPrompt.item.mode.toUpperCase()} ·{' '}
+                {deepLinkPrompt.item.difficulty} · {lang === 'en' ? 'By' : '作者'} {deepLinkPrompt.item.author}
+              </div>
+              <div style={{ fontSize: 14, color: '#e2e8f0', marginBottom: 16 }}>
+                {lang === 'en'
+                  ? 'Do you want to download and import this combo?'
+                  : '請問要下載並匯入這條連段嗎？'}
+              </div>
+            </>
+          ) : null}
+          {deepLinkPrompt.error && (
+            <div style={{ fontSize: 12.5, color: '#fda4af', marginBottom: 14 }}>
+              {deepLinkPrompt.error}
+            </div>
+          )}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+            <button
+              type="button"
+              className="hud-btn"
+              onClick={() => setDeepLinkPrompt(null)}
+              disabled={deepLinkPrompt.downloading}
+            >
+              {lang === 'en' ? 'Cancel' : '取消'}
+            </button>
+            {deepLinkPrompt.item && (
+              <button
+                type="button"
+                className="btn-primary"
+                style={{ padding: '8px 18px', fontSize: 13.5 }}
+                onClick={handleConfirmDeepLinkDownload}
+                disabled={deepLinkPrompt.downloading}
+              >
+                {deepLinkPrompt.downloading
+                  ? lang === 'en'
+                    ? 'Downloading...'
+                    : '下載中...'
+                  : lang === 'en'
+                  ? 'Download & Import'
+                  : '立即下載並匯入'}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 
