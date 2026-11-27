@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, safeStorage, screen, shell } from 'electron';
+import { app, BrowserWindow, globalShortcut, ipcMain, safeStorage, screen, session, shell } from 'electron';
 import crypto from 'crypto';
 import fs from 'fs';
 import http from 'http';
@@ -192,6 +192,15 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  // YouTube embed player requires an https:// Referer header (otherwise Electron file:// triggers Error 153)
+  session.defaultSession.webRequest.onBeforeSendHeaders(
+    { urls: ['https://www.youtube.com/*', 'https://www.youtube-nocookie.com/*'] },
+    (details, callback) => {
+      details.requestHeaders['Referer'] = 'https://maxhorng.github.io/Frame-Beat-Trainer/';
+      callback({ requestHeaders: details.requestHeaders });
+    }
+  );
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (
