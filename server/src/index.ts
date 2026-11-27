@@ -1057,6 +1057,17 @@ function serveAdminPage(): Response {
 // Router
 // ---------------------------------------------------------------------------
 
+async function getComboById(id: string, env: Env): Promise<Response> {
+  if (!isValidComboId(id)) throw new HttpError(400, 'invalid_id', 'Invalid combo ID.');
+  const row = await env.DB.prepare(
+    `SELECT ${LIST_COLUMNS} FROM combos c JOIN users u ON u.id = c.user_id WHERE c.id = ? AND c.status IN ('approved', 'pending')`
+  )
+    .bind(id)
+    .first<ComboRow>();
+  if (!row) throw new HttpError(404, 'not_found', 'Combo not found.');
+  return json({ combo: toListItem(row) }, 200, { 'Cache-Control': 'public, max-age=60' });
+}
+
 async function route(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   const url = new URL(req.url);
   const path = url.pathname.replace(/\/+$/, '') || '/';
@@ -1085,6 +1096,7 @@ async function route(req: Request, env: Env, ctx: ExecutionContext): Promise<Res
 
   let m: RegExpExecArray | null;
   if (method === 'GET' && (m = /^\/files\/([A-Za-z0-9_-]+)\.json$/.exec(path))) return serveFile(m[1], req, env, ctx);
+  if ((m = /^\/api\/combos\/([A-Za-z0-9_-]+)$/.exec(path)) && method === 'GET') return getComboById(m[1], env);
   if ((m = /^\/api\/combos\/([A-Za-z0-9_-]+)$/.exec(path)) && method === 'DELETE') return deleteOwnCombo(m[1], req, url, env);
   if ((m = /^\/api\/combos\/([A-Za-z0-9_-]+)\/like$/.exec(path)) && method === 'POST') return toggleLike(m[1], req, env);
   if ((m = /^\/api\/combos\/([A-Za-z0-9_-]+)\/download$/.exec(path)) && method === 'POST') return countDownload(m[1], req, env);
