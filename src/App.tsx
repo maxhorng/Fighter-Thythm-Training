@@ -517,42 +517,6 @@ export const App: React.FC = () => {
     await handleExitOverlay();
   };
 
-  if (isOverlayMode && isRecordingMode) {
-    return (
-      <RecordOverlayView
-        mode={mode}
-        characterId={recordingCharId}
-        bindings={bindings}
-        isClickThrough={isClickThrough}
-        onSyncDraft={handleSyncDraft}
-        onFinishRecord={handleFinishRecord}
-      />
-    );
-  }
-
-  if (isOverlayMode) {
-    return (
-      <OverlayView
-        mode={mode}
-        combo={selectedCombo}
-        bindings={bindings}
-        lang={lang}
-        triggerMode={triggerMode}
-        playerSide={playerSide}
-        showRecordedInputs={showRecordedInputs}
-        lowPerfMode={lowPerfMode}
-        chartLayout={chartLayout}
-        approachFrames={approachFrames}
-        overlayOpacity={overlayOpacity}
-        buttonScale={buttonScale}
-        sfxEnabled={sfxEnabled}
-        dynamicResync={dynamicResync}
-        isClickThrough={isClickThrough}
-        onExitOverlay={handleExitOverlay}
-      />
-    );
-  }
-
   const [deepLinkPrompt, setDeepLinkPrompt] = useState<{
     id: string;
     loading: boolean;
@@ -632,6 +596,42 @@ export const App: React.FC = () => {
       );
     }
   };
+
+  if (isOverlayMode && isRecordingMode) {
+    return (
+      <RecordOverlayView
+        mode={mode}
+        characterId={recordingCharId}
+        bindings={bindings}
+        isClickThrough={isClickThrough}
+        onSyncDraft={handleSyncDraft}
+        onFinishRecord={handleFinishRecord}
+      />
+    );
+  }
+
+  if (isOverlayMode) {
+    return (
+      <OverlayView
+        mode={mode}
+        combo={selectedCombo}
+        bindings={bindings}
+        lang={lang}
+        triggerMode={triggerMode}
+        playerSide={playerSide}
+        showRecordedInputs={showRecordedInputs}
+        lowPerfMode={lowPerfMode}
+        chartLayout={chartLayout}
+        approachFrames={approachFrames}
+        overlayOpacity={overlayOpacity}
+        buttonScale={buttonScale}
+        sfxEnabled={sfxEnabled}
+        dynamicResync={dynamicResync}
+        isClickThrough={isClickThrough}
+        onExitOverlay={handleExitOverlay}
+      />
+    );
+  }
 
   if (selectedGame === null) {
     return (
