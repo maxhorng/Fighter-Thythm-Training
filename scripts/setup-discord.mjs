@@ -86,67 +86,91 @@ async function main() {
     return created;
   };
 
-  const infoCat = await ensureCategory('官方資訊');
-  const communityCat = await ensureCategory('社群交流');
+  const infoCat = await ensureCategory('OFFICIAL / 官方資訊');
+  const globalCat = await ensureCategory('GLOBAL / ENGLISH');
+  const langCat = await ensureCategory('LANGUAGES / 各語言交流區');
 
   const welcomeCh = await ensureTextChannel(
-    '歡迎與下載',
+    'welcome-and-download',
     infoCat.id,
-    'Frame Beat Trainer (FBT) 官方下載、使用說明與伺服器版規',
+    'Official download, quick start guide, and server rules (EN / 繁中 / 日本語)',
     true
   );
   const announceCh = await ensureTextChannel(
-    '公告與更新',
+    'announcements',
     infoCat.id,
-    '每次發布新版本時會自動在此推播更新通知',
+    'Automatic release notifications whenever a new version of FBT is published',
     true
   );
+
+  // Global / English channels
   await ensureTextChannel(
-    '連段分享',
-    communityCat.id,
-    '分享你的線上連段編號 (oc-xxxx) 或分享連結！',
+    'general-en',
+    globalCat.id,
+    'English general discussion for Street Fighter 6 & Frame Beat Trainer',
     false
   );
   await ensureTextChannel(
-    '問題回報',
-    communityCat.id,
-    '遇到 Bug、按鍵偵測問題或設定疑問請在這裡貼截圖回報',
+    'combo-sharing',
+    globalCat.id,
+    'Share your Online Combo Library links (combo.html?id=oc-xxxx) or oc-xxxx codes!',
     false
   );
   await ensureTextChannel(
-    '建議與許願',
-    communityCat.id,
-    '有任何新功能點子或手感調整建議都歡迎提出！',
+    'bug-reports',
+    globalCat.id,
+    'Report bugs, input issues, or setup questions (screenshots welcome!)',
     false
   );
   await ensureTextChannel(
-    '閒聊交流',
-    communityCat.id,
-    '快打旋風 6 練段心得、角色討論與日常交流',
+    'suggestions',
+    globalCat.id,
+    'Feature requests and feedback for future FBT updates',
     false
   );
 
-  console.log('2. Posting & pinning welcome message in #歡迎與下載...');
+  // International language channels
+  await ensureTextChannel(
+    '繁體中文-討論',
+    langCat.id,
+    '繁體中文交流、練段心得與使用發問區',
+    false
+  );
+  await ensureTextChannel(
+    '日本語-チャット',
+    langCat.id,
+    '日本語での雑談・コンボ練習・質問チャンネル',
+    false
+  );
+  await ensureTextChannel(
+    '한국어-채팅',
+    langCat.id,
+    '한국어 자유 대화 및 질문 채널',
+    false
+  );
+
+  console.log('2. Posting & pinning multilingual welcome message in #welcome-and-download...');
   const welcomeMsg = await discordApi('POST', `/channels/${welcomeCh.id}/messages`, {
     content: [
-      '**歡迎來到 Frame Beat Trainer (FBT) 官方社群！**',
+      '**Welcome to the Official Frame Beat Trainer (FBT) Community! / 歡迎來到 FBT 官方社群！ / 公式コミュニティへようこそ！**',
       '',
+      'Frame Beat Trainer (FBT) is a free, open-source rhythm combo overlay for Street Fighter 6 — visual & timing guidance only (no macros, no auto-inputs, no memory reading).',
       'FBT 是一款免費開源的《快打旋風 6》透明疊層節奏練段工具，無巨集、無自動出招、不讀寫遊戲記憶體。',
       '',
-      '**官方連結**',
-      '- 官方一鍵下載網站：https://maxhorng.github.io/Frame-Beat-Trainer/',
-      '- GitHub 專案與 SHA-256 校驗碼：https://github.com/maxhorng/Frame-Beat-Trainer/releases/latest',
-      '- Ko-fi 贊助支持開發：https://ko-fi.com/92liang',
+      '**Official Links / 官方連結**',
+      '- Official Website (1-Click Download): https://maxhorng.github.io/Frame-Beat-Trainer/',
+      '- GitHub Releases & SHA-256: https://github.com/maxhorng/Frame-Beat-Trainer/releases/latest',
+      '- Support on Ko-fi: https://ko-fi.com/92liang',
       '',
-      '**頻道說明**',
-      '- `#公告與更新`：每次推出新版本會自動通知',
-      '- `#連段分享`：歡迎貼出你的線上連段分享連結或 `oc-xxxx` 編號',
-      '- `#問題回報`：遇到任何 Bug 或設定問題歡迎附上截圖發問',
-      '- `#建議與許願`：歡迎許願想新增的功能',
+      '**Channels / 頻道導覽**',
+      '- `#announcements`: Auto-posted release updates / 新版本自動更新通知',
+      '- `#combo-sharing`: Share your `oc-xxxx` links / 分享你的線上連段連結',
+      '- `#bug-reports` & `#suggestions`: Feedback & troubleshooting / 問題回報與許願',
+      '- `#general-en` / `#繁體中文-討論` / `#日本語-チャット` / `#한국어-채팅`: Language chat rooms',
       '',
-      '**簡單版規**',
-      '1. 互相尊重，友善交流練段心得。',
-      '2. 禁止張貼外掛、巨集、廣告或惡意連結。',
+      '**Rules / 版規**',
+      '1. Be respectful and welcoming to all players. / 互相尊重，友善交流。',
+      '2. No cheats, macros, spam, or malicious links. / 禁止外掛、巨集、廣告或惡意連結。',
     ].join('\n'),
   });
   if (welcomeMsg?.id) {
