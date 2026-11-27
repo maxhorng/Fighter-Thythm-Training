@@ -405,6 +405,7 @@
       </a>
       <nav class="nav-links">
         <a href="#features">核心功能</a>
+        <a href="#layouts">面板格式</a>
         <a href="#screenshots">圖片介紹</a>
         <a href="#video">影片教學</a>
         <a href="https://github.com/maxhorng/Frame-Beat-Trainer" target="_blank" rel="noopener">GitHub</a>
@@ -491,6 +492,69 @@
         <span class="card-tag">輕鬆維護</span>
         <h3>一鍵自動更新</h3>
         <p>安裝 Setup.exe 後，每次啟動自動檢查最新版，有更新時在程式內一鍵完成升級，不必每次重新手動下載。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="layouts">
+    <h2 class="section-title">3 種按鈕面板格式（可隨時切換）</h2>
+    <p class="section-desc">
+      依照你的習慣自由選擇最適合的譜面顯示方式。將截圖放入 <code>docs/screenshots/</code>（<code>layout-osu.png</code>、<code>layout-fixed.png</code>、<code>layout-focused.png</code>）即可自動顯示！
+    </p>
+
+    <div class="grid-3">
+      <div class="shot-card">
+        <div class="shot-frame">
+          <img
+            src="./screenshots/layout-osu.png"
+            alt="osu! 動態展開譜面（預設）"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <div class="shot-placeholder" style="display:none;">
+            請放入截圖：<code>docs/screenshots/layout-osu.png</code><br />（osu! 動態展開譜面）
+          </div>
+        </div>
+        <div class="shot-caption">
+          <span class="card-tag">預設推薦</span>
+          <h3>osu! 動態展開譜面</h3>
+          <p>左側固定 8 向羅盤與搓招軌跡，右側以 4×4 格順序展開後續所有攻擊鍵並附縮圈與導引虛線，長連段也能一眼看穿節奏。</p>
+        </div>
+      </div>
+
+      <div class="shot-card">
+        <div class="shot-frame">
+          <img
+            src="./screenshots/layout-fixed.png"
+            alt="固定鍵位模式（街機配置）"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <div class="shot-placeholder" style="display:none;">
+            請放入截圖：<code>docs/screenshots/layout-fixed.png</code><br />（固定鍵位模式）
+          </div>
+        </div>
+        <div class="shot-caption">
+          <span class="card-tag">街機手感</span>
+          <h3>固定鍵位模式（Fixed）</h3>
+          <p>右側依大搖／Hitbox 真實六鍵（LP/MP/HP、LK/MK/HK）固定排布，適合想直接建立手指肌肉記憶的玩家。</p>
+        </div>
+      </div>
+
+      <div class="shot-card">
+        <div class="shot-frame">
+          <img
+            src="./screenshots/layout-focused.png"
+            alt="聚焦模式（精簡視角）"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <div class="shot-placeholder" style="display:none;">
+            請放入截圖：<code>docs/screenshots/layout-focused.png</code><br />（聚焦模式）
+          </div>
+        </div>
+        <div class="shot-caption">
+          <span class="card-tag">極簡專注</span>
+          <h3>聚焦模式（Focused）</h3>
+          <p>畫面中央只放大顯示「當前招式」與右側緊接的下一招預告，視線最集中、畫面遮擋最少。</p>
+        </div>
       </div>
     </div>
   </section>
