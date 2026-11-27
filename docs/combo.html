@@ -173,11 +173,13 @@
     </div>
 
     <a id="open-app-btn" class="btn-primary" href="#">在 FBT 中開啟此連段</a>
-    <div class="status" id="launch-status">已嘗試自動喚起 FBT 應用程式</div>
+    <div class="status" id="launch-status">
+      若瀏覽器上方跳出確認視窗，請點選「開啟 Frame Beat Trainer」並允許彈出視窗（可勾選一律允許）
+    </div>
 
-    <div class="not-installed">
-      <p>沒有跳出視窗？你是否還沒安裝 Frame Beat Trainer (FBT)？</p>
-      <a class="btn-home" href="./index.html">前往首頁一鍵下載最新版 FBT</a>
+    <div class="not-installed" id="not-installed-box">
+      <p id="not-installed-text">沒有跳出視窗？你是否還沒安裝 Frame Beat Trainer (FBT)？</p>
+      <a class="btn-home" href="./index.html" id="home-btn">前往首頁一鍵下載最新版 FBT</a>
     </div>
   </main>
 
@@ -194,6 +196,8 @@
     const comboTagsEl = document.getElementById('combo-tags');
     const openBtn = document.getElementById('open-app-btn');
     const statusEl = document.getElementById('launch-status');
+    const notInstalledText = document.getElementById('not-installed-text');
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
     if (!safeId) {
       heading.textContent = '無效的連段分享連結';
@@ -229,10 +233,25 @@
           comboTitleEl.textContent = `連段 ${safeId}`;
         });
 
-      // Automatically attempt to launch FBT via custom fbt:// protocol
-      setTimeout(() => {
-        window.location.href = deepLink;
-      }, 350);
+      if (isMobile) {
+        heading.textContent = '請使用 Windows 電腦開啟此連結';
+        subtext.textContent =
+          'Frame Beat Trainer (FBT) 為 Windows 電腦版工具，手機無法直接啟動。請將此連結傳到電腦開啟，或記下上方連段編號。';
+        openBtn.textContent = `複製連段編號 (${safeId})`;
+        openBtn.href = '#';
+        openBtn.onclick = (e) => {
+          e.preventDefault();
+          navigator.clipboard?.writeText(safeId).catch(() => undefined);
+          openBtn.textContent = `已複製編號：${safeId}`;
+        };
+        statusEl.textContent = '回到 Windows 電腦打開 FBT 後，到線上連段庫貼上編號即可下載！';
+        notInstalledText.textContent = '電腦還沒安裝 FBT 嗎？可以先到首頁查看完整介紹：';
+      } else {
+        // Automatically attempt to launch FBT via custom fbt:// protocol on desktop
+        setTimeout(() => {
+          window.location.href = deepLink;
+        }, 350);
+      }
     }
   </script>
 </body>
