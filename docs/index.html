@@ -302,6 +302,18 @@
       display: block;
     }
 
+    .step-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+    .step-block h3 { font-size: 18px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+    .step-num { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; border-radius: 50%; background: rgba(56,189,248,0.16); color: var(--cyan); font-size: 14px; }
+    .step-block > p { font-size: 14px; color: var(--muted); margin-bottom: 14px; }
+    .step-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start; }
+    .step-fig { margin: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #0b1120; }
+    .step-fig .shot-frame { border-bottom: 1px solid var(--border); }
+    .step-fig figcaption { padding: 10px 12px; font-size: 13px; color: var(--muted); }
+
+    .shot-frame.auto { aspect-ratio: auto; min-height: 60px; }
+    .shot-frame.auto img { height: auto; object-fit: contain; }
+
     .shot-placeholder {
       padding: 20px;
       text-align: center;
@@ -500,19 +512,19 @@
   <section class="section" id="layouts">
     <h2 class="section-title">3 種按鈕面板格式（可隨時切換）</h2>
     <p class="section-desc">
-      依照你的習慣自由選擇最適合的譜面顯示方式。將截圖放入 <code>docs/screenshots/</code>（<code>layout-osu.png</code>、<code>layout-fixed.png</code>、<code>layout-focused.png</code>）即可自動顯示！
+      依照你的習慣自由選擇最適合的譜面顯示方式。
     </p>
 
     <div class="grid-3">
       <div class="shot-card">
         <div class="shot-frame">
           <img
-            src="./screenshots/layout-osu.png"
+            src="./screenshots/layout-osu.jpg"
             alt="osu! 動態展開譜面（預設）"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
           />
           <div class="shot-placeholder" style="display:none;">
-            請放入截圖：<code>docs/screenshots/layout-osu.png</code><br />（osu! 動態展開譜面）
+            請放入截圖：<code>docs/screenshots/layout-osu.jpg</code><br />（osu! 動態展開譜面）
           </div>
         </div>
         <div class="shot-caption">
@@ -525,12 +537,12 @@
       <div class="shot-card">
         <div class="shot-frame">
           <img
-            src="./screenshots/layout-fixed.png"
+            src="./screenshots/layout-fixed.jpg"
             alt="固定鍵位模式（街機配置）"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
           />
           <div class="shot-placeholder" style="display:none;">
-            請放入截圖：<code>docs/screenshots/layout-fixed.png</code><br />（固定鍵位模式）
+            請放入截圖：<code>docs/screenshots/layout-fixed.jpg</code><br />（固定鍵位模式）
           </div>
         </div>
         <div class="shot-caption">
@@ -543,12 +555,12 @@
       <div class="shot-card">
         <div class="shot-frame">
           <img
-            src="./screenshots/layout-focused.png"
+            src="./screenshots/layout-focused.jpg"
             alt="聚焦模式（精簡視角）"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
           />
           <div class="shot-placeholder" style="display:none;">
-            請放入截圖：<code>docs/screenshots/layout-focused.png</code><br />（聚焦模式）
+            請放入截圖：<code>docs/screenshots/layout-focused.jpg</code><br />（聚焦模式）
           </div>
         </div>
         <div class="shot-caption">
@@ -562,75 +574,53 @@
 
   <section class="section" id="screenshots">
     <h2 class="section-title">圖片介紹與使用步驟</h2>
-    <p class="section-desc">只要把截圖放進專案的 <code>docs/screenshots/</code> 資料夾（命名為 <code>step1.png</code> ~ <code>step4.png</code>），這裡就會自動顯示！</p>
-
-    <div class="grid-2">
-      <div class="shot-card">
-        <div class="shot-frame">
-          <img
-            src="./screenshots/step1.png"
-            alt="步驟 1：主選單與線上連段庫"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-          />
-          <div class="shot-placeholder" style="display:none;">
-            請放入截圖：<code>docs/screenshots/step1.png</code><br />（建議：主選單／線上連段庫畫面）
-          </div>
-        </div>
-        <div class="shot-caption">
-          <h3>1. 選擇角色或從線上連段庫下載</h3>
-          <p>免登入即可依角色、難度與人氣排行瀏覽連段，或直接輸入 <code>oc-xxxx</code> 編號下載。</p>
-        </div>
+    <p class="section-desc">從啟動、選曲到錄製分享，六個步驟快速上手 FBT。</p>
+    <div class="step-block">
+      <h3><span class="step-num">1</span>啟動並保持最新</h3>
+      <p>啟動 FBT 後先選擇要練習的遊戲；程式每次啟動都會檢查新版本，有更新時頂端會顯示進度條並自動升級。</p>
+      <div class="step-figs">
+        <figure class="step-fig"><div class="shot-frame auto"><img src="./screenshots/extra-launcher.jpg" alt="啟動器：選擇遊戲" loading="lazy" /></div><figcaption>啟動器：選擇遊戲</figcaption></figure>
+        <figure class="step-fig"><div class="shot-frame auto"><img src="./screenshots/extra-update.png" alt="偵測到新版本，一鍵自動更新" loading="lazy" /></div><figcaption>偵測到新版本，一鍵自動更新</figcaption></figure>
       </div>
-
-      <div class="shot-card">
-        <div class="shot-frame">
-          <img
-            src="./screenshots/step2.png"
-            alt="步驟 2：訓練疊層與 osu! 節奏譜面"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-          />
-          <div class="shot-placeholder" style="display:none;">
-            請放入截圖：<code>docs/screenshots/step2.png</code><br />（建議：SF6 無邊框視窗＋疊層練習畫面）
-          </div>
-        </div>
-        <div class="shot-caption">
-          <h3>2. 透明疊層覆蓋 SF6 邊看邊練</h3>
-          <p>將 SF6 設為「無邊框視窗」，左側看方向搓招軌跡、右側跟著縮圈節奏按下攻擊鍵。</p>
-        </div>
+    </div>
+    <div class="step-block">
+      <h3><span class="step-num">2</span>選擇角色與連段</h3>
+      <p>左側選操作模式（Classic / Modern）與角色，右側瀏覽連段並依難度、位置篩選；也可打開線上連段庫下載其他玩家分享的連段，或輸入 oc-xxxx 編號。</p>
+      <div class="step-figs">
+        <figure class="step-fig"><div class="shot-frame auto"><img src="./screenshots/extra-main.jpg" alt="主畫面：角色與連段清單" loading="lazy" /></div><figcaption>主畫面：角色與連段清單</figcaption></figure>
+        <figure class="step-fig"><div class="shot-frame auto"><img src="./screenshots/step1.jpg" alt="線上連段庫：依角色、難度與人氣瀏覽" loading="lazy" /></div><figcaption>線上連段庫：依角色、難度與人氣瀏覽</figcaption></figure>
       </div>
-
-      <div class="shot-card">
-        <div class="shot-frame">
-          <img
-            src="./screenshots/step3.png"
-            alt="步驟 3：F7 拳腳指令表與 F9 自由拖曳"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-          />
-          <div class="shot-placeholder" style="display:none;">
-            請放入截圖：<code>docs/screenshots/step3.png</code><br />（建議：F7 直式拳腳指令表＋F9 拖曳框線）
-          </div>
-        </div>
-        <div class="shot-caption">
-          <h3>3. F7 拳腳指令表與 F9 全區塊拖曳</h3>
-          <p>按 F7 開關直式指令表檢視每步判定，按 F9 可用滑鼠自由移動每個區塊並自動記憶位置。</p>
-        </div>
+    </div>
+    <div class="step-block">
+      <h3><span class="step-num">3</span>設定按鍵與外觀</h3>
+      <p>為每個動作綁定鍵盤與手把按鈕，並可調整縮圈速度（AR）、按鈕大小、疊層透明度與打擊音效。</p>
+      <div class="step-figs">
+        <figure class="step-fig"><div class="shot-frame auto"><img src="./screenshots/extra-keybinds.png" alt="按鍵與控制器綁定" loading="lazy" /></div><figcaption>按鍵與控制器綁定</figcaption></figure>
+        <figure class="step-fig"><div class="shot-frame auto"><img src="./screenshots/extra-settings-advanced.png" alt="進階外觀與速度設定" loading="lazy" /></div><figcaption>進階外觀與速度設定</figcaption></figure>
       </div>
-
-      <div class="shot-card">
-        <div class="shot-frame">
-          <img
-            src="./screenshots/step4.png"
-            alt="步驟 4：錄製連段與 Discord 上傳分享"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-          />
-          <div class="shot-placeholder" style="display:none;">
-            請放入截圖：<code>docs/screenshots/step4.png</code><br />（建議：錄製自己的連段或上傳畫面）
-          </div>
-        </div>
-        <div class="shot-caption">
-          <h3>4. 錄製自己的連段並分享給朋友</h3>
-          <p>直接在訓練場錄下精準的逐幀輸入，登入 Discord 即可上傳至線上連段庫取得分享編號。</p>
-        </div>
+    </div>
+    <div class="step-block">
+      <h3><span class="step-num">4</span>選擇版面並開始練習</h3>
+      <p>開始前選擇版面模式與進階選項，按下開始後透明疊層會覆蓋在 SF6 上，左側看方向搓招軌跡、右側跟著縮圈節奏按鍵。</p>
+      <div class="step-figs">
+        <figure class="step-fig"><div class="shot-frame auto"><img src="./screenshots/extra-layout-dropdown.jpg" alt="版面模式：固定、osu! 展開、聚焦" loading="lazy" /></div><figcaption>版面模式：固定、osu! 展開、聚焦</figcaption></figure>
+        <figure class="step-fig"><div class="shot-frame auto"><img src="./screenshots/extra-advanced-options.png" alt="進階選項：低效能模式、音效、節奏調整" loading="lazy" /></div><figcaption>進階選項：低效能模式、音效、節奏調整</figcaption></figure>
+        <figure class="step-fig"><div class="shot-frame auto"><img src="./screenshots/step2.jpg" alt="透明疊層覆蓋 SF6 邊看邊練" loading="lazy" /></div><figcaption>透明疊層覆蓋 SF6 邊看邊練</figcaption></figure>
+      </div>
+    </div>
+    <div class="step-block">
+      <h3><span class="step-num">5</span>F7 逐步檢討連段</h3>
+      <p>按 F7 開關檢討面板，逐步顯示每一招的判定。失誤時會指出哪一步、差幾格；全部命中則顯示 PERFECT。</p>
+      <div class="step-figs">
+        <figure class="step-fig"><div class="shot-frame auto"><img src="./screenshots/step3.jpg" alt="失誤時顯示首次失誤與原因" loading="lazy" /></div><figcaption>失誤時顯示首次失誤與原因</figcaption></figure>
+        <figure class="step-fig"><div class="shot-frame auto"><img src="./screenshots/extra-review-perfect.jpg" alt="全部 PERFECT" loading="lazy" /></div><figcaption>全部 PERFECT</figcaption></figure>
+      </div>
+    </div>
+    <div class="step-block">
+      <h3><span class="step-num">6</span>錄製自己的連段並分享</h3>
+      <p>在訓練場錄下精準的逐幀輸入，登入 Discord 即可上傳至線上連段庫，取得分享編號給朋友。</p>
+      <div class="step-figs">
+        <figure class="step-fig"><div class="shot-frame auto"><img src="./screenshots/step4.jpg" alt="錄製我的連段，並從列表上傳分享" loading="lazy" /></div><figcaption>錄製我的連段，並從列表上傳分享</figcaption></figure>
       </div>
     </div>
   </section>
