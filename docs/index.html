@@ -311,6 +311,12 @@
     .step-fig .shot-frame { border-bottom: 1px solid var(--border); }
     .step-fig figcaption { padding: 10px 12px; font-size: 13px; color: var(--muted); }
 
+    .shot-frame img { cursor: zoom-in; }
+    .lightbox { position: fixed; inset: 0; z-index: 9999; background: rgba(2,6,15,0.92); display: none; align-items: center; justify-content: center; padding: 16px; touch-action: pinch-zoom; }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; cursor: zoom-out; }
+    .lightbox-close { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); background: rgba(15,23,42,0.9); color: #fff; font-size: 24px; line-height: 1; cursor: pointer; }
+    .lightbox-cap { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; color: #cbd5e1; font-size: 13px; padding: 0 60px; pointer-events: none; }
     .shot-frame.auto { aspect-ratio: auto; min-height: 60px; }
     .shot-frame.auto img { height: auto; object-fit: contain; }
 
@@ -701,6 +707,27 @@
         ></iframe>
       `;
     }
+  </script>
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="圖片放大檢視">
+    <button class="lightbox-close" id="lightbox-close" aria-label="關閉">&times;</button>
+    <img id="lightbox-img" alt="" />
+    <div class="lightbox-cap" id="lightbox-cap"></div>
+  </div>
+  <script>
+    (function () {
+      var lb = document.getElementById('lightbox');
+      var im = document.getElementById('lightbox-img');
+      var cap = document.getElementById('lightbox-cap');
+      function close() { lb.classList.remove('open'); im.src = ''; document.body.style.overflow = ''; }
+      document.querySelectorAll('.shot-frame img').forEach(function (t) {
+        t.addEventListener('click', function () {
+          im.src = t.currentSrc || t.src; im.alt = t.alt; cap.textContent = t.alt;
+          lb.classList.add('open'); document.body.style.overflow = 'hidden';
+        });
+      });
+      lb.addEventListener('click', close);
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    })();
   </script>
 </body>
 </html>
